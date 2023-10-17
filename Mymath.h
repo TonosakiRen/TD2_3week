@@ -429,6 +429,17 @@ inline Vector3 MakeScale(const Matrix4x4& matrix) {
 	return result;
 }
 
+inline Vector3 MakeRotate(const Matrix4x4& matrix) {
+	Vector3 xAxis = Normalize(GetXAxis(matrix)); // [0][?]
+	Vector3 yAxis = Normalize(GetYAxis(matrix)); // [1][?]
+	Vector3 zAxis = Normalize(GetZAxis(matrix)); // [2][?]
+	Vector3 result;
+	result.x = atan2(zAxis.y, zAxis.z);
+	result.y = asin(-zAxis.x);
+	result.z = atan2(yAxis.x, xAxis.x);
+	return result;
+}
+
 inline Matrix4x4 Add(const Matrix4x4& m1, const Matrix4x4& m2) {
 	Matrix4x4 tmp;
 	tmp.m[0][0] = m1.m[0][0] + m2.m[0][0];

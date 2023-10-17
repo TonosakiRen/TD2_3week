@@ -34,30 +34,34 @@ void WorldTransform::Map() {
 }
 
 void WorldTransform::UpdateMatrix() {
-    Matrix4x4 matScale, matRot, matTrans;
 
     // スケール、回転、平行移動行列の計算
-    matScale = MakeScaleMatrix(scale_);
+    Matrix4x4 scaleMatrix = MakeScaleMatrix(scale_);
 
-    matRot = MakeIdentity4x4();
-    matRot *= MakeRotateZMatrix(rotation_.z);
-    matRot *= MakeRotateXMatrix(rotation_.x);
-    matRot *= MakeRotateYMatrix(rotation_.y);
-    matTrans = MakeTranslateMatrix(translation_);
+    Matrix4x4 rotateMatrix = MakeIdentity4x4();
+    rotateMatrix = MakeRotateXYZMatrix(rotation_);
+    Matrix4x4 translationMatrix = MakeTranslateMatrix(translation_);
 
     // ワールド行列の合成
     matWorld_ = MakeIdentity4x4(); 
-    matWorld_ *= matScale;          
-    matWorld_ *= matRot;            
-    matWorld_ *= matTrans;         
+    matWorld_ *= scaleMatrix;
+    matWorld_ *= rotateMatrix;
+    matWorld_ *= translationMatrix;
 
 
     // 親行列の指定がある場合は、掛け算する
     if (parent_) {
         //scaleを反映させない
         Matrix4x4 inverseMatrix;
+
         if (!isScaleParent_) {
             inverseMatrix = Inverse(MakeScaleMatrix(MakeScale(parent_->matWorld_)));
+            matWorld_ *= inverseMatrix;
+        }
+
+        if (!isRotateParent_) {
+            Vector3 rotation = MakeRotate(parent_->matWorld_);
+            inverseMatrix = Inverse(MakeRotateXYZMatrix(rotation));
             matWorld_ *= inverseMatrix;
         }
 
