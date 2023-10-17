@@ -1,0 +1,26 @@
+#pragma once
+#include "GameObject.h"
+
+class EnemyBullet : public GameObject {
+private:
+
+	Vector3 velocity_{};
+	bool isReflected = false;
+	bool isDead_ = false;
+
+public:
+
+	void Initialize(const std::string name, ViewProjection* viewProjection, DirectionalLight* directionalLight,const Vector3& position,const Vector3& velocity);
+
+	void Update();
+
+	void Draw();
+
+	void OnCollision();
+
+	void OnRefCollision();
+
+	Vector3 GetWorldPos() const;
+
+};
+

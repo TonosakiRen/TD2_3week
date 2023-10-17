@@ -3,6 +3,8 @@
 #include "Input.h"
 #include "ParticleBox.h"
 #include "DustParticle.h"
+#include <optional>
+
 class Player :
     public GameObject
 {
@@ -13,7 +15,23 @@ public:
     void Animation();
     void Draw();
     void ParticleDraw();
-public:
+
+    Vector3 GetCharaWorldPos() const;
+    Vector3 GetRefWorldPos() const;
+
+private: //行動系
+
+    void RootInitialize();
+
+    void RootUpdate();
+
+    void AccelInitialize();
+
+    void AccelUpdate();
+
+    void BombHitInitialize();
+
+    void BombHitUpdate();
 
 private:
     Input* input_ = nullptr;
@@ -27,8 +45,8 @@ private:
     };
     Model modelParts_;
     WorldTransform partsTransform_[partNum];
-    Vector2 velocity_;
-    Vector2 accelaration_;
+    //Vector2 velocity_;
+    //Vector2 accelaration_;
     bool isJump_ = false;
 
     //animation
@@ -40,5 +58,26 @@ private:
 
     //particle
     std::unique_ptr<DustParticle> dustParticle_;
+
+    enum class Behavior {
+        kRoot,
+        kAccel,
+        kBombHit,
+    };
+    Behavior behavior_ = Behavior::kRoot;
+    std::optional<Behavior> behaviorRequest_ = std::nullopt;
+
+    WorldTransform reflectWT_;
+    Vector3 size_{};
+
+    float firstSpeed_ = 1.0f;
+    Vector3 velocity_{};
+    Vector3 acceleration_{};
+    float gravity_ = 0.05f;
+
+    bool isAttack_ = false;
+    const int kAttackTime = 15;
+    int attackTimer = kAttackTime;
+
 };
 
