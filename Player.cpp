@@ -1,5 +1,4 @@
 #include "Player.h"
-#include "Input.h"
 #include "ImGuiManager.h"
 #include "Easing.h"
 void Player::Initialize(const std::string name, ViewProjection* viewProjection, DirectionalLight* directionalLight)
@@ -14,7 +13,6 @@ void Player::Initialize(const std::string name, ViewProjection* viewProjection, 
 	dustParticle_->emitterWorldTransform_.translation_ = { 0.0f,-2.1f,-1.2f };
 	material_.enableLighting_ = false;
 	worldTransform_.rotation_.y = Radian(90.0f);
-	accelaration_ = { 0.0f,0.002f };
 	modelParts_.Initialize("player_part");
 	for (int i = 0; i < partNum; i++) {
 		partsTransform_[i].Initialize();
@@ -35,6 +33,14 @@ void Player::Initialize(const std::string name, ViewProjection* viewProjection, 
 		partsTransform_[LeftLeg].scale_ = { 0.4f,0.4f, 0.4f };
 		partsTransform_[RightLeg].scale_ = { 0.4f,0.4f, 0.4f };
 	}
+
+	size_ = { 1.5f,1.5f,1.5f };
+
+	reflectWT_.Initialize();
+	reflectWT_.translation_ = { -size_.x * 2.0f,0.0f,0.0f };
+	reflectWT_.scale_ = size_ * 1.5f;
+	reflectWT_.SetParent(&worldTransform_);
+
 }
 
 void Player::Update()
@@ -45,15 +51,45 @@ void Player::Update()
 	ImGui::DragFloat3("scale", &worldTransform_.scale_.x, 0.01f);
 	ImGui::End();
 
-	if(input_->PushKey(DIK_SPACE)) {
-		worldTransform_.translation_.y;
+	if (behaviorRequest_) {
+		behavior_ = behaviorRequest_.value();
+
+		switch (behavior_) {
+		    case Behavior::kRoot:
+		    default:
+		    	RootInitialize();
+		    	break;
+		    case Behavior::kAccel:
+		    	AccelInitialize();
+		    	break;
+		    case Behavior::kBombHit:
+		    	BombHitInitialize();
+		    	break;
+		}
+		behaviorRequest_ = std::nullopt;
 	}
-	worldTransform_.translation_.y = clamp(worldTransform_.translation_.y, 2.79f, 17.0f);
+
+	switch (behavior_) {
+	    case Behavior::kRoot:
+	    default:
+	    	RootUpdate();
+	    	break;
+	    case Behavior::kAccel:
+	    	AccelUpdate();
+	    	break;
+	    case Behavior::kBombHit:
+	    	BombHitUpdate();
+	    	break;
+	}
+
+	
+
+	//行列更新
+	reflectWT_.UpdateMatrix();
 	worldTransform_.UpdateMatrix();
 	for (int i = 0; i < partNum; i++) {
 		partsTransform_[i].UpdateMatrix();
 	}
-
 	dustParticle_->Update();
 }
 void Player::Animation() {
@@ -91,4 +127,78 @@ void Player::Draw() {
 
 void Player::ParticleDraw() {
 	dustParticle_->Draw(viewProjection_, directionalLight_,{0.5f,0.5f,0.5f,1.0f});
+}
+
+void Player::RootInitialize() {
+
+
+
+}
+
+void Player::RootUpdate() {
+
+	if (input_->TriggerKey(DIK_SPACE)) {
+		velocity_ = { 0.0f, firstSpeed_, 0.0f };
+		isAttack_ = true;
+	}
+	
+	if (isAttack_) {
+		if (--attackTimer <= 0) {
+			isAttack_ = false;
+			attackTimer = kAttackTime;
+		}
+	}
+
+	acceleration_ = { 0.0f, -gravity_, 0.0f };
+	velocity_ += acceleration_;
+	worldTransform_.translation_ += velocity_;
+
+	if (worldTransform_.translation_.y <= size_.y * 2.0f) {
+		worldTransform_.translation_.y = size_.y * 2.0f;
+	}
+
+}
+
+void Player::AccelUpdate() {
+
+
+
+}
+
+void Player::BombHitUpdate() {
+
+
+
+}
+
+void Player::AccelInitialize() {
+
+
+
+}
+
+void Player::BombHitInitialize() {
+
+
+
+}
+
+Vector3 Player::GetCharaWorldPos() const {
+	Vector3 worldPos{};
+
+	worldPos.x = worldTransform_.matWorld_.m[3][0];
+	worldPos.y = worldTransform_.matWorld_.m[3][1];
+	worldPos.z = worldTransform_.matWorld_.m[3][2];
+
+	return worldPos;
+}
+
+Vector3 Player::GetRefWorldPos() const {
+	Vector3 worldPos{};
+
+	worldPos.x = reflectWT_.matWorld_.m[3][0];
+	worldPos.y = reflectWT_.matWorld_.m[3][1];
+	worldPos.z = reflectWT_.matWorld_.m[3][2];
+
+	return worldPos;
 }

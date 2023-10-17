@@ -12,6 +12,10 @@
 #include "Floor.h"
 #include "Player.h"
 #include "Boss.h"
+#include "EnemyBullet.h"
+#include "Item.h"
+#include <list>
+
 class GameScene
 {
 
@@ -28,6 +32,9 @@ public:
 	void PostSpriteDraw();
 	void Draw();
 
+	void AddEnemyBullet(EnemyBullet* enemyBullet);
+
+	void PopItem();
 
 private: 
 	DirectXCommon* dxCommon_ = nullptr;
@@ -48,6 +55,12 @@ private:
 	std::unique_ptr<GameObject> sphere_;
 	std::unique_ptr<Player> player_;
 	std::unique_ptr<Boss> boss_;
+
+	std::list<std::unique_ptr<EnemyBullet>> enemyBullets_;
+
+	const int kPopTime = 60 * 5;
+	int ItemTimer = kPopTime;
+	std::list<std::unique_ptr<Item>> items_;
 
 	std::unique_ptr<Particle> particle_;
 };
