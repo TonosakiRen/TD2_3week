@@ -51,7 +51,7 @@ void Boss::Update()
 	ImGui::DragFloat3("tin", &partsTransform_[Tin].translation_.x, 0.01f);
 
 	ImGui::DragFloat("jumpPower", &jumpPower_, 0.001f);
-	ImGui::DragFloat3("accelerariotn", &accelaration_.x, 0.001f);
+	ImGui::DragFloat3("accelerariotn", &animationAccelaration_.x, 0.001f);
 
 	ImGui::DragFloat("animationT_", &animationT_, 0.001f);
 	ImGui::DragFloat("animationSpeed_", &animationSpeed_, 0.001f);
@@ -109,11 +109,11 @@ void Boss::Update()
 void Boss::Animation() {
 
 	//jump
-	velocity_ += accelaration_;
+	animationVelocity_ += animationAccelaration_;
 	if (worldTransform_.translation_.y <= 10.0f) {
-		velocity_.y = jumpPower_;
+		animationVelocity_.y = jumpPower_;
 	}
-	worldTransform_.translation_ += velocity_;
+	worldTransform_.translation_ += animationVelocity_;
 	
 	
 	//上の頭アニメーション

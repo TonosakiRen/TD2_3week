@@ -50,8 +50,8 @@ private:
     float animationT_ = 0.0f;
     float animationSpeed_ = 0.01f;
 
-    Vector3 accelaration_ = { 0.0f,-0.025f,0.0f };
-    Vector3 velocity_ = { 0.0f,0.0f,0.0f };
+    Vector3 animationAccelaration_ = { 0.0f,-0.025f,0.0f };
+    Vector3 animationVelocity_ = { 0.0f,0.0f,0.0f };
     float jumpPower_ = 0.25f;
 
     enum AnimationStats {
