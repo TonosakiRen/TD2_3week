@@ -48,10 +48,20 @@ private:
 
     //animation
     float animationT_ = 0.0f;
-    float animationBodyT_ = 0.0f;
-    float animationSpeed_ = 0.05f;
-    float animationBodySpeed_ = animationSpeed_ * 2.0f;
-    float runUpAnimation_ = 0.08f;
+    float animationSpeed_ = 0.01f;
+
+    Vector3 accelaration_ = { 0.0f,-0.025f,0.0f };
+    Vector3 velocity_ = { 0.0f,0.0f,0.0f };
+    float jumpPower_ = 0.25f;
+
+    enum AnimationStats {
+        HeadJump,
+        AllJump,
+        HeadDown,
+        AllDown
+    };
+
+    AnimationStats animationStats = HeadJump;
 
     //particle
     std::unique_ptr<DustParticle> dustParticle_;

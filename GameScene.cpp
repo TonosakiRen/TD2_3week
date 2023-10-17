@@ -16,8 +16,8 @@ void GameScene::Initialize() {
 	
 	viewProjection_.Initialize();
 
-	viewProjection_.translation_ = { 0.0f,8.6f,-27.0f };
-	viewProjection_.target_ = { 0.0f,0.0f,0.0f };
+	viewProjection_.translation_ = { 11.1f,4.2f,0.11f };
+	viewProjection_.target_ = { 0.0f,-1.6f,0.0f };
 
 	directionalLight_.Initialize();
 	directionalLight_.direction_ = { 1.0f, -1.0f, 1.0f };
