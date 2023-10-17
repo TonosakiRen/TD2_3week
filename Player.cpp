@@ -10,7 +10,7 @@ void Player::Initialize(const std::string name, ViewProjection* viewProjection, 
 	dustParticle_ = std::make_unique<DustParticle>();
 	dustParticle_->Initialize({0.0f,0.0f,-1.0f},{0.0f,1.0f,0.0f});
 	dustParticle_->emitterWorldTransform_.SetParent(&worldTransform_);
-	dustParticle_->emitterWorldTransform_.SetIsRotateParent(false);
+	//dustParticle_->emitterWorldTransform_.SetIsRotateParent(false);
 	//煙の出る場所
 	dustParticle_->emitterWorldTransform_.translation_ = { 0.0f,-2.1f,-1.2f };
 
