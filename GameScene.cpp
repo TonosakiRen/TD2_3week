@@ -113,16 +113,9 @@ void GameScene::Update(){
 	
 
 
-	tmpCollider_.AdjustmentScale();
-	bool isHitBulee = false;
-	for (const auto& bullet : enemyBullets_) {
-		isHitBulee  = tmpCollider_.Collision(bullet->collider_);
-		if (isHitBulee == true) {
-			break;
-		}
-	}
+	
 	 
-	ImGui::Text("%d", isHitBulee);
+	
 }
 
 void GameScene::ModelDraw()
@@ -143,7 +136,7 @@ void GameScene::ModelDraw()
 
 	
 
-	tmpCollider_.Draw({1.0f,0.0f,0.0f,1.0f});
+	//tmpCollider_.Draw({1.0f,0.0f,0.0f,1.0f});
 
 }
 
@@ -201,6 +194,82 @@ void GameScene::Draw() {
 	Sprite::PostDraw();
 }
 
+void GameScene::CollisionCheck() {
+
+	tmpCollider_.AdjustmentScale();
+
+	//敵弾とプレイヤーとの衝突判定
+	bool isHitBulee = false;
+	for (const auto& bullet : enemyBullets_) {
+		isHitBulee = player_->collider_.Collision(bullet->collider_);
+		if (isHitBulee == true) {
+			bullet->OnCollision();
+			player_->Explosion();
+			break;
+		}
+	}
+	//敵弾と跳ね返りとの衝突判定
+	isHitBulee = false;
+	for (const auto& bullet : enemyBullets_) {
+		isHitBulee = player_->reflectCollider_.Collision(bullet->collider_);
+		if (isHitBulee && player_->IsAttack()) {
+			bullet->SetVelocity({ -refBulletSpeed_, 0.0f, 0.0f });
+			bullet->OnRefCollision();
+		}
+	}
+	//ボスと跳ね返り弾の衝突判定
+	isHitBulee = false;
+	for (const auto& bullet : enemyBullets_) {
+		isHitBulee = boss_->collider_.Collision(bullet->collider_);
+		if (isHitBulee && bullet->IsReflected()) {
+			bullet->OnCollision();
+			boss_->OnRefCollision();
+		}
+	}
+	//敵弾とアイテムとの衝突判定
+	isHitBulee = false;
+	for (const auto& bullet : enemyBullets_) {
+		for (const auto& item : items_) {
+			isHitBulee = bullet->collider_.Collision(item->collider_);
+			if (isHitBulee) {
+				bullet->OnCollision();
+				item->EnBulletHit();
+			}
+		}
+	}
+	//プレイヤーとアイテムとの衝突判定
+	isHitBulee = false;
+	for (const auto& item : items_) {
+		isHitBulee = player_->collider_.Collision(item->collider_);
+		if (isHitBulee) {
+			item->CharaHit();
+			if (item->GetType() == Type::Accel) {
+				player_->Accel();
+			}
+			if (item->GetType() == Type::Bomb) {
+				player_->Explosion();
+			}
+		}
+	}
+	//敵の口とアイテムとの衝突判定
+	isHitBulee = false;
+	for (const auto& item : items_) {
+		isHitBulee = boss_->mouthCollider_.Collision(item->collider_);
+		if (isHitBulee) {
+			item->CharaHit();
+			if (item->GetType() == Type::Accel) {
+				boss_->SpeedUp();
+			}
+			if (item->GetType() == Type::Bomb) {
+				boss_->Explosion();
+			}
+		}
+	}
+
+
+	ImGui::Text("%d", isHitBulee);
+}
+
 void GameScene::AddEnemyBullet(EnemyBullet* enemyBullet) {
 	enemyBullets_.push_back(std::unique_ptr<EnemyBullet>(enemyBullet));
 }
@@ -210,7 +279,7 @@ void GameScene::PopItem() {
 	std::random_device rd;
 	std::mt19937 gen(rd());
 
-	std::uniform_real_distribution<float> distribution(-(Boss::size_.y / 2.0f) + 2.0f, (Boss::size_.y / 2.0f) - 2.0f);
+	std::uniform_real_distribution<float> distribution(-(Boss::size_.y / 2.0f) + 4.0f, (Boss::size_.y / 2.0f) - 4.0f);
 	float random = distribution(gen);
 
 	std::uniform_int_distribution<int> distribution2(1, 6);
@@ -285,6 +354,8 @@ void GameScene::InGameInitialize() {
 }
 
 void GameScene::InGameUpdate() {
+
+	CollisionCheck();
 
 	if (input_->TriggerKey(DIK_E)) {
 		isCameraMove_ = true;

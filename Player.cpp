@@ -47,7 +47,7 @@ void Player::Initialize(const std::string name, ViewProjection* viewProjection, 
 	worldTransform_.scale_ = { playerScale,playerScale,playerScale };
 
 	reflectWT_.Initialize();
-	reflectWT_.translation_ = { -size_.x * 2.0f,0.0f,0.0f };
+	reflectWT_.translation_ = {};
 	reflectWT_.scale_ = size_ * 1.5f;
 	reflectWT_.SetParent(&worldTransform_);
 
@@ -60,7 +60,8 @@ void Player::Initialize(const std::string name, ViewProjection* viewProjection, 
 	}
 
 
-	collider_.Initialize(&worldTransform_, name, *viewProjection, *directionalLight,{5.5f,5.5f,5.5f});
+	collider_.Initialize(&worldTransform_, name, *viewProjection, *directionalLight, {5.5f,5.5f,5.5f});
+	reflectCollider_.Initialize(&reflectWT_, name, *viewProjection, *directionalLight, {7.0f,7.0f,7.0f},{0.0f,0.0f,-size_.z*2.0f});
 
 }
 
@@ -113,7 +114,9 @@ void Player::Update()
 	dustParticle_->Update();
 
 	collider_.AdjustmentScale();
+	reflectCollider_.AdjustmentScale();
 	collider_.MatrixUpdate();
+	reflectCollider_.MatrixUpdate();
 }
 void Player::Animation() {
 	dustParticle_->SetIsEmit(true);
@@ -151,7 +154,8 @@ void Player::Draw() {
 	for (int i = 0; i < partNum; i++) {
 		modelParts_.Draw(partsTransform_[i], *viewProjection_, *directionalLight_, material_);
 	}
-	collider_.Draw();
+	//collider_.Draw();
+	//reflectCollider_.Draw();
 }
 
 void Player::ParticleDraw() {
@@ -188,27 +192,61 @@ void Player::RootUpdate() {
 
 }
 
-void Player::AccelUpdate() {
-
-
-
-}
-
-void Player::BombHitUpdate() {
-
-
-
-}
-
 void Player::AccelInitialize() {
 
+	Vector3 move = { size_.x * 2.0f, 0.0f, 0.0f };
+	num = 0.0f;
+	easeStart = worldTransform_.translation_;
+	easeEnd = worldTransform_.translation_ + move;
+
+}
+
+void Player::AccelUpdate() {
+
+	
+	worldTransform_.translation_ = Easing::easing(num, easeStart, easeEnd, 0.02f, Easing::EasingMode::easeOutQuart);
+
+	if (num >= 1.0f) {
+		num = 1.0f;
+		behaviorRequest_ = Behavior::kRoot;
+	}
 
 
 }
 
 void Player::BombHitInitialize() {
 
+	Vector3 move = { size_.x * 2.0f, 0.0f, 0.0f };
+	num = 0.0f;
+	easeStart = worldTransform_.translation_;
+	easeEnd = worldTransform_.translation_ - move;
 
+}
+
+void Player::BombHitUpdate() {
+
+	worldTransform_.translation_ = Easing::easing(num, easeStart, easeEnd, 0.02f, Easing::EasingMode::easeOutQuart);
+
+	if (num >= 1.0f) {
+		num = 1.0f;
+		behaviorRequest_ = Behavior::kRoot;
+	}
+
+}
+
+
+
+
+
+void Player::Accel() {
+
+	behaviorRequest_ = Behavior::kAccel;
+
+}
+
+void Player::Explosion() {
+
+	behaviorRequest_ = Behavior::kBombHit;
 
 }
 

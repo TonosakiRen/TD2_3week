@@ -22,12 +22,12 @@ void EnemyBullet::Update() {
 
 void EnemyBullet::Draw() {
 	model_.Draw(worldTransform_, *viewProjection_, *directionalLight_, material_);
-	collider_.Draw();
+	//collider_.Draw();
 }
 
 void EnemyBullet::OnCollision() { isDead_ = true; }
 
-void EnemyBullet::OnRefCollision() { isReflected = true; }
+void EnemyBullet::OnRefCollision() { isReflected_ = true; }
 
 Vector3 EnemyBullet::GetWorldPos() const {
 	Vector3 worldPos{};
