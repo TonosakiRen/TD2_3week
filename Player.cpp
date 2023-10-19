@@ -33,8 +33,12 @@ void Player::Initialize(const std::string name, ViewProjection* viewProjection, 
 		partsTransform_[LeftLeg].scale_ = { 0.4f,0.4f, 0.4f };
 		partsTransform_[RightLeg].scale_ = { 0.4f,0.4f, 0.4f };
 	}
+	float playerScale = 5.0f;
 
-	size_ = { 1.5f,1.5f,1.5f };
+	size_ = { 1.0f * playerScale,1.0f * playerScale + 4.0f,1.0f * playerScale + 2.0f };
+
+	worldTransform_.translation_.y = size_.y;
+	worldTransform_.scale_ = { playerScale,playerScale,playerScale };
 
 	reflectWT_.Initialize();
 	reflectWT_.translation_ = { -size_.x * 2.0f,0.0f,0.0f };
@@ -153,8 +157,8 @@ void Player::RootUpdate() {
 	velocity_ += acceleration_;
 	worldTransform_.translation_ += velocity_;
 
-	if (worldTransform_.translation_.y <= size_.y * 2.0f) {
-		worldTransform_.translation_.y = size_.y * 2.0f;
+	if (worldTransform_.translation_.y <= size_.y) {
+		worldTransform_.translation_.y = size_.y;
 	}
 
 }

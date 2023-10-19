@@ -16,7 +16,7 @@ void GameScene::Initialize() {
 	
 	viewProjection_.Initialize();
 
-	viewProjection_.translation_ = { 0.0f,8.6f,-27.0f };
+	viewProjection_.translation_ = { 0.0f,50.0f,-200.0f };
 	viewProjection_.target_ = { 0.0f,0.0f,0.0f };
 
 	directionalLight_.Initialize();
@@ -61,7 +61,7 @@ void GameScene::Update(){
 		isCameraMove_ = true;
 	}
 	if (isCameraMove_) {
-		viewProjection_.translation_ = Easing::easing(cameraT_, { 11.1f,4.2f,0.11f }, { 0.0f,8.6f,-27.0f }, 0.01f, Easing::easeNormal, false);
+		viewProjection_.translation_ = Easing::easing(cameraT_, { 11.1f,4.2f,0.11f }, { 0.0f,50.0f,-200.0f }, 0.01f, Easing::easeNormal, false);
 		viewProjection_.target_ = Easing::easing(cameraT_, { 0.0f,-1.6f,0.0f }, { 0.0f,0.0f,0.0f }, 0.01f, Easing::easeNormal, true);
 	}
 
@@ -163,7 +163,7 @@ void GameScene::PopItem() {
 	std::random_device rd;
 	std::mt19937 gen(rd());
 
-	std::uniform_real_distribution<float> distribution(-Boss::size_.y / 2.0f, Boss::size_.y / 2.0f);
+	std::uniform_real_distribution<float> distribution(-(Boss::size_.y / 2.0f) + 2.0f, (Boss::size_.y / 2.0f) - 2.0f);
 	float random = distribution(gen);
 
 	std::uniform_int_distribution<int> distribution2(1, 6);
@@ -171,10 +171,10 @@ void GameScene::PopItem() {
 
 	Item* newItem = new Item();
 	if (lot % 2 == 0) {
-		newItem->Initialize("bomb",&viewProjection_, &directionalLight_,{20, (Boss::size_.y * (3.0f / 2.0f)) + random, 0.0f}, Type::Bomb);
+		newItem->Initialize("bomb",&viewProjection_, &directionalLight_,{150, (Boss::size_.y * (3.0f / 2.0f)) + random, 0.0f}, Type::Bomb);
 	}
 	else if (lot % 2 == 1) {
-		newItem->Initialize("accel", &viewProjection_, &directionalLight_, {20, (Boss::size_.y * (3.0f / 2.0f)) + random, 0.0f}, Type::Accel);
+		newItem->Initialize("accel", &viewProjection_, &directionalLight_, {150, (Boss::size_.y * (3.0f / 2.0f)) + random, 0.0f}, Type::Accel);
 	}
 	items_.push_back(std::unique_ptr<Item>(newItem));
 

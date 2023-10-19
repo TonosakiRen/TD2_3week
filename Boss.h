@@ -21,6 +21,9 @@ public:
     void SetGameScene(GameScene* gameScene) { gameScene_ = gameScene; }
     void SetPlayer(Player* player) { player_ = player; }
 
+    Vector3 GetWorldPos() const;
+    Vector3 GetMouthWorldPos() const;
+
 private: //行動系
 
     //通常行動初期化
@@ -70,7 +73,7 @@ private:
 
     Vector3 bulletVelocity_{};
 
-    const int kAttackTime = 60 * 1;
+    const int kAttackTime = 60 * 2;
     int attackTimer = kAttackTime;
 
     GameScene* gameScene_ = nullptr;

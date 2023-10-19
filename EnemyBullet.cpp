@@ -4,6 +4,7 @@ void EnemyBullet::Initialize(const std::string name, ViewProjection* viewProject
 
 	GameObject::Initialize(name, viewProjection, directionalLight);
 	worldTransform_.translation_ = position;
+	worldTransform_.scale_ = worldTransform_.scale_ * 2.0f;
 	velocity_ = velocity;
 
 }

@@ -4,8 +4,8 @@
 #include "Player.h"
 #include "GameScene.h"
 
-Vector3 Boss::size_ = {5.0f,10.0f,5.0f};
-Vector3 Boss::mouthSize_ = { 5.0f,5.0f,5.0f };
+Vector3 Boss::size_ = {20.0f,58.0f,15.0f};
+Vector3 Boss::mouthSize_ = { 20.0f,size_.y/2.0f,15.0f };
 
 void Boss::Initialize(ViewProjection* viewProjection, DirectionalLight* directionalLight)
 {
@@ -17,8 +17,10 @@ void Boss::Initialize(ViewProjection* viewProjection, DirectionalLight* directio
 	//煙の出る場所
 	dustParticle_->emitterWorldTransform_.translation_ = { 0.0f,-2.1f,-1.2f };
 
-	worldTransform_.translation_.y = 10.0f;
-	worldTransform_.translation_.x = -20.0f;
+	worldTransform_.translation_.y = 0.0f;
+	worldTransform_.translation_.x = -150.0f;
+
+	worldTransform_.scale_ = worldTransform_.scale_ * 10.0f;
 
 	worldTransform_.rotation_.y = Radian(90.0f);
 	modelParts_[Head].Initialize("boss_head");
@@ -29,15 +31,15 @@ void Boss::Initialize(ViewProjection* viewProjection, DirectionalLight* directio
 	}
 	//model位置初期化
 	{
-		partsTransform_[Head].translation_.y = -2.0f;
-		partsTransform_[Tin].translation_.y = -6.0f;
+		partsTransform_[Head].translation_.y = 8.0f;
+		partsTransform_[Tin].translation_.y = 3.0f;
 	}
 
 	mouthWT_.Initialize();
 	mouthWT_.SetParent(&worldTransform_);
 
 	velocity_ = { 0.02f,0.0f,0.0f };
-	bulletVelocity_ = { 0.05f, 0.0f, 0.0f };
+	bulletVelocity_ = { 0.4f, 0.0f, 0.0f };
 
 }
 
@@ -89,7 +91,7 @@ void Boss::Update()
 	}
 
 
-	worldTransform_.translation_.y = clamp(worldTransform_.translation_.y, 10.0f, 13.9f);
+	//worldTransform_.translation_.y = clamp(worldTransform_.translation_.y, 10.0f, 13.9f);
 	
 
 	//行列更新
@@ -100,7 +102,7 @@ void Boss::Update()
 	dustParticle_->Update();
 }
 void Boss::Animation() {
-	partsTransform_[Head].translation_.y = clamp(partsTransform_[Head].translation_.y, -3.0f, 0.8f);
+	//partsTransform_[Head].translation_.y = clamp(partsTransform_[Head].translation_.y, -3.0f, 0.8f);
 }
 void Boss::Draw() {
 	for (int i = 0; i < partNum; i++) {
@@ -120,7 +122,7 @@ void Boss::RootInitialize() {
 
 void Boss::RootUpdate() {
 
-	worldTransform_.translation_ += velocity_;
+	//worldTransform_.translation_ += velocity_;
 
 	if (--attackTimer <= 0) {
 		attackTimer = kAttackTime;
@@ -160,4 +162,24 @@ void Boss::BombHitUpdate() {
 
 
 
+}
+
+Vector3 Boss::GetWorldPos() const {
+	Vector3 worldPos{};
+
+	worldPos.x = worldTransform_.matWorld_.m[3][0];
+	worldPos.y = worldTransform_.matWorld_.m[3][1] + size_.y;
+	worldPos.z = worldTransform_.matWorld_.m[3][2];
+
+	return worldPos;
+}
+
+Vector3 Boss::GetMouthWorldPos() const {
+	Vector3 worldPos{};
+
+	worldPos.x = worldTransform_.matWorld_.m[3][0];
+	worldPos.y = worldTransform_.matWorld_.m[3][1] + mouthSize_.y;
+	worldPos.z = worldTransform_.matWorld_.m[3][2];
+
+	return worldPos;
 }
