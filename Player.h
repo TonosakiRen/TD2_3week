@@ -59,7 +59,7 @@ private:
     float animationBodyT_ = 0.0f;
     float animationSpeed_ = 0.05f;
     float animationBodySpeed_ = animationSpeed_ * 2.0f;
-    float runUpAnimation_ = 0.08f;
+    float runUpAnimation_ = 0.2f;
 
     //particle
     std::unique_ptr<DustParticle> dustParticle_;
@@ -83,7 +83,5 @@ private:
     bool isAttack_ = false;
     const int kAttackTime = 15;
     int attackTimer = kAttackTime;
-
-
 };
 

@@ -7,10 +7,14 @@ void Player::Initialize(const std::string name, ViewProjection* viewProjection, 
 	input_ = Input::GetInstance();
 
 	dustParticle_ = std::make_unique<DustParticle>();
-	dustParticle_->Initialize({ 0.0f,0.0f,-1.0f }, { 0.0f,1.0f,0.0f });
+	dustParticle_->Initialize({ 0.0f,0.0f,-0.8f }, { 0.0f,1.0f,0.0f });
 	dustParticle_->emitterWorldTransform_.SetParent(&worldTransform_);
 	//煙の出る場所
-	dustParticle_->emitterWorldTransform_.translation_ = { 0.0f,-2.1f,-1.2f };
+	dustParticle_->emitterWorldTransform_.translation_ = { 0.0f,-10.0f,-5.0f };
+	dustParticle_->emitterWorldTransform_.scale_ = { 1.0f,1.0f,1.0f };
+	dustParticle_->SetSpeed(0.55f);
+	dustParticle_->SetScaleSpeed(0.03f);
+
 
 	material_.enableLighting_ = false;
 	worldTransform_.rotation_.y = Radian(90.0f);
@@ -65,7 +69,6 @@ void Player::Update()
 
 	Animation();
 	ImGui::Begin("Player");
-	ImGui::DragFloat3("scale", &worldTransform_.scale_.x, 0.01f);
 	ImGui::End();
 
 	if (behaviorRequest_) {
@@ -134,7 +137,6 @@ void Player::Animation() {
 	worldTransform_.rotation_.y = Radian(90.0f) + Easing::easing(animationT_, -0.4f, 0.4f, animationSpeed_, Easing::EasingMode::easeNormal, false);
 
 	worldTransform_.translation_.y += Easing::easing(animationBodyT_, 0.0f, runUpAnimation_, animationBodySpeed_, Easing::EasingMode::easeNormal, false);
-
 
 	animationT_ += animationSpeed_;
 	animationBodyT_ += animationBodySpeed_;

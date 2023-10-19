@@ -16,9 +16,8 @@ void DustParticle::Initialize(Vector3 minDirection, Vector3 maxDirection)
 
 void DustParticle::Update() {
 
-	ImGui::Begin("effect");
-	ImGui::DragFloat3("emitPos", &emitterWorldTransform_.translation_.x, 0.01f);
-	ImGui::End();
+	emitterWorldTransform_.UpdateMatrix();
+
 	if (isEmit_) {
 		for (size_t i = 0; i < EmitNum_; i++) {
 			for (size_t i = 0; i < kParticleNum; i++) {
@@ -32,7 +31,7 @@ void DustParticle::Update() {
 					}
 					particles[i].worldTransform_.translation_ = MakeTranslation(emitterWorldTransform_.matWorld_);
 					particles[i].worldTransform_.rotation_ = { 0.0f,0.0f,0.0f };
-					particles[i].worldTransform_.scale_ = initialScale_;
+					particles[i].worldTransform_.scale_ = emitterWorldTransform_.scale_;
 					break;
 				}
 			}
@@ -43,8 +42,8 @@ void DustParticle::Update() {
 		float rotationSpeed = Radian(1.0f) * (float(i % 2) * 2.0f - 1.0f);
 		if (particles[i].isActive_ == true) {
 			particles[i].worldTransform_.rotation_ = particles[i].worldTransform_.rotation_ + rotationSpeed;
-			particles[i].worldTransform_.translation_ += particles[i].direction_ * 0.1f;
-			particles[i].worldTransform_.scale_ = particles[i].worldTransform_.scale_ - 0.01f;
+			particles[i].worldTransform_.translation_ += particles[i].direction_ * speed_;
+			particles[i].worldTransform_.scale_ = particles[i].worldTransform_.scale_ - scaleSpeed_;
 			if (particles[i].worldTransform_.scale_.x <= 0.0f) {
 				particles[i].isActive_ = false;
 			}

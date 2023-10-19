@@ -113,6 +113,9 @@
       <Filter>Game</Filter>
     </ClCompile>
     <ClCompile Include="Collider.cpp" />
+    <ClCompile Include="Audio.cpp">
+      <Filter>Engine</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="externals\imgui\imconfig.h">
@@ -209,6 +212,9 @@
       <Filter>Game</Filter>
     </ClInclude>
     <ClInclude Include="Collider.h" />
+    <ClInclude Include="Audio.h">
+      <Filter>Engine</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="Resources\shaders\Basic.hlsli">

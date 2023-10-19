@@ -3,7 +3,7 @@
 class DustParticle
 {
 public:
-	static const uint32_t kParticleNum = 10240;
+	static const uint32_t kParticleNum = 100;
 	DustParticle();
 	void Initialize(Vector3 minDirection, Vector3 maxDirection);
 	void Update();
@@ -12,11 +12,14 @@ public:
 		minDirection_ = minDirection;
 		maxDirection_ = maxDirection;
 	}
-	void SetInitialScale(Vector3 scale) {
-		initialScale_ = scale;
-	}
 	void SetIsEmit(bool isEmit) {
 		isEmit_ = isEmit;
+	}
+	void SetSpeed(float speed) {
+		speed_ = speed;
+	}
+	void SetScaleSpeed(float scaleSpeed) {
+		scaleSpeed_ = scaleSpeed;
 	}
 	struct dustParticle {
 		WorldTransform worldTransform_;
@@ -29,10 +32,11 @@ public:
 	dustParticle particles[kParticleNum];
 	int EmitNum_ = 1;
 private:
+	float speed_ = 0.1f;
+	float scaleSpeed_ = 0.01f;
 	bool isEmit_ = false;
 	std::unique_ptr<ParticleBox> particleBox_;
 	Vector3 minDirection_;
 	Vector3 maxDirection_;
-	Vector3 initialScale_ = { 0.4f,0.4f,0.4f };
 };
 
