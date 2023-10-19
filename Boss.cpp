@@ -110,24 +110,19 @@ void Boss::Update()
 }
 void Boss::Animation() {
 
-	//partsTransform_[Head].translation_.y = clamp(partsTransform_[Head].translation_.y, -3.0f, 0.8f);
-	//partsTransform_[Tin].translation_.y = clamp(partsTransform_[Tin].translation_.y, -6.0f, -2.2f);
-
-
 	//jump
 	animationVelocity_ += animationAccelaration_;
-	if (worldTransform_.translation_.y <= 10.0f) {
+	if (worldTransform_.translation_.y <= 0.0f) {
 		animationVelocity_.y = jumpPower_;
 	}
 	worldTransform_.translation_ += animationVelocity_;
 	
 	
 	//上の頭アニメーション
-	partsTransform_[Head].translation_.y = Easing::easing((worldTransform_.translation_.y - 10.0f)/ 3.9f, -3.0f, 0.8f);
+	partsTransform_[Head].translation_.y = Easing::easing(worldTransform_.translation_.y / 5.0f, 8.0f, 9.14f);
 
 
-	partsTransform_[Head].translation_.y = clamp(partsTransform_[Head].translation_.y, -3.0f, 0.8f);
-	partsTransform_[Tin].translation_.y = clamp(partsTransform_[Tin].translation_.y, -6.0f, -2.2f);
+	
 
 }
 void Boss::Draw() {
