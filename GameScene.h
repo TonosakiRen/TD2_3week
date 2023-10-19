@@ -15,6 +15,7 @@
 #include "EnemyBullet.h"
 #include "Item.h"
 #include <list>
+#include "Collider.h"
 
 class GameScene
 {
@@ -63,5 +64,7 @@ private:
 	std::list<std::unique_ptr<Item>> items_;
 
 	std::unique_ptr<Particle> particle_;
+
+	Collider tmpCollider_;
 };
 

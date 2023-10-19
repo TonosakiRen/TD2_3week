@@ -7,6 +7,8 @@ void EnemyBullet::Initialize(const std::string name, ViewProjection* viewProject
 	worldTransform_.scale_ = worldTransform_.scale_ * 2.0f;
 	velocity_ = velocity;
 
+	collider_.Initialize(&worldTransform_, name, *viewProjection, *directionalLight);
+
 }
 
 void EnemyBullet::Update() {
@@ -15,10 +17,12 @@ void EnemyBullet::Update() {
 
 	//行列更新
 	worldTransform_.UpdateMatrix();
+	collider_.AdjustmentScale();
 }
 
 void EnemyBullet::Draw() {
 	model_.Draw(worldTransform_, *viewProjection_, *directionalLight_, material_);
+	collider_.Draw();
 }
 
 void EnemyBullet::OnCollision() { isDead_ = true; }

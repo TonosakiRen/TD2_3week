@@ -41,6 +41,8 @@ void Boss::Initialize(ViewProjection* viewProjection, DirectionalLight* directio
 	velocity_ = { 0.02f,0.0f,0.0f };
 	bulletVelocity_ = { 0.4f, 0.0f, 0.0f };
 
+	collider_.Initialize(&worldTransform_, "boss", *viewProjection, *directionalLight,{20.9f,59.6f,21.7f},{0.0f,62.1f,0.0f});
+	
 }
 
 void Boss::Update()
@@ -107,7 +109,9 @@ void Boss::Update()
 	}
 	worldTransform_.UpdateMatrix();
 	dustParticle_->Update();
-}
+
+	collider_.AdjustmentScale();
+} 
 void Boss::Animation() {
 
 	//jump
@@ -129,6 +133,7 @@ void Boss::Draw() {
 	for (int i = 0; i < partNum; i++) {
 		modelParts_[i].Draw(partsTransform_[i], *viewProjection_, *directionalLight_, material_);
 	}
+	collider_.Draw();
 }
 
 void Boss::ParticleDraw() {

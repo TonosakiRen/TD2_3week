@@ -43,6 +43,8 @@ void GameScene::Initialize() {
 	sphere_.reset(GameObject::Create("sphere", &viewProjection_, &directionalLight_));
 
 	particle_.reset(Particle::Create(10));
+
+	tmpCollider_.Initialize("tmp", viewProjection_, directionalLight_);
 }
 
 void GameScene::Update(){
@@ -82,6 +84,17 @@ void GameScene::Update(){
 		items->Update();
 	}
 
+
+	tmpCollider_.AdjustmentScale();
+	bool isHitBulee = false;
+	for (const auto& bullet : enemyBullets_) {
+		isHitBulee  = tmpCollider_.Collision(bullet->collider_);
+		if (isHitBulee == true) {
+			break;
+		}
+	}
+	 
+	ImGui::Text("%d", isHitBulee);
 }
 
 void GameScene::ModelDraw()
@@ -96,6 +109,7 @@ void GameScene::ModelDraw()
 	for (const auto& items : items_) {
 		items->Draw();
 	}
+	tmpCollider_.Draw({1.0f,0.0f,0.0f,1.0f});
 }
 
 void GameScene::ParticleDraw()
