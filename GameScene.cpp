@@ -6,6 +6,12 @@
 
 using namespace DirectX;
 
+void (GameScene::* GameScene::SceneTable[])() = {
+	&GameScene::TitleUpdate,
+	&GameScene::InGameUpdate,
+	&GameScene::ResultUpdate
+};
+
 GameScene::GameScene() {};
 
 GameScene::~GameScene() {};
@@ -16,8 +22,9 @@ void GameScene::Initialize() {
 	
 	viewProjection_.Initialize();
 
-	viewProjection_.translation_ = { 0.0f,50.0f,-200.0f };
-	viewProjection_.target_ = { 0.0f,0.0f,0.0f };
+	viewProjection_.translation_ = titleCameraPos_;
+	viewProjection_.target_ = titleCameraTar_;
+	viewProjection_.UpdateMatrix();
 
 	directionalLight_.Initialize();
 	directionalLight_.direction_ = { 1.0f, -1.0f, 1.0f };
@@ -44,7 +51,11 @@ void GameScene::Initialize() {
 
 	particle_.reset(Particle::Create(10));
 
+	
+
+
 	tmpCollider_.Initialize("tmp", viewProjection_, directionalLight_);
+
 }
 
 void GameScene::Update(){
@@ -59,30 +70,11 @@ void GameScene::Update(){
 		directionalLight_.direction_ = Normalize(directionalLight_.direction_);
 		directionalLight_.UpdateDirectionalLight();
 	}
-	if (input_->TriggerKey(DIK_SPACE)) {
-		isCameraMove_ = true;
-	}
-	if (isCameraMove_) {
-		viewProjection_.translation_ = Easing::easing(cameraT_, { 11.1f,4.2f,0.11f }, { 0.0f,50.0f,-200.0f }, 0.01f, Easing::easeNormal, false);
-		viewProjection_.target_ = Easing::easing(cameraT_, { 0.0f,-1.6f,0.0f }, { 0.0f,0.0f,0.0f }, 0.01f, Easing::easeNormal, true);
-	}
 
-	if (--ItemTimer <= 0) {
-		PopItem();
-		ItemTimer = kPopTime;
-	}
 	
-	skydome_->Update();
-	floor_->Update();
-	player_->Update();
-	boss_->Update();
+	(this->*SceneTable[static_cast<size_t>(scene_)])();
 
-	for (const auto& bullet : enemyBullets_) {
-		bullet->Update();
-	}
-	for (const auto& items : items_) {
-		items->Update();
-	}
+	
 
 
 	tmpCollider_.AdjustmentScale();
@@ -103,13 +95,20 @@ void GameScene::ModelDraw()
 	floor_->Draw();
 	player_->Draw();
 	boss_->Draw();
-	for (const auto& bullet : enemyBullets_) {
-		bullet->Draw();
+
+	if (scene_ == Scene::InGame) {
+		for (const auto& bullet : enemyBullets_) {
+			bullet->Draw();
+		}
+		for (const auto& items : items_) {
+			items->Draw();
+		}
 	}
-	for (const auto& items : items_) {
-		items->Draw();
-	}
+
+	
+
 	tmpCollider_.Draw({1.0f,0.0f,0.0f,1.0f});
+
 }
 
 void GameScene::ParticleDraw()
@@ -132,8 +131,6 @@ void GameScene::PostSpriteDraw()
 {
 
 }
-
-
 
 void GameScene::Draw() {
 	// コマンドリストの取得
@@ -191,5 +188,117 @@ void GameScene::PopItem() {
 		newItem->Initialize("accel", &viewProjection_, &directionalLight_, {150, (Boss::size_.y * (3.0f / 2.0f)) + random, 0.0f}, Type::Accel);
 	}
 	items_.push_back(std::unique_ptr<Item>(newItem));
+
+}
+
+void GameScene::TitleInitialize() {
+
+
+
+}
+
+void GameScene::TitleUpdate() {
+
+	boss_->Animation();
+	player_->Animation();
+
+	if (input_->TriggerKey(DIK_SPACE)) {
+		isCameraMove_ = true;
+	}
+	if (cameraT_ >= 1.0f) {
+		isBossAppear_ = true;
+		isCameraMove_ = false;
+		cameraT_ = 0.0f;
+	}
+	if (bossT_ >= 1.0f) {
+		scene_ = Scene::InGame;
+		bossT_ = 0.0f;
+		isBossAppear_ = false;
+	}
+	if (isCameraMove_) {
+		viewProjection_.translation_ = Easing::easing(cameraT_, titleCameraPos_, gameCameraPos_, 0.01f, Easing::easeNormal, false);
+		viewProjection_.target_ = Easing::easing(cameraT_, titleCameraTar_, gameCameraTar_, 0.01f, Easing::easeNormal, true);
+	}
+	if (isBossAppear_) {
+		boss_->Appear(bossT_);
+	}
+
+	skydome_->Update();
+	floor_->Update();
+}
+
+void GameScene::InGameInitialize() {
+
+
+
+}
+
+void GameScene::InGameUpdate() {
+
+	if (input_->TriggerKey(DIK_E)) {
+		isCameraMove_ = true;
+		resultCameraPos_ = {
+			player_->GetCharaWorldPos().x + 10.0f,
+			player_->GetCharaWorldPos().y,
+			player_->GetCharaWorldPos().z - 40.0f
+		};
+	}
+	if (cameraT_ >= 1.0f) {
+		scene_ = Scene::Result;
+		isCameraMove_ = false;
+		cameraT_ = 0.0f;
+	}
+	if (isCameraMove_) {
+		viewProjection_.translation_ = Easing::easing(cameraT_, gameCameraPos_, resultCameraPos_, 0.01f, Easing::easeNormal, false);
+		viewProjection_.target_ = Easing::easing(cameraT_, gameCameraTar_, resultCameraTar_, 0.01f, Easing::easeNormal, true);
+	}
+	if (--ItemTimer <= 0) {
+		PopItem();
+		ItemTimer = kPopTime;
+	}
+	skydome_->Update();
+	floor_->Update();
+	player_->Update();
+	boss_->Update();
+
+	for (const auto& bullet : enemyBullets_) {
+		bullet->Update();
+	}
+	for (const auto& items : items_) {
+		items->Update();
+	}
+
+}
+
+void GameScene::ResultInitialize() {
+
+
+
+}
+
+void GameScene::ResultUpdate() {
+
+	switch (result_) {
+	    case Result::Select:
+			switch (select_){
+			    case GameScene::Selection::ToTitle:
+
+
+
+			    	break;
+			    case GameScene::Selection::Continue:
+
+
+
+			    	break;
+			    default:
+			    	break;
+			}
+
+	    	break;
+		case Result::Translation:
+
+			break;
+	}
 
 }

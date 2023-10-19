@@ -18,6 +18,7 @@ public:
     void Animation();
     void Draw();
     void ParticleDraw();
+    void Appear(float& t);
 
     void SetGameScene(GameScene* gameScene) { gameScene_ = gameScene; }
     void SetPlayer(Player* player) { player_ = player; }
@@ -93,6 +94,10 @@ private:
     Player* player_ = nullptr;
 
     bool isDead_ = false;
+
+
+    Vector3 startPos_ = {-250.0f,0.0f,0.0f};
+    Vector3 endPos_ = { -150.0f,0.0f,0.0f };
 
 public:
 
