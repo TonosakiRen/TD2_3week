@@ -5,7 +5,7 @@ void Item::Initialize(const std::string name, ViewProjection* viewProjection, Di
 	GameObject::Initialize(name, viewProjection, directionalLight);
 	worldTransform_.translation_ = position;
 	velocity_ = { -speed_,0.0f,0.0f };
-	size_ = { 2.0f,2.0f,2.0f };
+	size_ = { 20.0f,20.0f,20.0f };
 	type_ = type;
 
 }
