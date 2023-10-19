@@ -23,5 +23,7 @@ public:
 
 	Vector3 GetWorldPos() const;
 
+	bool IsDead() const { return isDead_; }
+
 };
 
