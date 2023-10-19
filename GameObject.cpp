@@ -21,6 +21,7 @@ void GameObject::Initialize(const std::string name, ViewProjection* viewProjecti
 
 void GameObject::Initialize(ViewProjection* viewProjection, DirectionalLight* directionalLight)
 {
+	model_.Initialize();
 	worldTransform_.Initialize();
 	material_.Initialize();
 	SetViewProjection(viewProjection);
@@ -37,6 +38,13 @@ void GameObject::Draw(Vector4 color)
 	material_.color_ = color;
 	material_.UpdateMaterial();
 	model_.Draw(worldTransform_, *viewProjection_, *directionalLight_, material_);
+}
+
+void GameObject::Draw(const WorldTransform& worldTransform, Vector4 color)
+{
+	material_.color_ = color;
+	material_.UpdateMaterial();
+	model_.Draw(worldTransform, *viewProjection_, *directionalLight_, material_, 0);
 }
 
 void GameObject::UpdateMaterial(Vector4 color)

@@ -16,6 +16,8 @@
 #include "Item.h"
 #include <list>
 #include <optional>
+#include "Collider.h"
+
 
 class GameScene
 {
@@ -75,8 +77,11 @@ private:
 
 	std::unique_ptr<Particle> particle_;
 
+
 	bool isBossAppear_ = false;
 	float bossT_ = 0.0f;
+  
+  Collider tmpCollider_;
 
 private: //シーン用
 
@@ -111,6 +116,8 @@ public:
 	void InGameUpdate();
 	void ResultInitialize();
 	void ResultUpdate();
+
+
 
 };
 

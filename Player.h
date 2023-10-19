@@ -4,6 +4,7 @@
 #include "ParticleBox.h"
 #include "DustParticle.h"
 #include <optional>
+#include "Collider.h"
 
 class Player :
     public GameObject
@@ -32,6 +33,10 @@ private: //行動系
     void BombHitInitialize();
 
     void BombHitUpdate();
+
+public:
+    //collider
+    Collider collider_;
 
 private:
     Input* input_ = nullptr;
@@ -78,6 +83,7 @@ private:
     bool isAttack_ = false;
     const int kAttackTime = 15;
     int attackTimer = kAttackTime;
+
 
 };
 

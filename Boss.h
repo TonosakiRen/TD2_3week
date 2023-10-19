@@ -3,6 +3,7 @@
 #include "ParticleBox.h"
 #include "DustParticle.h"
 #include <optional>
+#include "Collider.h"
 
 class GameScene;
 class Player;
@@ -39,7 +40,9 @@ private: //行動系
     void BombHitInitialize();
     //爆弾的中更新
     void BombHitUpdate();
-
+public:
+    //collider
+    Collider collider_;
 private:
     enum parts {
         Head,

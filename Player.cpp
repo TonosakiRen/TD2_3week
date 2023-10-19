@@ -47,12 +47,17 @@ void Player::Initialize(const std::string name, ViewProjection* viewProjection, 
 	reflectWT_.scale_ = size_ * 1.5f;
 	reflectWT_.SetParent(&worldTransform_);
 
+
 	//行列更新
 	reflectWT_.UpdateMatrix();
 	worldTransform_.UpdateMatrix();
 	for (int i = 0; i < partNum; i++) {
 		partsTransform_[i].UpdateMatrix();
 	}
+
+
+	collider_.Initialize(&worldTransform_, name, *viewProjection, *directionalLight,{5.5f,5.5f,5.5f});
+
 }
 
 void Player::Update()
@@ -103,6 +108,9 @@ void Player::Update()
 		partsTransform_[i].UpdateMatrix();
 	}
 	dustParticle_->Update();
+
+	collider_.AdjustmentScale();
+	collider_.MatrixUpdate();
 }
 void Player::Animation() {
 	dustParticle_->SetIsEmit(true);
@@ -141,6 +149,7 @@ void Player::Draw() {
 	for (int i = 0; i < partNum; i++) {
 		modelParts_.Draw(partsTransform_[i], *viewProjection_, *directionalLight_, material_);
 	}
+	collider_.Draw();
 }
 
 void Player::ParticleDraw() {
