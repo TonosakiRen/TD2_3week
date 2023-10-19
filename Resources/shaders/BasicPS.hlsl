@@ -61,10 +61,10 @@ PixelShaderOutput main(VSOutput input) {
 		//output.color.xyz += fresnelColor * fresnel;
 
 		//反射
-		float32_t3 reflectVec = reflect(gDirectionLight.direction, normal);
+		/*float32_t3 reflectVec = reflect(gDirectionLight.direction, normal);
 		float32_t3 speculerColor = float32_t3(1.0f, 1.0f, 1.0f);
 		float32_t specluerPower = 100.0f;
-		output.color.xyz += speculerColor * pow(saturate(dot(reflectVec, viewDirection)), specluerPower);
+		output.color.xyz += speculerColor * pow(saturate(dot(reflectVec, viewDirection)), specluerPower);*/
 	}
 
 	return output;

@@ -51,6 +51,13 @@ void Boss::Update()
 	ImGui::DragFloat3("core", &worldTransform_.translation_.x, 0.01f);
 	ImGui::DragFloat3("head", &partsTransform_[Head].translation_.x, 0.01f);
 	ImGui::DragFloat3("tin", &partsTransform_[Tin].translation_.x, 0.01f);
+
+	ImGui::DragFloat("jumpPower", &jumpPower_, 0.001f);
+	ImGui::DragFloat3("accelerariotn", &accelaration_.x, 0.001f);
+
+	ImGui::DragFloat("animationT_", &animationT_, 0.001f);
+	ImGui::DragFloat("animationSpeed_", &animationSpeed_, 0.001f);
+	
 	ImGui::End();
 	
 	if (behaviorRequest_) {
@@ -103,6 +110,7 @@ void Boss::Update()
 }
 void Boss::Animation() {
 	//partsTransform_[Head].translation_.y = clamp(partsTransform_[Head].translation_.y, -3.0f, 0.8f);
+	//partsTransform_[Tin].translation_.y = clamp(partsTransform_[Tin].translation_.y, -6.0f, -2.2f);
 }
 void Boss::Draw() {
 	for (int i = 0; i < partNum; i++) {

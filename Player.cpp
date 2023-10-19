@@ -7,13 +7,16 @@ void Player::Initialize(const std::string name, ViewProjection* viewProjection, 
 	input_ = Input::GetInstance();
 
 	dustParticle_ = std::make_unique<DustParticle>();
-	dustParticle_->Initialize({0.0f,0.0f,0.0f},{0.0f,0.0f,0.0f});
+	dustParticle_->Initialize({0.0f,0.0f,-1.0f},{0.0f,1.0f,0.0f});
 	dustParticle_->emitterWorldTransform_.SetParent(&worldTransform_);
+	//dustParticle_->emitterWorldTransform_.SetIsRotateParent(false);
 	//煙の出る場所
 	dustParticle_->emitterWorldTransform_.translation_ = { 0.0f,-2.1f,-1.2f };
+
 	material_.enableLighting_ = false;
 	worldTransform_.rotation_.y = Radian(90.0f);
 	modelParts_.Initialize("player_part");
+
 	for (int i = 0; i < partNum; i++) {
 		partsTransform_[i].Initialize();
 		partsTransform_[i].SetParent(&worldTransform_);
