@@ -78,7 +78,6 @@ private:
 	std::unique_ptr<Particle> particle_;
 
 
-	bool isBossAppear_ = false;
 	float bossT_ = 0.0f;
   
   Collider tmpCollider_;
@@ -87,6 +86,7 @@ private: //シーン用
 
 	enum class Scene {
 		Title,
+		BossAppear,
 		InGame,
 		Result,
 	};
@@ -102,18 +102,26 @@ private: //シーン用
 	};
 
 	Scene scene_ = Scene::Title;
+	Scene nextScene = Scene::Title;
 	static void (GameScene:: *SceneTable[])();
 	std::optional<Scene> sceneRequest_ = std::nullopt;
 
+	//title or continue
 	Selection select_ = Selection::ToTitle;
+	//選択とカメラ移動
 	Result result_ = Result::Select;
 
 public:
-
+	//タイトル
 	void TitleInitialize();
 	void TitleUpdate();
+	//ボスの出現
+	void BossAppaerInitialize();
+	void BossAppaerUpdate();
+	//インゲーム
 	void InGameInitialize();
 	void InGameUpdate();
+	//リザルト
 	void ResultInitialize();
 	void ResultUpdate();
 
