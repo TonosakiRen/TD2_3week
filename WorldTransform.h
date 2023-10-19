@@ -15,6 +15,12 @@ public:
 	void Initialize();
 	void UpdateMatrix();
 
+	void ConstUpdate() {
+		if (constMap) {
+			constMap->matWorld = matWorld_;
+		}
+	}
+
 	void SetParent(WorldTransform* parent) {
 		parent_ = parent;
 	}

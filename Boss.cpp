@@ -17,8 +17,9 @@ void Boss::Initialize(ViewProjection* viewProjection, DirectionalLight* directio
 	//煙の出る場所
 	dustParticle_->emitterWorldTransform_.translation_ = { 0.0f,-2.1f,-1.2f };
 
-	worldTransform_.translation_.y = 0.0f;
-	worldTransform_.translation_.x = -150.0f;
+	/*worldTransform_.translation_.y = 0.0f;
+	worldTransform_.translation_.x = -150.0f;*/
+	worldTransform_.translation_ = startPos_;
 
 	worldTransform_.scale_ = worldTransform_.scale_ * 10.0f;
 
@@ -40,6 +41,18 @@ void Boss::Initialize(ViewProjection* viewProjection, DirectionalLight* directio
 
 	velocity_ = { 0.02f,0.0f,0.0f };
 	bulletVelocity_ = { 0.4f, 0.0f, 0.0f };
+
+
+	//行列更新
+	worldTransform_.UpdateMatrix();
+	for (int i = 0; i < partNum; i++) {
+		partsTransform_[i].UpdateMatrix();
+	}
+	mouthWT_.UpdateMatrix();
+	dustParticle_->emitterWorldTransform_.UpdateMatrix();
+
+	collider_.Initialize(&worldTransform_, "boss", *viewProjection, *directionalLight,{20.9f,59.6f,21.7f},{0.0f,62.1f,0.0f});
+	
 
 }
 
@@ -106,8 +119,11 @@ void Boss::Update()
 		partsTransform_[i].UpdateMatrix();
 	}
 	worldTransform_.UpdateMatrix();
+	mouthWT_.UpdateMatrix();
 	dustParticle_->Update();
-}
+
+	collider_.AdjustmentScale();
+} 
 void Boss::Animation() {
 
 	//jump
@@ -122,17 +138,28 @@ void Boss::Animation() {
 	partsTransform_[Head].translation_.y = Easing::easing(worldTransform_.translation_.y / 5.0f, 8.0f, 9.14f);
 
 
-	
+	//行列更新
+	for (int i = 0; i < partNum; i++) {
+		partsTransform_[i].UpdateMatrix();
+	}
+	worldTransform_.UpdateMatrix();
 
 }
 void Boss::Draw() {
 	for (int i = 0; i < partNum; i++) {
 		modelParts_[i].Draw(partsTransform_[i], *viewProjection_, *directionalLight_, material_);
 	}
+	collider_.Draw();
 }
 
 void Boss::ParticleDraw() {
 	dustParticle_->Draw(viewProjection_, directionalLight_, { 0.5f,0.5f,0.5f,1.0f });
+}
+
+void Boss::Appear(float& t) {
+
+	worldTransform_.translation_ = Easing::easing(t, startPos_, endPos_, 0.01f, Easing::EasingMode::easeOutQuart);
+
 }
 
 void Boss::RootInitialize() {
