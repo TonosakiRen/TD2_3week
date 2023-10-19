@@ -2,6 +2,7 @@
 #include "externals/imgui/imgui.h"
 #include <cassert>
 #include "Easing.h"
+#include <random>
 
 using namespace DirectX;
 
@@ -15,8 +16,8 @@ void GameScene::Initialize() {
 	
 	viewProjection_.Initialize();
 
-	viewProjection_.translation_ = { 0.0f,8.6f,-27.0f };
-	viewProjection_.target_ = { 0.0f,0.0f,0.0f };
+	viewProjection_.translation_ = { 11.1f,4.2f,0.11f };
+	viewProjection_.target_ = { 0.0f,-1.6f,0.0f };
 
 	directionalLight_.Initialize();
 	directionalLight_.direction_ = { 1.0f, -1.0f, 1.0f };
@@ -36,6 +37,8 @@ void GameScene::Initialize() {
 
 	boss_ = std::make_unique<Boss>();
 	boss_->Initialize(&viewProjection_, &directionalLight_);
+	boss_->SetPlayer(player_.get());
+	boss_->SetGameScene(this);
 
 	sphere_.reset(GameObject::Create("sphere", &viewProjection_, &directionalLight_));
 
@@ -61,11 +64,24 @@ void GameScene::Update(){
 		viewProjection_.translation_ = Easing::easing(cameraT_, { 11.1f,4.2f,0.11f }, { 0.0f,8.6f,-27.0f }, 0.01f, Easing::easeNormal, false);
 		viewProjection_.target_ = Easing::easing(cameraT_, { 0.0f,-1.6f,0.0f }, { 0.0f,0.0f,0.0f }, 0.01f, Easing::easeNormal, true);
 	}
+
+	if (--ItemTimer <= 0) {
+		PopItem();
+		ItemTimer = kPopTime;
+	}
 	
 	skydome_->Update();
 	floor_->Update();
 	player_->Update();
 	boss_->Update();
+
+	for (const auto& bullet : enemyBullets_) {
+		bullet->Update();
+	}
+	for (const auto& items : items_) {
+		items->Update();
+	}
+
 }
 
 void GameScene::ModelDraw()
@@ -74,6 +90,12 @@ void GameScene::ModelDraw()
 	floor_->Draw();
 	player_->Draw();
 	boss_->Draw();
+	for (const auto& bullet : enemyBullets_) {
+		bullet->Draw();
+	}
+	for (const auto& items : items_) {
+		items->Draw();
+	}
 }
 
 void GameScene::ParticleDraw()
@@ -130,4 +152,30 @@ void GameScene::Draw() {
 	Sprite::PreDraw(commandList);
 	PostSpriteDraw();
 	Sprite::PostDraw();
+}
+
+void GameScene::AddEnemyBullet(EnemyBullet* enemyBullet) {
+	enemyBullets_.push_back(std::unique_ptr<EnemyBullet>(enemyBullet));
+}
+
+void GameScene::PopItem() {
+
+	std::random_device rd;
+	std::mt19937 gen(rd());
+
+	std::uniform_real_distribution<float> distribution(-Boss::size_.y / 2.0f, Boss::size_.y / 2.0f);
+	float random = distribution(gen);
+
+	std::uniform_int_distribution<int> distribution2(1, 6);
+	int lot = distribution2(gen);
+
+	Item* newItem = new Item();
+	if (lot % 2 == 0) {
+		newItem->Initialize("bomb",&viewProjection_, &directionalLight_,{20, (Boss::size_.y * (3.0f / 2.0f)) + random, 0.0f}, Type::Bomb);
+	}
+	else if (lot % 2 == 1) {
+		newItem->Initialize("accel", &viewProjection_, &directionalLight_, {20, (Boss::size_.y * (3.0f / 2.0f)) + random, 0.0f}, Type::Accel);
+	}
+	items_.push_back(std::unique_ptr<Item>(newItem));
+
 }

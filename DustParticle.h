@@ -12,6 +12,9 @@ public:
 		minDirection_ = minDirection;
 		maxDirection_ = maxDirection;
 	}
+	void SetInitialScale(Vector3 scale) {
+		initialScale_ = scale;
+	}
 	struct dustParticle {
 		WorldTransform worldTransform_;
 		Vector3 direction_;
