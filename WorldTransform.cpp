@@ -6,9 +6,9 @@
 using namespace DirectX;
 
 void WorldTransform::Initialize() {
-	CreateConstBuffer();
-	Map();
-	UpdateMatrix();
+    CreateConstBuffer();
+    Map();
+    UpdateMatrix();
 }
 
 void WorldTransform::CreateConstBuffer() {
@@ -43,7 +43,7 @@ void WorldTransform::UpdateMatrix() {
     Matrix4x4 translationMatrix = MakeTranslateMatrix(translation_);
 
     // ワールド行列の合成
-    matWorld_ = MakeIdentity4x4(); 
+    matWorld_ = MakeIdentity4x4();
     matWorld_ *= scaleMatrix;
     matWorld_ *= rotateMatrix;
     matWorld_ *= translationMatrix;
@@ -52,7 +52,7 @@ void WorldTransform::UpdateMatrix() {
     // 親行列の指定がある場合は、掛け算する
     if (parent_) {
         //scaleを反映させない
-        Matrix4x4 inverseMatrix;
+        Matrix4x4 inverseMatrix = MakeIdentity4x4();
 
         if (!isScaleParent_) {
             inverseMatrix = Inverse(MakeScaleMatrix(MakeScale(parent_->matWorld_)));
@@ -60,8 +60,7 @@ void WorldTransform::UpdateMatrix() {
         }
 
         if (!isRotateParent_) {
-            Vector3 rotation = MakeRotate(parent_->matWorld_);
-            inverseMatrix = Inverse(MakeRotateXYZMatrix(rotation));
+            inverseMatrix = Inverse(NormalizeMakeRotateMatrix(parent_->matWorld_));
             matWorld_ *= inverseMatrix;
         }
 

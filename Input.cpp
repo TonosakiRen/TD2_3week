@@ -1,7 +1,9 @@
 #include "Input.h"
 #include <cassert>
 
-#pragma comment(lib, "dinput8.lib")
+#pragma comment(lib,"dinput8.lib")
+#pragma comment(lib,"dxguid.lib")
+#pragma comment (lib, "xinput.lib")
 
 Input* Input::GetInstance() {
 	static Input instance;
@@ -14,23 +16,22 @@ void Input::Initialize(HINSTANCE hInstance, HWND hwnd) {
 	result = DirectInput8Create(hInstance, DIRECTINPUT_VERSION, IID_IDirectInput8, (void**)&dInput_, nullptr);
 	assert(SUCCEEDED(result));
 
-	result = dInput_->CreateDevice(GUID_SysKeyboard, &devKeyboard_, NULL);
+	//keyBoard
+	result = dInput_->CreateDevice(GUID_SysKeyboard, &devKeyboard_, nullptr);
 	assert(SUCCEEDED(result));
-
-	result = dInput_->CreateDevice(GUID_SysMouse, &devMouse_, nullptr);
+	result = devKeyboard_->SetDataFormat(&c_dfDIKeyboard);
 	assert(SUCCEEDED(result));
-
-	result = devKeyboard_->SetDataFormat(&c_dfDIKeyboard); 
-	assert(SUCCEEDED(result));
-
-	result = devMouse_->SetDataFormat(&c_dfDIMouse);
-	assert(SUCCEEDED(result));
-
 	result = devKeyboard_->SetCooperativeLevel(hwnd, DISCL_FOREGROUND | DISCL_NONEXCLUSIVE | DISCL_NOWINKEY);
 	assert(SUCCEEDED(result));
 
+	//mouse
+	result = dInput_->CreateDevice(GUID_SysMouse, &devMouse_, nullptr);
+	assert(SUCCEEDED(result));
+	result = devMouse_->SetDataFormat(&c_dfDIMouse);
+	assert(SUCCEEDED(result));
 	result = devMouse_->SetCooperativeLevel(hwnd, DISCL_FOREGROUND | DISCL_NONEXCLUSIVE | DISCL_NOWINKEY);
 	assert(SUCCEEDED(result));
+
 }
 
 void Input::Update() {
@@ -42,6 +43,14 @@ void Input::Update() {
 
 	devKeyboard_->GetDeviceState((DWORD)size(key_), key_.data());
 	devMouse_->GetDeviceState(sizeof(mouseState_.state), &mouseState_.state);
+
+	preXInputState_ = xInputState_;
+	if (XInputGetState(0, &xInputState_) == ERROR_SUCCESS) {
+		isGamePadConnect = true;
+	}
+	else {
+		isGamePadConnect = false;
+	}
 }
 
 bool Input::PushKey(BYTE keyNumber) {
@@ -82,3 +91,4 @@ float Input::GetWheel() {
 bool Input::IsPressMouse(int32_t mouseNumber) {
 	return mouseState_.state.rgbButtons[mouseNumber] & 0x80;
 }
+

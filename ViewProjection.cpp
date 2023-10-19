@@ -10,9 +10,9 @@
 using namespace DirectX;
 
 void ViewProjection::Initialize() {
-	CreateConstBuffer();
-	Map();
-	UpdateMatrix();
+    CreateConstBuffer();
+    Map();
+    UpdateMatrix();
 }
 
 void ViewProjection::CreateConstBuffer() {
@@ -39,11 +39,11 @@ void ViewProjection::Map() {
 }
 
 void ViewProjection::UpdateMatrix() {
-   
+
     // ビュー行列の生成
-    matView = MakeViewMatirx(target_,translation_);
+    matView = MakeViewMatirx(target_, translation_);
     // 透視投影による射影行列の生成
-    matProjection = MakePerspectiveFovMatrix(fovAngleY, aspectRatio, nearZ, farZ);
+    matProjection = MakePerspectiveFovMatrix(fovAngleY_, aspectRatio_, nearZ_, farZ_);
 
     // 定数バッファに書き込み
     constMap->view = matView;
@@ -64,8 +64,8 @@ void ViewProjection::DebugMove() {
 
     if (input->IsPressMouse(1)) {
         float rot = static_cast<float>(M_PI / 180.0f);
-       target_.x += rot * mouseMove.y * 0.1f;
-       target_.y += rot * mouseMove.x * 0.1f;
+        target_.x += rot * mouseMove.y * 0.1f;
+        target_.y += rot * mouseMove.x * 0.1f;
     }
     else if (input->IsPressMouse(2)) {
         Matrix4x4 rotMat = MakeRotateXYZMatrix(target_);
