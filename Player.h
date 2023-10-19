@@ -70,10 +70,10 @@ private:
     WorldTransform reflectWT_;
     Vector3 size_{};
 
-    float firstSpeed_ = 1.0f;
+    float firstSpeed_ = 2.0f;
     Vector3 velocity_{};
     Vector3 acceleration_{};
-    float gravity_ = 0.05f;
+    float gravity_ = 0.1f;
 
     bool isAttack_ = false;
     const int kAttackTime = 15;

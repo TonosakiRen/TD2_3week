@@ -4,7 +4,7 @@ void Skydome::Initialize(const std::string name, ViewProjection* viewProjection,
 {
 	GameObject::Initialize(name, viewProjection, directionalLight);
 	material_.enableLighting_ = false;
-	worldTransform_.scale_ = worldTransform_.scale_ * 50.0f;
+	worldTransform_.scale_ = worldTransform_.scale_ * 500.0f;
 }
 
 void Skydome::Update()
