@@ -47,6 +47,12 @@ void Player::Initialize(const std::string name, ViewProjection* viewProjection, 
 	reflectWT_.scale_ = size_ * 1.5f;
 	reflectWT_.SetParent(&worldTransform_);
 
+	//行列更新
+	reflectWT_.UpdateMatrix();
+	worldTransform_.UpdateMatrix();
+	for (int i = 0; i < partNum; i++) {
+		partsTransform_[i].UpdateMatrix();
+	}
 }
 
 void Player::Update()
@@ -124,6 +130,11 @@ void Player::Animation() {
 
 	animationT_ += animationSpeed_;
 	animationBodyT_ += animationBodySpeed_;
+
+	worldTransform_.UpdateMatrix();
+	for (int i = 0; i < partNum; i++) {
+		partsTransform_[i].UpdateMatrix();
+	}
 }
 void Player::Draw() {
 	model_.Draw(worldTransform_, *viewProjection_, *directionalLight_, material_);
