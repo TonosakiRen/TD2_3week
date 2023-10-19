@@ -7,7 +7,7 @@ void EnemyBullet::Initialize(const std::string name, ViewProjection* viewProject
 	worldTransform_.scale_ = worldTransform_.scale_ * 2.0f;
 	velocity_ = velocity;
 
-	collider_.Initialize(&worldTransform_, name, *viewProjection, *directionalLight);
+	collider_.Initialize(&worldTransform_, name, *viewProjection, *directionalLight,{2.0f,2.0f,2.0f});
 
 }
 
