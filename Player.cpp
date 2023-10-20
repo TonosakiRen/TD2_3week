@@ -198,13 +198,15 @@ void Player::AccelInitialize() {
 	num = 0.0f;
 	easeStart = worldTransform_.translation_;
 	easeEnd = worldTransform_.translation_ + move;
+	isAttack_ = false;
+	attackTimer = kAttackTime;
 
 }
 
 void Player::AccelUpdate() {
 
 	
-	worldTransform_.translation_ = Easing::easing(num, easeStart, easeEnd, 0.02f, Easing::EasingMode::easeOutQuart);
+	worldTransform_.translation_ = Easing::easing(num, easeStart, easeEnd, 0.1f, Easing::EasingMode::easeOutQuart);
 
 	if (num >= 1.0f) {
 		num = 1.0f;
@@ -220,12 +222,14 @@ void Player::BombHitInitialize() {
 	num = 0.0f;
 	easeStart = worldTransform_.translation_;
 	easeEnd = worldTransform_.translation_ - move;
+	isAttack_ = false;
+	attackTimer = kAttackTime;
 
 }
 
 void Player::BombHitUpdate() {
 
-	worldTransform_.translation_ = Easing::easing(num, easeStart, easeEnd, 0.02f, Easing::EasingMode::easeOutQuart);
+	worldTransform_.translation_ = Easing::easing(num, easeStart, easeEnd, 0.1f, Easing::EasingMode::easeOutQuart);
 
 	if (num >= 1.0f) {
 		num = 1.0f;
