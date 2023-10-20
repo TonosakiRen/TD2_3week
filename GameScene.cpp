@@ -226,17 +226,27 @@ void GameScene::CollisionCheck() {
 			boss_->OnRefCollision();
 		}
 	}
-	//敵弾とアイテムとの衝突判定
+	////敵弾とアイテムとの衝突判定
+	//isHitBulee = false;
+	//for (const auto& bullet : enemyBullets_) {
+	//	for (const auto& item : items_) {
+	//		isHitBulee = bullet->collider_.Collision(item->collider_);
+	//		if (isHitBulee) {
+	//			bullet->OnCollision();
+	//			item->EnBulletHit();
+	//		}
+	//	}
+	//}
+	
+	//アイテムと跳ね返りとの衝突判定
 	isHitBulee = false;
-	for (const auto& bullet : enemyBullets_) {
-		for (const auto& item : items_) {
-			isHitBulee = bullet->collider_.Collision(item->collider_);
-			if (isHitBulee) {
-				bullet->OnCollision();
-				item->EnBulletHit();
-			}
+	for (const auto& item : items_) {
+		isHitBulee = player_->reflectCollider_.Collision(item->collider_);
+		if (isHitBulee) {
+			item->EnBulletHit();
 		}
 	}
+
 	//プレイヤーとアイテムとの衝突判定
 	isHitBulee = false;
 	for (const auto& item : items_) {
