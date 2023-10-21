@@ -4,7 +4,7 @@
 #include "Player.h"
 #include "GameScene.h"
 
-Vector3 Boss::size_ = {20.0f,63.0f,21.0f};
+Vector3 Boss::size_ = {20.0f,62.0f,21.0f};
 Vector3 Boss::mouthSize_ = { 20.0f,size_.y/2.0f,21.0f };
 
 void Boss::Initialize(ViewProjection* viewProjection, DirectionalLight* directionalLight)

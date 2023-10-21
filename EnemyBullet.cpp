@@ -15,6 +15,10 @@ void EnemyBullet::Update() {
 
 	worldTransform_.translation_ += velocity_;
 
+	if (worldTransform_.translation_.x >= 150.0f) {
+		isDead_ = true;
+	}
+
 	//行列更新
 	worldTransform_.UpdateMatrix();
 	collider_.AdjustmentScale();

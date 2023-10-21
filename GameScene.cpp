@@ -276,6 +276,14 @@ void GameScene::CollisionCheck() {
 		}
 	}
 
+	//プレイヤーとボスとの衝突判定
+	isHitBulee = false;
+	isHitBulee = player_->collider_.Collision(boss_->collider_);
+	if (isHitBulee) {
+		//ゲームオーバー
+
+	}
+
 
 	ImGui::Text("%d", isHitBulee);
 }

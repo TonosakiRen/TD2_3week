@@ -25,6 +25,10 @@ void Item::Update() {
 		velocity_.y = 0.0f;
 	}
 
+	if (worldTransform_.translation_.x <= -200.0f) {
+		isDead_ = true;
+	}
+
 	worldTransform_.UpdateMatrix();
 	collider_.AdjustmentScale();
 	collider_.MatrixUpdate();
