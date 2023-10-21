@@ -4,8 +4,8 @@
 #include "Player.h"
 #include "GameScene.h"
 
-Vector3 Boss::size_ = {20.0f,58.0f,15.0f};
-Vector3 Boss::mouthSize_ = { 20.0f,size_.y/2.0f,15.0f };
+Vector3 Boss::size_ = {20.0f,62.0f,21.0f};
+Vector3 Boss::mouthSize_ = { 20.0f,size_.y/2.0f,21.0f };
 
 void Boss::Initialize(ViewProjection* viewProjection, DirectionalLight* directionalLight)
 {
@@ -39,8 +39,8 @@ void Boss::Initialize(ViewProjection* viewProjection, DirectionalLight* directio
 	mouthWT_.Initialize();
 	mouthWT_.SetParent(&worldTransform_);
 
-	velocity_ = { 0.02f,0.0f,0.0f };
-	bulletVelocity_ = { 0.4f, 0.0f, 0.0f };
+	velocity_ = { 0.05f,0.0f,0.0f };
+	bulletVelocity_ = { bulletSpeed_, 0.0f, 0.0f };
 
 
 	//行列更新
@@ -52,7 +52,7 @@ void Boss::Initialize(ViewProjection* viewProjection, DirectionalLight* directio
 	dustParticle_->emitterWorldTransform_.UpdateMatrix();
 
 	collider_.Initialize(&worldTransform_, "boss", *viewProjection, *directionalLight,{20.9f,59.6f,21.7f},{0.0f,62.1f,0.0f});
-	
+	mouthCollider_.Initialize(&mouthWT_, "boss", *viewProjection, *directionalLight, {20.9f,28.0f,21.7f}, { 0.0f,31.0f,10.0f });
 
 }
 
@@ -123,6 +123,7 @@ void Boss::Update()
 	dustParticle_->Update();
 
 	collider_.AdjustmentScale();
+	mouthCollider_.AdjustmentScale();
 } 
 void Boss::Animation() {
 
@@ -149,7 +150,8 @@ void Boss::Draw() {
 	for (int i = 0; i < partNum; i++) {
 		modelParts_[i].Draw(partsTransform_[i], *viewProjection_, *directionalLight_, material_);
 	}
-	collider_.Draw();
+	//collider_.Draw();
+	//mouthCollider_.Draw();
 }
 
 void Boss::ParticleDraw() {
@@ -162,6 +164,18 @@ void Boss::Appear(float& t) {
 
 }
 
+void Boss::OnRefCollision() {
+	behaviorRequest_ = Behavior::kHit;
+}
+
+void Boss::SpeedUp() {
+	velocity_ = velocity_ * 1.2f;
+}
+
+void Boss::Explosion() {
+	behaviorRequest_ = Behavior::kBombHit;
+}
+
 void Boss::RootInitialize() {
 
 
@@ -170,7 +184,7 @@ void Boss::RootInitialize() {
 
 void Boss::RootUpdate() {
 
-	//worldTransform_.translation_ += velocity_;
+	worldTransform_.translation_ += velocity_;
 
 	if (--attackTimer <= 0) {
 		attackTimer = kAttackTime;
@@ -190,25 +204,41 @@ void Boss::RootUpdate() {
 
 void Boss::HitInitialize() {
 
-
+	Vector3 knockbackdis = { 10.0f, 0.0f, 0.0f };
+	num = 0.0f;
+	easeStart = worldTransform_.translation_;
+	easeEnd = worldTransform_.translation_ - knockbackdis;
 
 }
 
 void Boss::HitUpdate() {
+	
+	worldTransform_.translation_ = Easing::easing(num, easeStart, easeEnd, 0.02f, Easing::EasingMode::easeOutQuart);
 
-
+	if (num >= 1.0f) {
+		num = 1.0f;
+		behaviorRequest_ = Behavior::kRoot;
+	}
 
 }
 
 void Boss::BombHitInitialize() {
 
-
+	num = 0.0f;
+	easeStart = worldTransform_.translation_;
+	easeEnd = endPos_;
 
 }
 
 void Boss::BombHitUpdate() {
 
+	worldTransform_.translation_ = Easing::easing(num, easeStart, easeEnd, 0.02f, Easing::EasingMode::easeOutQuart);
 
+	if (num >= 1.0f) {
+		num = 1.0f;
+		velocity_ = velocity_ * 1.5f;
+		behaviorRequest_ = Behavior::kRoot;
+	}
 
 }
 
@@ -231,3 +261,5 @@ Vector3 Boss::GetMouthWorldPos() const {
 
 	return worldPos;
 }
+
+

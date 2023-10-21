@@ -17,8 +17,14 @@ public:
     void Draw();
     void ParticleDraw();
 
+    void Accel();
+
+    void Explosion();
+
     Vector3 GetCharaWorldPos() const;
     Vector3 GetRefWorldPos() const;
+
+    bool IsAttack() const { return isAttack_; }
 
 private: //行動系
 
@@ -37,6 +43,7 @@ private: //行動系
 public:
     //collider
     Collider collider_;
+    Collider reflectCollider_;
 
 private:
     Input* input_ = nullptr;
@@ -83,5 +90,9 @@ private:
     bool isAttack_ = false;
     const int kAttackTime = 15;
     int attackTimer = kAttackTime;
+
+    float num = 0.0f;
+    Vector3 easeStart{};
+    Vector3 easeEnd{};
 };
 

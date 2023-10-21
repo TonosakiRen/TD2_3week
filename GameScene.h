@@ -35,6 +35,8 @@ public:
 	void PostSpriteDraw();
 	void Draw();
 
+	void CollisionCheck();
+
 	void AddEnemyBullet(EnemyBullet* enemyBullet);
 
 	void PopItem();
@@ -70,6 +72,7 @@ private:
 	std::unique_ptr<Boss> boss_;
 
 	std::list<std::unique_ptr<EnemyBullet>> enemyBullets_;
+	float refBulletSpeed_ = 1.0f;
 
 	const int kPopTime = 60 * 5;
 	int ItemTimer = kPopTime;

@@ -15,6 +15,10 @@ void EnemyBullet::Update() {
 
 	worldTransform_.translation_ += velocity_;
 
+	if (worldTransform_.translation_.x >= 150.0f) {
+		isDead_ = true;
+	}
+
 	//行列更新
 	worldTransform_.UpdateMatrix();
 	collider_.AdjustmentScale();
@@ -22,12 +26,12 @@ void EnemyBullet::Update() {
 
 void EnemyBullet::Draw() {
 	model_.Draw(worldTransform_, *viewProjection_, *directionalLight_, material_);
-	collider_.Draw();
+	//collider_.Draw();
 }
 
 void EnemyBullet::OnCollision() { isDead_ = true; }
 
-void EnemyBullet::OnRefCollision() { isReflected = true; }
+void EnemyBullet::OnRefCollision() { isReflected_ = true; }
 
 Vector3 EnemyBullet::GetWorldPos() const {
 	Vector3 worldPos{};
