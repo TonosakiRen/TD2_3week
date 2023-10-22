@@ -109,9 +109,6 @@ void Boss::Update()
 	    
 	    	break;
 	}
-
-
-	//worldTransform_.translation_.y = clamp(worldTransform_.translation_.y, 10.0f, 13.9f);
 	
 
 	//行列更新
@@ -146,6 +143,11 @@ void Boss::Animation() {
 
 }
 void Boss::Draw() {
+	//行列更新
+	for (int i = 0; i < partNum; i++) {
+		partsTransform_[i].UpdateMatrix();
+	}
+	worldTransform_.UpdateMatrix();
 	for (int i = 0; i < partNum; i++) {
 		modelParts_[i].Draw(partsTransform_[i], *viewProjection_, *directionalLight_, material_);
 	}
@@ -158,7 +160,13 @@ void Boss::ParticleDraw() {
 
 void Boss::Appear(float& t) {
 
-	worldTransform_.translation_ = Easing::easing(t, startPos_, endPos_, 0.01f, Easing::EasingMode::easeOutQuart);
+	worldTransform_.translation_.x = Easing::easing(t, startPos_.x, endPos_.x, 0.01f, Easing::EasingMode::easeOutQuart);
+
+}
+
+void Boss::Disappear(float& t) {
+
+	worldTransform_.translation_.x = Easing::easing(t, endPos_.x, startPos_.x, 0.01f, Easing::EasingMode::easeOutQuart,false);
 
 }
 

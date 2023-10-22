@@ -96,6 +96,7 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
   <ItemGroup>
     <ClCompile Include="Audio.cpp" />
     <ClCompile Include="Boss.cpp" />
+    <ClCompile Include="Collapse.cpp" />
     <ClCompile Include="Collider.cpp" />
     <ClCompile Include="ConvertString.cpp" />
     <ClCompile Include="DirectionalLight.cpp" />
@@ -119,6 +120,7 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     <ClCompile Include="main.cpp" />
     <ClCompile Include="Material.cpp" />
     <ClCompile Include="Model.cpp" />
+    <ClCompile Include="OrbitParticle.cpp" />
     <ClCompile Include="Particle.cpp" />
     <ClCompile Include="ParticleBox.cpp" />
     <ClCompile Include="Player.cpp" />
@@ -132,6 +134,7 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
   <ItemGroup>
     <ClInclude Include="Audio.h" />
     <ClInclude Include="Boss.h" />
+    <ClInclude Include="Collapse.h" />
     <ClInclude Include="Collider.h" />
     <ClInclude Include="DirectionalLight.h" />
     <ClInclude Include="DustParticle.h" />
@@ -154,6 +157,7 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     <ClInclude Include="Material.h" />
     <ClInclude Include="Model.h" />
     <ClInclude Include="Mymath.h" />
+    <ClInclude Include="OrbitParticle.h" />
     <ClInclude Include="Particle.h" />
     <ClInclude Include="ParticleBox.h" />
     <ClInclude Include="Player.h" />

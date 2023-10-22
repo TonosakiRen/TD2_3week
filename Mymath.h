@@ -1029,7 +1029,7 @@ inline float Rand(float min, float max) {
 	int kmin = int(min * 10000);
 	int kmax = int(max * 10000);
 
-	float result = (kmin + (int)(rand() * (kmax - kmin + 1.0) / (1.0 + RAND_MAX))) / 1000.0f;
+	float result = (kmin + (int)(rand() * (kmax - kmin + 1.0) / (1.0 + RAND_MAX))) / 10000.0f;
 	return result;
 }
 inline bool Rand() { return bool(0 + (int)(rand() * (1 - 0 + 1.0) / (1.0 + RAND_MAX))); }

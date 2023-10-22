@@ -19,6 +19,7 @@ public:
     void Draw();
     void ParticleDraw();
     void Appear(float& t);
+    void Disappear(float& t);
 
     void SetGameScene(GameScene* gameScene) { gameScene_ = gameScene; }
     void SetPlayer(Player* player) { player_ = player; }

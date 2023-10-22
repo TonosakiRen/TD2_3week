@@ -41,7 +41,10 @@ void ViewProjection::Map() {
 void ViewProjection::UpdateMatrix() {
 
     // ビュー行列の生成
-    matView = MakeViewMatirx(target_, translation_);
+   
+        Vector3 tranlation = translation_ + Vector3{ Rand(-shakeValue_.x,shakeValue_.x),Rand(-shakeValue_.y,shakeValue_.y) ,Rand(-shakeValue_.z,shakeValue_.z) };
+        matView = MakeViewMatirx(target_, tranlation);
+   
     // 透視投影による射影行列の生成
     matProjection = MakePerspectiveFovMatrix(fovAngleY_, aspectRatio_, nearZ_, farZ_);
 
@@ -49,6 +52,18 @@ void ViewProjection::UpdateMatrix() {
     constMap->view = matView;
     constMap->projection = matProjection;
     constMap->viewPosition = translation_;
+}
+
+bool ViewProjection::Shake(Vector3 shakeValue, int& frame)
+{  
+    frame--;
+    if (frame > 0) {
+        shakeValue_ = shakeValue;
+        return true;
+    }
+    frame = 0;
+    shakeValue_ = { 0.0f,0.0f,0.0f };
+    return false;
 }
 
 void ViewProjection::DebugMove() {

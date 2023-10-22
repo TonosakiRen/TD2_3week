@@ -10,7 +10,7 @@ void (GameScene::* GameScene::SceneTable[])() = {
 	&GameScene::TitleUpdate,
 	&GameScene::BossAppaerUpdate,
 	&GameScene::InGameUpdate,
-	&GameScene::ResultUpdate
+	&GameScene::ResultUpdate,
 };
 
 GameScene::GameScene() {};
@@ -57,6 +57,8 @@ void GameScene::Initialize() {
 
 	tmpCollider_.Initialize("tmp", viewProjection_, directionalLight_);
 
+	collapse_.Initialize();
+	orbit_.Initialize();
 }
 
 void GameScene::Update(){
@@ -110,9 +112,6 @@ void GameScene::Update(){
 	
 	(this->*SceneTable[static_cast<size_t>(scene_)])();
 
-	
-
-
 	tmpCollider_.AdjustmentScale();
 	bool isHitBulee = false;
 	for (const auto& bullet : enemyBullets_) {
@@ -121,12 +120,16 @@ void GameScene::Update(){
 			break;
 		}
 	}
+
+	collapse_.Update();
+	orbit_.Update();
 	 
 	ImGui::Text("%d", isHitBulee);
 }
 
 void GameScene::ModelDraw()
 {
+
 	skydome_->Draw();
 	floor_->Draw();
 	player_->Draw();
@@ -141,8 +144,6 @@ void GameScene::ModelDraw()
 		}
 	}
 
-	
-
 	tmpCollider_.Draw({1.0f,0.0f,0.0f,1.0f});
 
 }
@@ -156,6 +157,8 @@ void GameScene::ParticleDraw()
 void GameScene::ParticleBoxDraw()
 {
 	player_->ParticleDraw();
+	collapse_.Draw(&viewProjection_, &directionalLight_, { 0.5f,0.5f,0.5f,1.0f });
+	orbit_.Draw(&viewProjection_, &directionalLight_, { 0.5f,0.5f,0.5f,1.0f });
 }
 
 void GameScene::PreSpriteDraw()
@@ -228,7 +231,8 @@ void GameScene::PopItem() {
 }
 
 void GameScene::TitleInitialize() {
-
+	player_->isClear_ = false;
+	player_->isDead_ = false;
 	cameraT_ = 0.0f;
 	isCameraMove_ = false;
 
@@ -238,6 +242,7 @@ void GameScene::TitleUpdate() {
 
 	boss_->Animation();
 	player_->Animation();
+	player_->GravityUpdate();
 
 	if (input_->TriggerKey(DIK_SPACE)) {
 		isCameraMove_ = true;
@@ -260,7 +265,8 @@ void GameScene::TitleUpdate() {
 
 void GameScene::BossAppaerInitialize() {
 	bossT_ = 0.0f;
-
+	player_->isClear_ = false;
+	player_->isDead_ = false;
 }
 
 void GameScene::BossAppaerUpdate() {
@@ -273,6 +279,7 @@ void GameScene::BossAppaerUpdate() {
 	}
 	
 	player_->Animation();
+	player_->GravityUpdate();
 	skydome_->Update();
 	floor_->Update();
 	boss_->Animation();
@@ -281,31 +288,16 @@ void GameScene::BossAppaerUpdate() {
 void GameScene::InGameInitialize() {
 
 	cameraT_ = 0.0f;
-
+	isSavePlayerPos_ = false;
+	shakeFrame_ = 6;
+	downT = 0.0f;
+	waitFrame = 10;
 }
 
-void GameScene::InGameUpdate() {
+void GameScene::InGameUpdate() {	
 
-	if (input_->TriggerKey(DIK_E)) {
-		isCameraMove_ = true;
-		//リザルトシーンのカメラの位置の設定
-		//プレイヤーの位置から少しずらしたところ
-		resultCameraPos_ = {
-			player_->GetCharaWorldPos().x + 10.0f,
-			player_->GetCharaWorldPos().y,
-			player_->GetCharaWorldPos().z - 40.0f
-		};
-		//
-	}
-	if (cameraT_ >= 1.0f) {
-		sceneRequest_ = Scene::Result;
-		isCameraMove_ = false;
-		cameraT_ = 0.0f;
-	}
-	if (isCameraMove_) {
-		viewProjection_.translation_ = Easing::easing(cameraT_, gameCameraPos_, resultCameraPos_, 0.01f, Easing::easeNormal, false);
-		viewProjection_.target_ = Easing::easing(cameraT_, gameCameraTar_, resultCameraTar_, 0.01f, Easing::easeNormal, true);
-	}
+	clearDirection();
+	gameoverDirection();
 	if (--ItemTimer <= 0) {
 		PopItem();
 		ItemTimer = kPopTime;
@@ -324,21 +316,92 @@ void GameScene::InGameUpdate() {
 
 }
 
+void GameScene::clearDirection() {
+	if (input_->TriggerKey(DIK_E) && isSavePlayerPos_ == false) {
+		player_->isClear_ = true;
+		isCameraMove_ = true;
+		isSavePlayerPos_ = true;
+		//リザルトシーンのカメラの位置の設定
+		//プレイヤーの位置から少しずらしたところ
+		resultCameraPos_ = {
+			player_->GetCharaWorldPos().x + 10.0f,
+			player_->GetCharaWorldPos().y,
+			player_->GetCharaWorldPos().z - 40.0f
+		};
+		//
+	}
+	if (cameraT_ >= 1.0f && player_->GetIsClear()) {
+		sceneRequest_ = Scene::Result;
+		isCameraMove_ = false;
+		cameraT_ = 0.0f;
+	}
+	if (isCameraMove_ && player_->GetIsClear()) {
+		viewProjection_.translation_ = Easing::easing(cameraT_, gameCameraPos_, resultCameraPos_, 0.01f, Easing::easeNormal, false);
+		viewProjection_.target_ = Easing::easing(cameraT_, gameCameraTar_, resultCameraTar_, 0.01f, Easing::easeNormal, true);
+	}
+
+}
+void GameScene::gameoverDirection() {
+	if (input_->TriggerKey(DIK_R) && isSavePlayerPos_ == false) {
+		player_->isDead_ = true;
+		isCameraMove_ = true;
+		isSavePlayerPos_ = true;
+		//リザルトシーンのカメラの位置の設定
+		resultCameraPos_ = {
+			player_->GetCharaWorldPos().x ,
+			player_->GetCharaWorldPos().y,
+			player_->GetCharaWorldPos().z
+		};
+	}
+
+	if (isCameraMove_ && player_->GetIsDead()) {
+		boss_->Disappear(cameraT_);
+		player_->SetTranslation(Easing::easing(cameraT_, resultCameraPos_, gameoverPlayerPos_, 0.05f, Easing::easeNormal, true));
+		player_->SetRotation(Easing::easing(cameraT_, { 0.0f,0.0f,0.0f }, gameoverPlayerRotation, 0.05f, Easing::easeNormal, false));
+	}
+
+	if (cameraT_ >= 1.0f && player_->GetIsDead()) {
+		isCameraMove_ = false;
+		bool isFinish = true;
+		isFinish = viewProjection_.Shake(shakeValue, shakeFrame_);
+		collapse_.SetIsEmit(true);
+		if (!isFinish) {
+			waitFrame--;
+			if (waitFrame < 0) {
+				collapse_.SetIsEmit(false);
+				Vector3 downPos = { gameoverPlayerPos_.x,gameoverPlayerPos_.y - 20.0f,gameoverPlayerPos_.z };
+				player_->SetTranslation(Easing::easing(downT, gameoverPlayerPos_, downPos, 0.01f, Easing::easeNormal));
+			}
+		}
+	}
+	if (downT >= 1.0f) {
+		downT = 1.0f;
+		sceneRequest_ = Scene::Result;
+	}
+}
+
+
 void GameScene::ResultInitialize() {
 
 	cameraT_ = 0.0f;
 	select_ = Selection::ToTitle;
 	result_ = Result::Select;
-
 }
 
 void GameScene::ResultUpdate() {
 
+	bossT_ = 0.0f;
+	boss_->Appear(bossT_);
+	player_->ParticleStop();
 	switch (result_) {
 	    case Result::Select: //タイトルに戻るか続けるかの選択
 
 			if (input_->TriggerKey(DIK_SPACE)) {
 				result_ = Result::Translation;
+				if (player_->isDead_) {
+					player_->SetTranslation({0.0f,20.0f,0.0f});
+					player_->SetRotation({ 0.0f,0.0f,0.0f });
+				}
 			}
 
 			switch (select_){
@@ -364,13 +427,24 @@ void GameScene::ResultUpdate() {
 		case Result::Translation: //カメラの移動
 			switch (select_) {
 			    case GameScene::Selection::ToTitle:
-					viewProjection_.translation_ = Easing::easing(cameraT_, resultCameraPos_, titleCameraPos_, 0.01f, Easing::easeNormal, false);
-					viewProjection_.target_ = Easing::easing(cameraT_, resultCameraTar_, titleCameraTar_, 0.01f, Easing::easeNormal, true);
+					if (player_->isClear_) {
+						viewProjection_.translation_ = Easing::easing(cameraT_, resultCameraPos_, titleCameraPos_, 0.01f, Easing::easeNormal, false);
+						viewProjection_.target_ = Easing::easing(cameraT_, resultCameraTar_, titleCameraTar_, 0.01f, Easing::easeNormal, true);
+					}
+					if (player_->isDead_) {
+						viewProjection_.translation_ = Easing::easing(cameraT_, gameCameraPos_, titleCameraPos_, 0.01f, Easing::easeNormal, false);
+						viewProjection_.target_ = Easing::easing(cameraT_, resultCameraTar_, titleCameraTar_, 0.01f, Easing::easeNormal, true);
+					}
 					
 			    	break;
 			    case GameScene::Selection::Continue:
-					viewProjection_.translation_ = Easing::easing(cameraT_, resultCameraPos_, gameCameraPos_, 0.01f, Easing::easeNormal, false);
-					viewProjection_.target_ = Easing::easing(cameraT_, resultCameraTar_, gameCameraTar_, 0.01f, Easing::easeNormal, true);
+					if (player_->isClear_) {
+						viewProjection_.translation_ = Easing::easing(cameraT_, resultCameraPos_, gameCameraPos_, 0.01f, Easing::easeNormal, false);
+						viewProjection_.target_ = Easing::easing(cameraT_, resultCameraTar_, gameCameraTar_, 0.01f, Easing::easeNormal, true);
+					}
+					if (player_->isDead_) {
+						cameraT_ = 1.0f;
+					}
 					
 			    	break;
 			    default:
