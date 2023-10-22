@@ -23,11 +23,13 @@ public:
     void SpeedUp();
     void Explosion();
 
+    void SetState(int hp,float speed,int second);
     void SetGameScene(GameScene* gameScene) { gameScene_ = gameScene; }
     void SetPlayer(Player* player) { player_ = player; }
 
     Vector3 GetWorldPos() const;
     Vector3 GetMouthWorldPos() const;
+    bool IsDead() { return isDead_; }
 
 private: //行動系
 
@@ -43,6 +45,11 @@ private: //行動系
     void BombHitInitialize();
     //爆弾的中更新
     void BombHitUpdate();
+    //
+    void AppearInitialize();
+    //
+    void AppearUpdate();
+
 public:
     //collider
     Collider collider_;
@@ -82,18 +89,21 @@ private:
         kHit,
         kBombHit,
         kBreak,
+        kAppear,
     };
-    Behavior behavior_ = Behavior::kRoot;
+    Behavior behavior_ = Behavior::kAppear;
     std::optional<Behavior> behaviorRequest_ = std::nullopt;
 
     WorldTransform mouthWT_;
     Vector3 velocity_ = {};
 
-    float bulletSpeed_ = 0.5f;
+    int hp_ = 0;
+
+    
     Vector3 bulletVelocity_{};
 
-    const int kAttackTime = 60 * 2;
-    int attackTimer = kAttackTime;
+    int attackTime = 0;
+    int attackTimer = 0;
 
     GameScene* gameScene_ = nullptr;
     Player* player_ = nullptr;
@@ -104,6 +114,7 @@ private:
     Vector3 easeStart{};
     Vector3 easeEnd{};
 
+    
 
     Vector3 startPos_ = {-250.0f,0.0f,0.0f};
     Vector3 endPos_ = { -150.0f,0.0f,0.0f };
@@ -112,6 +123,9 @@ public:
 
     static Vector3 size_;
     static Vector3 mouthSize_;
+    static float bulletSpeed_;
+    static Vector3 knockbackdis;
+    static int damage_;
 
 };
 

@@ -15,8 +15,10 @@
 #include "EnemyBullet.h"
 #include "Item.h"
 #include <list>
+#include <vector>
 #include <optional>
 #include "Collider.h"
+#include <sstream>
 
 
 class GameScene
@@ -40,6 +42,12 @@ public:
 	void AddEnemyBullet(EnemyBullet* enemyBullet);
 
 	void PopItem();
+
+	void BossPop(int hp, float speed, int second);
+
+	void LoadBossPopData();
+
+	void BossPopComand();
 
 private: 
 	DirectXCommon* dxCommon_ = nullptr;
@@ -69,8 +77,10 @@ private:
 	std::unique_ptr<Floor> floor_;
 	std::unique_ptr<GameObject> sphere_;
 	std::unique_ptr<Player> player_;
-	std::unique_ptr<Boss> boss_;
+	std::vector<std::unique_ptr<Boss>> boss_;
 
+	std::stringstream BossPopCommands_;
+	int order_ = 1;
 	std::list<std::unique_ptr<EnemyBullet>> enemyBullets_;
 	float refBulletSpeed_ = 1.0f;
 
@@ -81,7 +91,7 @@ private:
 	std::unique_ptr<Particle> particle_;
 
 
-	float bossT_ = 0.0f;
+	
   
   Collider tmpCollider_;
 
@@ -89,7 +99,6 @@ private: //シーン用
 
 	enum class Scene {
 		Title,
-		BossAppear,
 		InGame,
 		Result,
 	};
@@ -104,10 +113,19 @@ private: //シーン用
 		Translation,
 	};
 
+	enum class Stage {
+		Stage1,
+		Stage2,
+		Stage3,
+		Actual,
+	};
+
 	Scene scene_ = Scene::Title;
 	Scene nextScene = Scene::Title;
 	static void (GameScene:: *SceneTable[])();
 	std::optional<Scene> sceneRequest_ = std::nullopt;
+
+	Stage stage_ = Stage::Stage1;
 
 	//title or continue
 	Selection select_ = Selection::ToTitle;
@@ -118,17 +136,12 @@ public:
 	//タイトル
 	void TitleInitialize();
 	void TitleUpdate();
-	//ボスの出現
-	void BossAppaerInitialize();
-	void BossAppaerUpdate();
 	//インゲーム
 	void InGameInitialize();
 	void InGameUpdate();
 	//リザルト
 	void ResultInitialize();
 	void ResultUpdate();
-
-
 
 };
 

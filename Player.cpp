@@ -70,6 +70,10 @@ void Player::Update()
 
 	Animation();
 	ImGui::Begin("Player");
+
+	ImGui::DragFloat("firstSpeed", &firstSpeed_, 0.01f);
+	ImGui::DragFloat("gravity", &gravity_, 0.01f);
+
 	ImGui::End();
 
 	if (behaviorRequest_) {

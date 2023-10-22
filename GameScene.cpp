@@ -3,12 +3,12 @@
 #include <cassert>
 #include "Easing.h"
 #include <random>
+#include <fstream>
 
 using namespace DirectX;
 
 void (GameScene::* GameScene::SceneTable[])() = {
 	&GameScene::TitleUpdate,
-	&GameScene::BossAppaerUpdate,
 	&GameScene::InGameUpdate,
 	&GameScene::ResultUpdate
 };
@@ -43,10 +43,9 @@ void GameScene::Initialize() {
 	player_ = std::make_unique<Player>();
 	player_->Initialize("player", &viewProjection_, &directionalLight_);
 
-	boss_ = std::make_unique<Boss>();
-	boss_->Initialize(&viewProjection_, &directionalLight_);
-	boss_->SetPlayer(player_.get());
-	boss_->SetGameScene(this);
+	LoadBossPopData();
+	BossPopComand();
+	
 
 	sphere_.reset(GameObject::Create("sphere", &viewProjection_, &directionalLight_));
 
@@ -86,6 +85,10 @@ void GameScene::Update(){
 		return false;
 	});
 
+	
+
+	
+
 	if (sceneRequest_) {
 		scene_ = sceneRequest_.value();
 
@@ -93,9 +96,6 @@ void GameScene::Update(){
 		case Scene::Title:
 		default:
 			TitleInitialize();
-			break;
-		case Scene::BossAppear:
-			BossAppaerInitialize();
 			break;
 		case Scene::InGame:
 			InGameInitialize();
@@ -108,13 +108,16 @@ void GameScene::Update(){
 	}
 
 	
+	
 	(this->*SceneTable[static_cast<size_t>(scene_)])();
 
-	
-
-
-	
-	 
+	boss_.erase(std::remove_if(boss_.begin(), boss_.end(), [](const std::unique_ptr<Boss>& boss) {
+		if (boss->IsDead()) {
+			return true;
+		}
+		return false;
+	}),
+	boss_.end());
 	
 }
 
@@ -123,7 +126,10 @@ void GameScene::ModelDraw()
 	skydome_->Draw();
 	floor_->Draw();
 	player_->Draw();
-	boss_->Draw();
+	for (const auto& boss : boss_) {
+		boss->Draw();
+	}
+	
 
 	if (scene_ == Scene::InGame) {
 		for (const auto& bullet : enemyBullets_) {
@@ -220,10 +226,10 @@ void GameScene::CollisionCheck() {
 	//ボスと跳ね返り弾の衝突判定
 	isHitBulee = false;
 	for (const auto& bullet : enemyBullets_) {
-		isHitBulee = boss_->collider_.Collision(bullet->collider_);
+		isHitBulee = boss_[0]->collider_.Collision(bullet->collider_);
 		if (isHitBulee && bullet->IsReflected()) {
 			bullet->OnCollision();
-			boss_->OnRefCollision();
+			boss_[0]->OnRefCollision();
 		}
 	}
 	////敵弾とアイテムとの衝突判定
@@ -264,21 +270,21 @@ void GameScene::CollisionCheck() {
 	//敵の口とアイテムとの衝突判定
 	isHitBulee = false;
 	for (const auto& item : items_) {
-		isHitBulee = boss_->mouthCollider_.Collision(item->collider_);
+		isHitBulee = boss_[0]->mouthCollider_.Collision(item->collider_);
 		if (isHitBulee) {
 			item->CharaHit();
 			if (item->GetType() == Type::Accel) {
-				boss_->SpeedUp();
+				boss_[0]->SpeedUp();
 			}
 			if (item->GetType() == Type::Bomb) {
-				boss_->Explosion();
+				boss_[0]->Explosion();
 			}
 		}
 	}
 
 	//プレイヤーとボスとの衝突判定
 	isHitBulee = false;
-	isHitBulee = player_->collider_.Collision(boss_->collider_);
+	isHitBulee = player_->collider_.Collision(boss_[0]->collider_);
 	if (isHitBulee) {
 		//ゲームオーバー
 
@@ -299,18 +305,108 @@ void GameScene::PopItem() {
 
 	std::uniform_real_distribution<float> distribution(-(Boss::size_.y / 2.0f) + 4.0f, (Boss::size_.y / 2.0f) - 4.0f);
 	float random = distribution(gen);
-
-	std::uniform_int_distribution<int> distribution2(1, 6);
-	int lot = distribution2(gen);
-
 	Item* newItem = new Item();
-	if (lot % 2 == 0) {
-		newItem->Initialize("bomb",&viewProjection_, &directionalLight_,{150, (Boss::size_.y * (3.0f / 2.0f)) + random, 0.0f}, Type::Bomb);
+
+	switch (stage_) {
+	    case Stage::Stage1: //アイテムなし
+	    
+	    	break;
+		case Stage::Stage2: //爆弾のみ
+
+			
+			newItem->Initialize("bomb", &viewProjection_, &directionalLight_, { 150, (Boss::size_.y * (3.0f / 2.0f)) + random, 0.0f }, Type::Bomb);
+			items_.push_back(std::unique_ptr<Item>(newItem));
+
+			break;
+		case Stage::Stage3: //スピードのみ
+
+			
+			newItem->Initialize("accel", &viewProjection_, &directionalLight_, { 150, (Boss::size_.y * (3.0f / 2.0f)) + random, 0.0f }, Type::Accel);
+			items_.push_back(std::unique_ptr<Item>(newItem));
+
+			break;
+		case Stage::Actual:
+		default:
+
+			std::uniform_int_distribution<int> distribution2(1, 6);
+			int lot = distribution2(gen);
+			
+			if (lot % 2 == 0) {
+				newItem->Initialize("bomb", &viewProjection_, &directionalLight_, { 150, (Boss::size_.y * (3.0f / 2.0f)) + random, 0.0f }, Type::Bomb);
+			}
+			else if (lot % 2 == 1) {
+				newItem->Initialize("accel", &viewProjection_, &directionalLight_, { 150, (Boss::size_.y * (3.0f / 2.0f)) + random, 0.0f }, Type::Accel);
+			}
+			items_.push_back(std::unique_ptr<Item>(newItem));
+
+			break;
+
+
 	}
-	else if (lot % 2 == 1) {
-		newItem->Initialize("accel", &viewProjection_, &directionalLight_, {150, (Boss::size_.y * (3.0f / 2.0f)) + random, 0.0f}, Type::Accel);
+
+	
+
+}
+
+void GameScene::BossPop(int hp, float speed, int second) {
+
+	Boss* boss = new Boss();
+	boss->Initialize(&viewProjection_, &directionalLight_);
+	boss->SetState(hp, speed, second);
+	boss->SetPlayer(player_.get());
+	boss->SetGameScene(this);
+	boss_.push_back(std::unique_ptr<Boss>(boss));
+
+}
+
+void GameScene::LoadBossPopData() {
+
+	std::ifstream file;
+	std::string filePath = "./Resources/BossPop.csv";
+	file.open(filePath);
+	assert(file.is_open());
+
+	BossPopCommands_ << file.rdbuf();
+
+	file.close();
+}
+
+void GameScene::BossPopComand() {
+
+	std::string line;
+
+	BossPopCommands_.clear();                 // エラー状態をクリア
+	BossPopCommands_.seekg(0, std::ios::beg); // ファイルの先頭に移動
+
+	while (getline(BossPopCommands_, line)) {
+
+		std::istringstream line_stream(line);
+
+		std::string word;
+		getline(line_stream, word, ',');
+
+		if (word.find("//") == 0) {
+			continue;
+		}
+
+		if (order_ == (int)std::atof(word.c_str())) {
+
+			getline(line_stream, word, ',');
+			int hp = (int)std::atof(word.c_str());
+
+			getline(line_stream, word, ',');
+			float speed = (float)std::atof(word.c_str());
+
+			getline(line_stream, word, ',');
+			int second = (int)std::atof(word.c_str());
+
+			BossPop(hp, speed, second);
+			order_++;
+			break;
+		}
+
+
 	}
-	items_.push_back(std::unique_ptr<Item>(newItem));
 
 }
 
@@ -323,14 +419,14 @@ void GameScene::TitleInitialize() {
 
 void GameScene::TitleUpdate() {
 
-	boss_->Animation();
+	boss_[0]->Animation();
 	player_->Animation();
 
 	if (input_->TriggerKey(DIK_SPACE)) {
 		isCameraMove_ = true;
 	}
 	if (cameraT_ >= 1.0f) {
-		sceneRequest_ = Scene::BossAppear;
+		sceneRequest_ = Scene::InGame;
 		cameraT_ = 0.0f;
 		isCameraMove_ = false;
 	}
@@ -345,35 +441,21 @@ void GameScene::TitleUpdate() {
 	floor_->Update();
 }
 
-void GameScene::BossAppaerInitialize() {
-	bossT_ = 0.0f;
-
-}
-
-void GameScene::BossAppaerUpdate() {
-
-	
-	boss_->Appear(bossT_);
-	if (bossT_ >= 1.0f) {
-		bossT_ = 0.0f;
-		sceneRequest_ = Scene::InGame;
-	}
-	
-	player_->Animation();
-	skydome_->Update();
-	floor_->Update();
-	boss_->Animation();
-}
-
 void GameScene::InGameInitialize() {
 
 	cameraT_ = 0.0f;
+	order_ = 1;
+	if (boss_.size() == 0) {
+		BossPopComand();
+	}
 
 }
 
 void GameScene::InGameUpdate() {
 
 	CollisionCheck();
+
+	
 
 	if (input_->TriggerKey(DIK_E)) {
 		isCameraMove_ = true;
@@ -395,14 +477,22 @@ void GameScene::InGameUpdate() {
 		viewProjection_.translation_ = Easing::easing(cameraT_, gameCameraPos_, resultCameraPos_, 0.01f, Easing::easeNormal, false);
 		viewProjection_.target_ = Easing::easing(cameraT_, gameCameraTar_, resultCameraTar_, 0.01f, Easing::easeNormal, true);
 	}
-	if (--ItemTimer <= 0) {
-		PopItem();
-		ItemTimer = kPopTime;
+	if (stage_ != Stage::Stage1) {
+		if (--ItemTimer <= 0) {
+			PopItem();
+			ItemTimer = kPopTime;
+		}
 	}
+	
 	skydome_->Update();
 	floor_->Update();
 	player_->Update();
-	boss_->Update();
+	boss_[0]->Update();
+
+	if (boss_[0]->IsDead()) {
+		BossPopComand();
+		//Boss::isBreak_ = false;
+	}
 
 	for (const auto& bullet : enemyBullets_) {
 		bullet->Update();
@@ -418,6 +508,10 @@ void GameScene::ResultInitialize() {
 	cameraT_ = 0.0f;
 	select_ = Selection::ToTitle;
 	result_ = Result::Select;
+
+	enemyBullets_.clear();
+	items_.clear();
+	boss_.clear();
 
 }
 
@@ -439,7 +533,7 @@ void GameScene::ResultUpdate() {
 
 			    	break;
 			    case GameScene::Selection::Continue:
-					nextScene = Scene::BossAppear;
+					nextScene = Scene::InGame;
 					if (input_->TriggerKey(DIK_UP)) {
 						select_ = Selection::ToTitle;
 					}

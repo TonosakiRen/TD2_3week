@@ -6,6 +6,9 @@
 
 Vector3 Boss::size_ = {20.0f,62.0f,21.0f};
 Vector3 Boss::mouthSize_ = { 20.0f,size_.y/2.0f,21.0f };
+float Boss::bulletSpeed_ = 0.5f;
+Vector3 Boss::knockbackdis = { 10.0f, 0.0f, 0.0f };
+int Boss::damage_ = 20;
 
 void Boss::Initialize(ViewProjection* viewProjection, DirectionalLight* directionalLight)
 {
@@ -39,9 +42,6 @@ void Boss::Initialize(ViewProjection* viewProjection, DirectionalLight* directio
 	mouthWT_.Initialize();
 	mouthWT_.SetParent(&worldTransform_);
 
-	velocity_ = { 0.05f,0.0f,0.0f };
-	bulletVelocity_ = { bulletSpeed_, 0.0f, 0.0f };
-
 
 	//行列更新
 	worldTransform_.UpdateMatrix();
@@ -70,6 +70,11 @@ void Boss::Update()
 
 	ImGui::DragFloat("animationT_", &animationT_, 0.001f);
 	ImGui::DragFloat("animationSpeed_", &animationSpeed_, 0.001f);
+
+	ImGui::DragFloat("bullet speed", &bulletSpeed_,0.001f);
+	ImGui::DragFloat3("knockback", &knockbackdis.x,0.1f);
+
+	ImGui::InputInt("Damage", &damage_);
 	
 	ImGui::End();
 	
@@ -90,6 +95,9 @@ void Boss::Update()
 		    case Behavior::kBreak:
 		    
 		    	break;
+			case Behavior::kAppear:
+				AppearInitialize();
+				break;
 		}
 		behaviorRequest_ = std::nullopt;
 	}
@@ -108,8 +116,15 @@ void Boss::Update()
 	    case Behavior::kBreak:
 	    
 	    	break;
+		case Behavior::kAppear:
+			AppearUpdate();
+			break;
 	}
 
+	if (hp_ <= 0) {
+		isDead_ = true;
+ 		//isBreak_ = true;
+	}
 
 	//worldTransform_.translation_.y = clamp(worldTransform_.translation_.y, 10.0f, 13.9f);
 	
@@ -158,18 +173,24 @@ void Boss::ParticleDraw() {
 	dustParticle_->Draw(viewProjection_, directionalLight_, { 0.5f,0.5f,0.5f,1.0f });
 }
 
-void Boss::Appear(float& t) {
-
-	worldTransform_.translation_ = Easing::easing(t, startPos_, endPos_, 0.01f, Easing::EasingMode::easeOutQuart);
-
-}
-
 void Boss::OnRefCollision() {
-	behaviorRequest_ = Behavior::kHit;
+	if (behavior_ != Behavior::kAppear) {
+		behaviorRequest_ = Behavior::kHit;
+		hp_ -= damage_;
+	}
 }
 
 void Boss::SpeedUp() {
 	velocity_ = velocity_ * 1.2f;
+}
+
+void Boss::SetState(int hp, float speed, int second) {
+
+	hp_ = hp;
+	velocity_ = { speed,0.0f,0.0f };
+	attackTime = 60 * second;
+	attackTimer = attackTime;
+
 }
 
 void Boss::Explosion() {
@@ -187,8 +208,8 @@ void Boss::RootUpdate() {
 	worldTransform_.translation_ += velocity_;
 
 	if (--attackTimer <= 0) {
-		attackTimer = kAttackTime;
-
+		attackTimer = attackTime;
+		bulletVelocity_ = { bulletSpeed_, 0.0f, 0.0f };
 		Vector3 pos{};
 		pos.x = worldTransform_.translation_.x + size_.x + 1.0f;
 		pos.y = player_->GetCharaWorldPos().y;
@@ -204,7 +225,7 @@ void Boss::RootUpdate() {
 
 void Boss::HitInitialize() {
 
-	Vector3 knockbackdis = { 10.0f, 0.0f, 0.0f };
+	
 	num = 0.0f;
 	easeStart = worldTransform_.translation_;
 	easeEnd = worldTransform_.translation_ - knockbackdis;
@@ -237,6 +258,22 @@ void Boss::BombHitUpdate() {
 	if (num >= 1.0f) {
 		num = 1.0f;
 		velocity_ = velocity_ * 1.5f;
+		behaviorRequest_ = Behavior::kRoot;
+	}
+
+}
+
+void Boss::AppearInitialize() {
+
+	num = 0.0f;
+
+}
+
+void Boss::AppearUpdate() {
+
+	worldTransform_.translation_ = Easing::easing(num, startPos_, endPos_, 0.01f, Easing::EasingMode::easeOutQuart);
+
+	if (num >= 1.0f) {
 		behaviorRequest_ = Behavior::kRoot;
 	}
 
