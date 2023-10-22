@@ -20,6 +20,9 @@ public:
     void ParticleDraw();
     void Appear(float& t);
     void Disappear(float& t);
+    void OnRefCollision();
+    void SpeedUp();
+    void Explosion();
 
     void SetGameScene(GameScene* gameScene) { gameScene_ = gameScene; }
     void SetPlayer(Player* player) { player_ = player; }
@@ -44,6 +47,7 @@ private: //行動系
 public:
     //collider
     Collider collider_;
+    Collider mouthCollider_;
 private:
     enum parts {
         Head,
@@ -86,6 +90,7 @@ private:
     WorldTransform mouthWT_;
     Vector3 velocity_ = {};
 
+    float bulletSpeed_ = 0.5f;
     Vector3 bulletVelocity_{};
 
     const int kAttackTime = 60 * 2;
@@ -95,6 +100,10 @@ private:
     Player* player_ = nullptr;
 
     bool isDead_ = false;
+
+    float num = 0.0f;
+    Vector3 easeStart{};
+    Vector3 easeEnd{};
 
 
     Vector3 startPos_ = {-250.0f,0.0f,0.0f};

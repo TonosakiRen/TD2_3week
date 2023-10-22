@@ -5,7 +5,7 @@ class EnemyBullet : public GameObject {
 private:
 
 	Vector3 velocity_{};
-	bool isReflected = false;
+	bool isReflected_ = false;
 	bool isDead_ = false;
 public:
 	Collider collider_;
@@ -21,9 +21,12 @@ public:
 
 	void OnRefCollision();
 
+	void SetVelocity(const Vector3& velocity) { velocity_ = velocity; }
+
 	Vector3 GetWorldPos() const;
 
 	bool IsDead() const { return isDead_; }
+	bool IsReflected() const { return isReflected_; }
 
 };
 

@@ -20,6 +20,10 @@ public:
 
     void GravityUpdate();
 
+    void Accel();
+
+    void Explosion();
+
     Vector3 GetCharaWorldPos() const;
     Vector3 GetRefWorldPos() const;
 
@@ -46,6 +50,8 @@ public:
         worldTransform_.rotation_ = rotation;
     }
 
+    bool IsAttack() const { return isAttack_; }
+
 private: //行動系
 
     void RootInitialize();
@@ -63,6 +69,7 @@ private: //行動系
 public:
     //collider
     Collider collider_;
+    Collider reflectCollider_;
 
 private:
     Input* input_ = nullptr;
@@ -110,6 +117,8 @@ private:
     const int kAttackTime = 15;
     int attackTimer = kAttackTime;
 
-  
+    float num = 0.0f;
+    Vector3 easeStart{};
+    Vector3 easeEnd{};
 };
 

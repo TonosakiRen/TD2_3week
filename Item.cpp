@@ -4,9 +4,13 @@ void Item::Initialize(const std::string name, ViewProjection* viewProjection, Di
 
 	GameObject::Initialize(name, viewProjection, directionalLight);
 	worldTransform_.translation_ = position;
+	worldTransform_.rotation_.y = Radian(-90.0f);
+	worldTransform_.scale_ = { 4.0f,4.0f,4.0f };
+	size_ = worldTransform_.scale_;
 	velocity_ = { -speed_,0.0f,0.0f };
-	size_ = { 20.0f,20.0f,20.0f };
 	type_ = type;
+
+	collider_.Initialize(&worldTransform_, name, *viewProjection, *directionalLight, { 4.0f,4.0f,4.0f });
 
 }
 
@@ -21,12 +25,18 @@ void Item::Update() {
 		velocity_.y = 0.0f;
 	}
 
-	worldTransform_.UpdateMatrix();
+	if (worldTransform_.translation_.x <= -200.0f) {
+		isDead_ = true;
+	}
 
+	worldTransform_.UpdateMatrix();
+	collider_.AdjustmentScale();
+	collider_.MatrixUpdate();
 }
 
 void Item::Draw() {
 	model_.Draw(worldTransform_, *viewProjection_, *directionalLight_, material_);
+	//collider_.Draw();
 }
 
 void Item::EnBulletHit() {

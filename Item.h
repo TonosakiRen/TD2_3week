@@ -1,5 +1,6 @@
 #pragma once
 #include "GameObject.h"
+#include "Collider.h"
 
 enum class Type {
 	Accel,
@@ -19,6 +20,8 @@ private:
 
 	bool isDead_ = false;
 
+public: //Collider
+	Collider collider_;
 public:
 
 	void Initialize(const std::string name, ViewProjection* viewProjection, DirectionalLight* directionalLight, const Vector3& position, Type type);
