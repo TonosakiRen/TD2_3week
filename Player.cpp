@@ -200,7 +200,7 @@ void Player::RootInitialize() {
 }
 
 void Player::RootUpdate() {
-	if (isClear_ == false) {
+	if (isClear_ == false && isDead_ == false) {
 		if (input_->TriggerKey(DIK_SPACE)) {
 			velocity_ = { 0.0f, firstSpeed_, 0.0f };
 			isAttack_ = true;
