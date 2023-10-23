@@ -14,16 +14,19 @@ void Collapse::Initialize()
 }
 
 void Collapse::Update() {
-
+#ifdef _DEBUG
 	ImGui::Begin("collape");
 	ImGui::DragFloat("emitX", &emitX);
 	ImGui::DragFloat("emitHeight", &emitHeight);
 	ImGui::DragFloat("disaaperHaeight", &disapperHeigth);
 	ImGui::DragFloat2("randScale", &randScale.x);
-	ImGui::DragFloat("accelaration_",&accelaration_,0.0001f);
+	ImGui::DragFloat("accelaration_", &accelaration_, 0.0001f);
 	ImGui::DragFloat("offsetZ", &offsetZ);
 
 	ImGui::End();
+#endif // _DEBUG
+
+	
 
 	if (isEmit_) {
 		for (size_t i = 0; i < EmitNum_; i++) {

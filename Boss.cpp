@@ -61,6 +61,7 @@ void Boss::Update()
 {
 
 	Animation();
+#ifdef _DEBUG
 	ImGui::Begin("Boss");
 	ImGui::DragFloat3("core", &worldTransform_.translation_.x, 0.01f);
 	ImGui::DragFloat3("head", &partsTransform_[Head].translation_.x, 0.01f);
@@ -72,13 +73,16 @@ void Boss::Update()
 	ImGui::DragFloat("animationT_", &animationT_, 0.001f);
 	ImGui::DragFloat("animationSpeed_", &animationSpeed_, 0.001f);
 
-	ImGui::DragFloat("bullet speed", &bulletSpeed_,0.001f);
-	ImGui::DragFloat3("knockback", &knockbackdis.x,0.1f);
+	ImGui::DragFloat("bullet speed", &bulletSpeed_, 0.001f);
+	ImGui::DragFloat3("knockback", &knockbackdis.x, 0.1f);
 
 	ImGui::InputInt("Damage", &damage_);
 	ImGui::InputInt("BombBaseDamage", &bombBaseDamage_);
-	
+
 	ImGui::End();
+#endif // _DEBUG
+
+	
 	
 	if (behaviorRequest_) {
 		behavior_ = behaviorRequest_.value();

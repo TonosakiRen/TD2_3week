@@ -67,8 +67,12 @@ void GameScene::Update(){
 		viewProjection_.DebugMove();
 		viewProjection_.UpdateMatrix();
 		// light
+#ifdef _DEBUG
 		ImGui::DragFloat3("light", &directionalLight_.direction_.x, 0.01f);
 		ImGui::DragFloat4("lightcolor", &directionalLight_.color_.x, 0.01f);
+#endif // _DEBUG
+
+		
 		directionalLight_.direction_ = Normalize(directionalLight_.direction_);
 		directionalLight_.UpdateDirectionalLight();
 	}
@@ -164,7 +168,7 @@ void GameScene::ModelDraw()
 		}
 	}
 
-	tmpCollider_.Draw({1.0f,0.0f,0.0f,1.0f});
+	//tmpCollider_.Draw({1.0f,0.0f,0.0f,1.0f});
 
 }
 
