@@ -68,6 +68,16 @@ void Player::Initialize(const std::string name, ViewProjection* viewProjection, 
 
 void Player::Update()
 {
+
+
+	Animation();
+	ImGui::Begin("Player");
+
+	ImGui::DragFloat("firstSpeed", &firstSpeed_, 0.01f);
+	ImGui::DragFloat("gravity", &gravity_, 0.01f);
+
+	ImGui::End();
+
 	//止める
 	if (isClear_ == false && isDead_ == false) {
 		Animation();

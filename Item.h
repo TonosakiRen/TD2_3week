@@ -15,10 +15,15 @@ private:
 
 	Vector3 acceleration_{};
 	Vector3 velocity_{};
-	float gravity_ = 0.1f;
-	float speed_ = 0.3f;
+	
+	
 
 	bool isDead_ = false;
+
+private:
+
+	static float speed_;
+	static float gravity_;
 
 public: //Collider
 	Collider collider_;
