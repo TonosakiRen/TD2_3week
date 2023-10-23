@@ -14,8 +14,13 @@ public:
     void Initialize(const std::string name, ViewProjection* viewProjection, DirectionalLight* directionalLight);
     void Update();
     void Animation();
+    void ParticleStop();
     void Draw();
     void ParticleDraw();
+
+    void RotationAnimation();
+
+    void GravityUpdate();
 
     void Accel();
 
@@ -23,6 +28,29 @@ public:
 
     Vector3 GetCharaWorldPos() const;
     Vector3 GetRefWorldPos() const;
+
+
+    bool isDead_ = false;
+    bool isClear_ = false;
+ 
+    bool GetIsDead() {
+        return isDead_;
+    }
+    bool GetIsClear() {
+        return isClear_;
+    }
+
+    void SetIsEmit() {
+        dustParticle_->SetIsEmit(false);
+    }
+
+    void SetTranslation(Vector3 translation) {
+        worldTransform_.translation_ = translation;
+    }
+
+    void SetRotation(Vector3 rotation) {
+        worldTransform_.rotation_ = rotation;
+    }
 
     bool IsAttack() const { return isAttack_; }
 
@@ -94,5 +122,8 @@ private:
     float num = 0.0f;
     Vector3 easeStart{};
     Vector3 easeEnd{};
+
+    bool isRotation = false;
+    float rotationT = 0.0f;
 };
 

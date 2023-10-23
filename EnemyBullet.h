@@ -1,6 +1,7 @@
 #pragma once
 #include "GameObject.h"
 #include "Collider.h"
+#include "OrbitParticle.h"
 class EnemyBullet : public GameObject {
 private:
 
@@ -9,6 +10,7 @@ private:
 	bool isDead_ = false;
 public:
 	Collider collider_;
+	OrbitParticle orbitParticle_;
 public:
 
 	void Initialize(const std::string name, ViewProjection* viewProjection, DirectionalLight* directionalLight,const Vector3& position,const Vector3& velocity);
@@ -16,6 +18,8 @@ public:
 	void Update();
 
 	void Draw();
+
+	void ParicleDraw();
 
 	void OnCollision();
 

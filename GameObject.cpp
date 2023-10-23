@@ -12,6 +12,7 @@ GameObject* GameObject::Create(const std::string name, ViewProjection* viewProje
 
 void GameObject::Initialize(const std::string name, ViewProjection* viewProjection, DirectionalLight* directionalLight)
 {
+	loadObj_ = true;
 	model_.Initialize(name);
 	worldTransform_.Initialize();
 	material_.Initialize();

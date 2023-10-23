@@ -123,12 +123,14 @@ void Boss::Update()
 			break;
 	}
 
+
 	if (hp_ <= 0) {
 		isDead_ = true;
  		//isBreak_ = true;
 	}
 
 	//worldTransform_.translation_.y = clamp(worldTransform_.translation_.y, 10.0f, 13.9f);
+
 	
 
 	//行列更新
@@ -164,6 +166,11 @@ void Boss::Animation() {
 
 }
 void Boss::Draw() {
+	//行列更新
+	for (int i = 0; i < partNum; i++) {
+		partsTransform_[i].UpdateMatrix();
+	}
+	worldTransform_.UpdateMatrix();
 	for (int i = 0; i < partNum; i++) {
 		modelParts_[i].Draw(partsTransform_[i], *viewProjection_, *directionalLight_, material_);
 	}
@@ -174,6 +181,20 @@ void Boss::Draw() {
 void Boss::ParticleDraw() {
 	dustParticle_->Draw(viewProjection_, directionalLight_, { 0.5f,0.5f,0.5f,1.0f });
 }
+
+
+void Boss::Appear(float& t) {
+
+	worldTransform_.translation_.x = Easing::easing(t, startPos_.x, endPos_.x, 0.01f, Easing::EasingMode::easeOutQuart);
+
+}
+
+void Boss::Disappear(float& t) {
+
+	worldTransform_.translation_.x = Easing::easing(t, endPos_.x, startPos_.x, 0.01f, Easing::EasingMode::easeOutQuart,false);
+
+}
+
 
 void Boss::OnRefCollision() {
 	if (behavior_ != Behavior::kAppear) {

@@ -16,6 +16,7 @@ public:
 	void Initialize();
 	void DebugMove();
 	void UpdateMatrix();
+	bool Shake(Vector3 shakeValue, int& frame);
 
 	D3D12_GPU_VIRTUAL_ADDRESS GetGPUVirtualAddress() const {
 		return constBuff_->GetGPUVirtualAddress();
@@ -25,8 +26,9 @@ public:
 		farZ_ = farZ;
 	}
 public:
-	Vector3 translation_ = { 0, 0, -10.0f };
-	Vector3 target_ = { 0, 0, 0 };
+	Vector3 translation_ = { 0.0f, 0.0f, -10.0f };
+	Vector3 target_ = { 0.0f, 0.0f, 0.0f };
+	Vector3 shakeValue_ = { 0.0f,0.0f,0.0f };
 private:
 	void CreateConstBuffer();
 	void Map();

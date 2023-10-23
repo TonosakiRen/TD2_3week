@@ -116,6 +116,12 @@
     <ClCompile Include="Audio.cpp">
       <Filter>Engine</Filter>
     </ClCompile>
+    <ClCompile Include="Collapse.cpp">
+      <Filter>Game</Filter>
+    </ClCompile>
+    <ClCompile Include="OrbitParticle.cpp">
+      <Filter>Game</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="externals\imgui\imconfig.h">
@@ -214,6 +220,12 @@
     <ClInclude Include="Collider.h" />
     <ClInclude Include="Audio.h">
       <Filter>Engine</Filter>
+    </ClInclude>
+    <ClInclude Include="Collapse.h">
+      <Filter>Game</Filter>
+    </ClInclude>
+    <ClInclude Include="OrbitParticle.h">
+      <Filter>Game</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

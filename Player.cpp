@@ -51,6 +51,7 @@ void Player::Initialize(const std::string name, ViewProjection* viewProjection, 
 	reflectWT_.scale_ = size_ * 1.5f;
 	reflectWT_.SetParent(&worldTransform_);
 
+	isDead_ = false;
 
 	//行列更新
 	reflectWT_.UpdateMatrix();
@@ -68,6 +69,7 @@ void Player::Initialize(const std::string name, ViewProjection* viewProjection, 
 void Player::Update()
 {
 
+
 	Animation();
 	ImGui::Begin("Player");
 
@@ -75,6 +77,15 @@ void Player::Update()
 	ImGui::DragFloat("gravity", &gravity_, 0.01f);
 
 	ImGui::End();
+
+	//止める
+	if (isClear_ == false && isDead_ == false) {
+		Animation();
+	}
+	else {
+		ParticleStop();
+	}
+	RotationAnimation();
 
 	if (behaviorRequest_) {
 		behavior_ = behaviorRequest_.value();
@@ -107,15 +118,18 @@ void Player::Update()
 	    	break;
 	}
 
-	
+	ImGui::Begin("Player");
+	ImGui::DragFloat3("pos", &worldTransform_.translation_.x, 0.01f);
+	ImGui::DragFloat3("ro", &worldTransform_.rotation_.x, 0.01f);
+	ImGui::End();
 
 	//行列更新
 	reflectWT_.UpdateMatrix();
+	
 	worldTransform_.UpdateMatrix();
 	for (int i = 0; i < partNum; i++) {
 		partsTransform_[i].UpdateMatrix();
 	}
-	dustParticle_->Update();
 
 	collider_.AdjustmentScale();
 	reflectCollider_.AdjustmentScale();
@@ -124,6 +138,7 @@ void Player::Update()
 }
 void Player::Animation() {
 	dustParticle_->SetIsEmit(true);
+	dustParticle_->Update();
 	if (animationT_ >= 1.0f || animationT_ <= 0.0f)
 	{
 		animationSpeed_ *= -1.0f;
@@ -153,7 +168,16 @@ void Player::Animation() {
 		partsTransform_[i].UpdateMatrix();
 	}
 }
+void Player::ParticleStop()
+{
+	dustParticle_->SetIsEmit(false);
+	dustParticle_->Update();
+	for (int i = 0; i < partNum; i++) {
+		partsTransform_[i].UpdateMatrix();
+	}
+}
 void Player::Draw() {
+
 	model_.Draw(worldTransform_, *viewProjection_, *directionalLight_, material_);
 	for (int i = 0; i < partNum; i++) {
 		modelParts_.Draw(partsTransform_[i], *viewProjection_, *directionalLight_, material_);
@@ -166,32 +190,60 @@ void Player::ParticleDraw() {
 	dustParticle_->Draw(viewProjection_, directionalLight_,{0.5f,0.5f,0.5f,1.0f});
 }
 
-void Player::RootInitialize() {
-
-
-
-}
-
-void Player::RootUpdate() {
-
-	if (input_->TriggerKey(DIK_SPACE)) {
-		velocity_ = { 0.0f, firstSpeed_, 0.0f };
-		isAttack_ = true;
-	}
-	
-	if (isAttack_) {
-		if (--attackTimer <= 0) {
-			isAttack_ = false;
-			attackTimer = kAttackTime;
-		}
-	}
-
+void Player::GravityUpdate()
+{
 	acceleration_ = { 0.0f, -gravity_, 0.0f };
 	velocity_ += acceleration_;
 	worldTransform_.translation_ += velocity_;
 
 	if (worldTransform_.translation_.y <= size_.y) {
 		worldTransform_.translation_.y = size_.y;
+	}
+}
+
+void Player::RootInitialize() {
+
+
+
+}
+
+void Player::RotationAnimation() {
+	if (isRotation == true) {
+		isRotation = false;
+		rotationT = 0.0f;
+		worldTransform_.rotation_.x = Easing::easing(rotationT, 0.0f, Radian(360.0f), 0.05f,Easing::easeNormal);
+	}
+	if (rotationT > 0.0f) {
+		worldTransform_.rotation_.x = Easing::easing(rotationT, 0.0f, Radian(360.0f), 0.05f, Easing::easeNormal);
+	}
+	if (rotationT >= 1.0f) {
+		rotationT = 0.0f;
+	}
+
+}
+
+void Player::RootUpdate() {
+	if (isClear_ == false && isDead_ == false) {
+		if (input_->TriggerKey(DIK_SPACE)) {
+			isRotation = true;
+			velocity_ = { 0.0f, firstSpeed_, 0.0f };
+			isAttack_ = true;
+		}
+
+		if (isAttack_) {
+			if (--attackTimer <= 0) {
+				isAttack_ = false;
+				attackTimer = kAttackTime;
+			}
+		}
+
+		acceleration_ = { 0.0f, -gravity_, 0.0f };
+		velocity_ += acceleration_;
+		worldTransform_.translation_ += velocity_;
+
+		if (worldTransform_.translation_.y <= size_.y) {
+			worldTransform_.translation_.y = size_.y;
+		}
 	}
 
 }

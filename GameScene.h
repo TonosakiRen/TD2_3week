@@ -19,7 +19,8 @@
 #include <optional>
 #include "Collider.h"
 #include <sstream>
-
+#include "Collapse.h"
+#include "OrbitParticle.h"
 
 class GameScene
 {
@@ -97,6 +98,10 @@ private:
   
   Collider tmpCollider_;
 
+  //gameover用
+  Vector3 gameoverPlayerPos_ = { 0.0f,50.0f,-180.0f };
+  Vector3 gameoverPlayerRotation = { 0.0f,Radian(180.0f),Radian(360.0f * 8.0f + 45.0f)};
+
 private: //シーン用
 
 	enum class Scene {
@@ -134,6 +139,16 @@ private: //シーン用
 	//選択とカメラ移動
 	Result result_ = Result::Select;
 
+	bool isSavePlayerPos_ = false;
+	int shakeFrame_ = 6;
+	Vector3 shakeValue = { 0.2f,0.2f,0.2f };
+	float downT = 0.0f;
+	int waitFrame = 10;
+
+	//後ろの岩
+	Collapse collapse_;
+
+	OrbitParticle orbit_;
 public:
 	//タイトル
 	void TitleInitialize();
@@ -141,6 +156,8 @@ public:
 	//インゲーム
 	void InGameInitialize();
 	void InGameUpdate();
+	void clearDirection();
+	void gameoverDirection();
 	//リザルト
 	void ResultInitialize();
 	void ResultUpdate();

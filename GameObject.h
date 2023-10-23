@@ -31,5 +31,6 @@ protected:
 	ViewProjection* viewProjection_;
 	DirectionalLight* directionalLight_;
 private:
+	bool loadObj_ = false;
 };
 
