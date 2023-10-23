@@ -126,6 +126,7 @@ public:
     static float bulletSpeed_;
     static Vector3 knockbackdis;
     static int damage_;
+    static int bombBaseDamage_;
 
 };
 

@@ -86,7 +86,15 @@ void GameScene::Update(){
 	});
 
 	
-
+	if (order_ == 1) {
+		stage_ = Stage::Stage1;
+	}else if (order_ == 2) {
+		stage_ = Stage::Stage2;
+	}else if (order_ == 3) {
+		stage_ = Stage::Stage3;
+	}else {
+		stage_ = Stage::Actual;
+	}
 	
 
 	if (sceneRequest_) {
@@ -311,33 +319,34 @@ void GameScene::PopItem() {
 	    case Stage::Stage1: //アイテムなし
 	    
 	    	break;
-		case Stage::Stage2: //爆弾のみ
-
+		case Stage::Stage2: //スピードのみ
 			
-			newItem->Initialize("bomb", &viewProjection_, &directionalLight_, { 150, (Boss::size_.y * (3.0f / 2.0f)) + random, 0.0f }, Type::Bomb);
+			newItem->Initialize("accel", &viewProjection_, &directionalLight_, { 150, (Boss::size_.y * (3.0f / 2.0f)) + random, 0.0f }, Type::Accel);
 			items_.push_back(std::unique_ptr<Item>(newItem));
 
 			break;
-		case Stage::Stage3: //スピードのみ
-
+		case Stage::Stage3: //爆弾のみ
 			
-			newItem->Initialize("accel", &viewProjection_, &directionalLight_, { 150, (Boss::size_.y * (3.0f / 2.0f)) + random, 0.0f }, Type::Accel);
+			newItem->Initialize("bomb", &viewProjection_, &directionalLight_, { 150, (Boss::size_.y * (3.0f / 2.0f)) + random, 0.0f }, Type::Bomb);
 			items_.push_back(std::unique_ptr<Item>(newItem));
 
 			break;
 		case Stage::Actual:
 		default:
 
-			std::uniform_int_distribution<int> distribution2(1, 6);
-			int lot = distribution2(gen);
+			std::uniform_real_distribution<float> distribution2(0.0f, 1.0f);
+			float lot = distribution2(gen);
 			
-			if (lot % 2 == 0) {
+			if (lot < probabilityBomb) {
 				newItem->Initialize("bomb", &viewProjection_, &directionalLight_, { 150, (Boss::size_.y * (3.0f / 2.0f)) + random, 0.0f }, Type::Bomb);
 			}
-			else if (lot % 2 == 1) {
+			else {
 				newItem->Initialize("accel", &viewProjection_, &directionalLight_, { 150, (Boss::size_.y * (3.0f / 2.0f)) + random, 0.0f }, Type::Accel);
 			}
 			items_.push_back(std::unique_ptr<Item>(newItem));
+
+			probabilityAccel += 0.01f;
+			probabilityBomb = 1.0f - probabilityAccel;
 
 			break;
 

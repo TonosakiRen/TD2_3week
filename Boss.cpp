@@ -9,6 +9,7 @@ Vector3 Boss::mouthSize_ = { 20.0f,size_.y/2.0f,21.0f };
 float Boss::bulletSpeed_ = 0.5f;
 Vector3 Boss::knockbackdis = { 10.0f, 0.0f, 0.0f };
 int Boss::damage_ = 20;
+int Boss::bombBaseDamage_ = 10;
 
 void Boss::Initialize(ViewProjection* viewProjection, DirectionalLight* directionalLight)
 {
@@ -75,6 +76,7 @@ void Boss::Update()
 	ImGui::DragFloat3("knockback", &knockbackdis.x,0.1f);
 
 	ImGui::InputInt("Damage", &damage_);
+	ImGui::InputInt("BombBaseDamage", &bombBaseDamage_);
 	
 	ImGui::End();
 	
@@ -212,7 +214,7 @@ void Boss::RootUpdate() {
 		bulletVelocity_ = { bulletSpeed_, 0.0f, 0.0f };
 		Vector3 pos{};
 		pos.x = worldTransform_.translation_.x + size_.x + 1.0f;
-		pos.y = player_->GetCharaWorldPos().y;
+		pos.y = size_.y;
 
 		pos.y = min(pos.y, size_.y * 2);
 
@@ -259,6 +261,7 @@ void Boss::BombHitUpdate() {
 		num = 1.0f;
 		velocity_ = velocity_ * 1.5f;
 		behaviorRequest_ = Behavior::kRoot;
+		hp_ -= bombBaseDamage_;
 	}
 
 }

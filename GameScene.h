@@ -87,6 +87,8 @@ private:
 	const int kPopTime = 60 * 5;
 	int ItemTimer = kPopTime;
 	std::list<std::unique_ptr<Item>> items_;
+	float probabilityAccel = 0.5;
+	float probabilityBomb = 1.0f - probabilityAccel;
 
 	std::unique_ptr<Particle> particle_;
 
@@ -125,7 +127,7 @@ private: //シーン用
 	static void (GameScene:: *SceneTable[])();
 	std::optional<Scene> sceneRequest_ = std::nullopt;
 
-	Stage stage_ = Stage::Stage1;
+	Stage stage_ = Stage::Stage3;
 
 	//title or continue
 	Selection select_ = Selection::ToTitle;
