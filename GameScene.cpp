@@ -386,6 +386,8 @@ void GameScene::InGameInitialize() {
 	shakeFrame_ = 6;
 	downT = 0.0f;
 	waitFrame = 10;
+	player_->isClear_ = false;
+	player_->isDead_ = false;
 }
 
 void GameScene::InGameUpdate() {	

@@ -88,7 +88,7 @@ private:
 
   //gameover用
   Vector3 gameoverPlayerPos_ = { 0.0f,50.0f,-180.0f };
-  Vector3 gameoverPlayerRotation = { 0.0f,0.0f,Radian(360.0f * 8.0f + 45.0f)};
+  Vector3 gameoverPlayerRotation = { 0.0f,Radian(180.0f),Radian(360.0f * 8.0f + 45.0f)};
 
 private: //シーン用
 

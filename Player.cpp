@@ -213,9 +213,9 @@ void Player::RootUpdate() {
 			}
 		}
 
-		/*acceleration_ = { 0.0f, -gravity_, 0.0f };
+		acceleration_ = { 0.0f, -gravity_, 0.0f };
 		velocity_ += acceleration_;
-		worldTransform_.translation_ += velocity_;*/
+		worldTransform_.translation_ += velocity_;
 
 		if (worldTransform_.translation_.y <= size_.y) {
 			worldTransform_.translation_.y = size_.y;
