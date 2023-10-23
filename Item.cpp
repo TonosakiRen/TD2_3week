@@ -1,4 +1,8 @@
 #include "Item.h"
+#include "ImGuiManager.h"
+
+float Item::speed_ = 0.3f;
+float Item::gravity_ = 0.1f;
 
 void Item::Initialize(const std::string name, ViewProjection* viewProjection, DirectionalLight* directionalLight, const Vector3& position, Type type) {
 
@@ -15,6 +19,13 @@ void Item::Initialize(const std::string name, ViewProjection* viewProjection, Di
 }
 
 void Item::Update() {
+
+	ImGui::Begin("item");
+
+	ImGui::DragFloat("speed", &speed_, 0.01f);
+	ImGui::DragFloat("gravity", &gravity_, 0.01f);
+
+	ImGui::End();
 
 	velocity_ += acceleration_;
 	worldTransform_.translation_ += velocity_;
