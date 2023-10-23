@@ -18,6 +18,8 @@ public:
     void Draw();
     void ParticleDraw();
 
+    void RotationAnimation();
+
     void GravityUpdate();
 
     void Accel();
@@ -120,5 +122,8 @@ private:
     float num = 0.0f;
     Vector3 easeStart{};
     Vector3 easeEnd{};
+
+    bool isRotation = false;
+    float rotationT = 0.0f;
 };
 

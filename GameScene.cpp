@@ -159,6 +159,9 @@ void GameScene::ParticleBoxDraw()
 	player_->ParticleDraw();
 	collapse_.Draw(&viewProjection_, &directionalLight_, { 0.5f,0.5f,0.5f,1.0f });
 	orbit_.Draw(&viewProjection_, &directionalLight_, { 0.5f,0.5f,0.5f,1.0f });
+	for (const auto& bullet : enemyBullets_) {
+		bullet->ParicleDraw();
+	}
 }
 
 void GameScene::PreSpriteDraw()
@@ -497,7 +500,7 @@ void GameScene::ResultUpdate() {
 			if (input_->TriggerKey(DIK_SPACE)) {
 				result_ = Result::Translation;
 				if (player_->isDead_) {
-					player_->SetTranslation({0.0f,20.0f,0.0f});
+					player_->SetTranslation({0.0f,100.0f,0.0f});
 					player_->SetRotation({ 0.0f,0.0f,0.0f });
 				}
 			}

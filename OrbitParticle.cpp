@@ -15,13 +15,6 @@ void OrbitParticle::Initialize()
 
 void OrbitParticle::Update() {
 
-	ImGui::Begin("orbit");
-	ImGui::DragFloat3("scale", &emitterWorldTransform_.scale_.x);
-	ImGui::DragFloat3("tras", &emitterWorldTransform_.translation_.x);
-	ImGui::DragFloat3("scalespeed", &emitterWorldTransform_.translation_.x);
-	ImGui::DragFloat("speed", &speed_);
-	ImGui::End();
-
 	emitterWorldTransform_.UpdateMatrix();
 
 	if (isEmit_) {

@@ -75,7 +75,7 @@ void Player::Update()
 	else {
 		ParticleStop();
 	}
-	
+	RotationAnimation();
 
 	if (behaviorRequest_) {
 		behavior_ = behaviorRequest_.value();
@@ -116,12 +116,10 @@ void Player::Update()
 	//行列更新
 	reflectWT_.UpdateMatrix();
 	
-		worldTransform_.UpdateMatrix();
-		for (int i = 0; i < partNum; i++) {
-			partsTransform_[i].UpdateMatrix();
-		}
-	
-	
+	worldTransform_.UpdateMatrix();
+	for (int i = 0; i < partNum; i++) {
+		partsTransform_[i].UpdateMatrix();
+	}
 
 	collider_.AdjustmentScale();
 	reflectCollider_.AdjustmentScale();
@@ -199,9 +197,25 @@ void Player::RootInitialize() {
 
 }
 
+void Player::RotationAnimation() {
+	if (isRotation == true) {
+		isRotation = false;
+		rotationT = 0.0f;
+		worldTransform_.rotation_.x = Easing::easing(rotationT, 0.0f, Radian(360.0f), 0.05f,Easing::easeNormal);
+	}
+	if (rotationT > 0.0f) {
+		worldTransform_.rotation_.x = Easing::easing(rotationT, 0.0f, Radian(360.0f), 0.05f, Easing::easeNormal);
+	}
+	if (rotationT >= 1.0f) {
+		rotationT = 0.0f;
+	}
+
+}
+
 void Player::RootUpdate() {
 	if (isClear_ == false && isDead_ == false) {
 		if (input_->TriggerKey(DIK_SPACE)) {
+			isRotation = true;
 			velocity_ = { 0.0f, firstSpeed_, 0.0f };
 			isAttack_ = true;
 		}

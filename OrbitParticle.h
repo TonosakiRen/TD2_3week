@@ -30,7 +30,7 @@ public:
 	int EmitNum_ = 1;
 private:
 	float speed_ = 0.1f;
-	float scaleSpeed_ = 0.01f;
+	float scaleSpeed_ = 0.03f;
 	bool isEmit_ = true;
 	uint32_t emitAllNum_ = 0;
 	std::unique_ptr<ParticleBox> particleBox_;
