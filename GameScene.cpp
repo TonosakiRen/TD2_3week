@@ -465,79 +465,54 @@ void GameScene::TitleUpdate() {
 		viewProjection_.translation_ = Easing::easing(cameraT_, titleCameraPos_, gameCameraPos_, 0.01f, Easing::easeNormal, false);
 		viewProjection_.target_ = Easing::easing(cameraT_, titleCameraTar_, gameCameraTar_, 0.01f, Easing::easeNormal, true);
 	}
-	
+
 
 	skydome_->Update();
 	floor_->Update();
 }
 
-
 void GameScene::InGameInitialize() {
 
-	cameraT_ = 0.0f;
-	order_ = 1;
-	if (boss_.size() == 0) {
-		BossPopComand();
-	}
-
-
-void GameScene::BossAppaerInitialize() {
-	bossT_ = 0.0f;
-	player_->isClear_ = false;
-	player_->isDead_ = false;
-}
-
-void GameScene::BossAppaerUpdate() {
-
-	
-	boss_->Appear(bossT_);
-	if (bossT_ >= 1.0f) {
-		bossT_ = 0.0f;
-		sceneRequest_ = Scene::InGame;
-	}
-	
-	player_->Animation();
-	player_->GravityUpdate();
-	skydome_->Update();
-	floor_->Update();
-	boss_->Animation();
-}
-
-void GameScene::InGameInitialize() {
-
-	cameraT_ = 0.0f;
 	isSavePlayerPos_ = false;
 	shakeFrame_ = 6;
 	downT = 0.0f;
 	waitFrame = 10;
 	player_->isClear_ = false;
 	player_->isDead_ = false;
+
+	cameraT_ = 0.0f;
+	order_ = 1;
+	if (boss_.size() == 0) {
+		BossPopComand();
+	}
 }
 
-void GameScene::InGameUpdate() {	
+void GameScene::InGameUpdate() {
 
 	CollisionCheck();
 
 	if (input_->TriggerKey(DIK_E)) {
-    
-	clearDirection();
-	gameoverDirection();
-	if (--ItemTimer <= 0) {
-		PopItem();
-		ItemTimer = kPopTime;
-	}
-	skydome_->Update();
-	floor_->Update();
-	player_->Update();
-	boss_->Update();
 
-	for (const auto& bullet : enemyBullets_) {
-		bullet->Update();
-	}
-	for (const auto& items : items_) {
-		items->Update();
-	}
+		clearDirection();
+		gameoverDirection();
+		if (--ItemTimer <= 0) {
+			PopItem();
+			ItemTimer = kPopTime;
+		}
+		skydome_->Update();
+		floor_->Update();
+		player_->Update();
+		boss_[0]->Update();
 
+		for (const auto& bullet : enemyBullets_) {
+			bullet->Update();
+		}
+		for (const auto& items : items_) {
+			items->Update();
+		}
+
+
+	}
 }
 
 void GameScene::clearDirection() {
@@ -596,7 +571,7 @@ void GameScene::gameoverDirection() {
 	}
 
 	if (isCameraMove_ && player_->GetIsDead()) {
-		boss_->Disappear(cameraT_);
+		boss_[0]->Disappear(cameraT_);
 		player_->SetTranslation(Easing::easing(cameraT_, resultCameraPos_, gameoverPlayerPos_, 0.05f, Easing::easeNormal, true));
 		player_->SetRotation(Easing::easing(cameraT_, { 0.0f,0.0f,0.0f }, gameoverPlayerRotation, 0.05f, Easing::easeNormal, false));
 	}
@@ -635,9 +610,6 @@ void GameScene::ResultInitialize() {
 }
 
 void GameScene::ResultUpdate() {
-
-	bossT_ = 0.0f;
-	boss_->Appear(bossT_);
 	player_->ParticleStop();
 	switch (result_) {
 	    case Result::Select: //タイトルに戻るか続けるかの選択
