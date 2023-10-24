@@ -33,8 +33,8 @@ public:
 	dustParticle particles[kParticleNum];
 	int EmitNum_ = 5;
 private:
-	float speed_ = 0.8f;
-	float scaleSpeed_ = 0.08f;
+	float speed_ = 2.0f;
+	float scaleSpeed_ = 0.2f;
 	bool isEmit_ = false;
 	int32_t emitFrame_ = 0;
 	std::unique_ptr<ParticleBox> particleBox_;
