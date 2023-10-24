@@ -504,6 +504,11 @@ void GameScene::InGameUpdate() {
 	player_->Update();
 	boss_[0]->Update();
 
+	if (boss_[0]->IsDead()) {
+		BossPopComand();
+		//Boss::isBreak_ = false;
+	}
+
 	for (const auto& bullet : enemyBullets_) {
 		bullet->Update();
 	}
@@ -551,10 +556,7 @@ void GameScene::clearDirection() {
 	//player_->Update();
 	//boss_[0]->Update();
 
-	if (boss_[0]->IsDead()) {
-		BossPopComand();
-		//Boss::isBreak_ = false;
-	}
+	
 
 }
 void GameScene::gameoverDirection() {

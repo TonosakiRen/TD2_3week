@@ -88,6 +88,7 @@ private:
 	const int kPopTime = 60 * 5;
 	int ItemTimer = kPopTime;
 	std::list<std::unique_ptr<Item>> items_;
+	//出現確率
 	float probabilityAccel = 0.5;
 	float probabilityBomb = 1.0f - probabilityAccel;
 
