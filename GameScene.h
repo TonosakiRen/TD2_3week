@@ -139,7 +139,7 @@ private: //シーン用
 	static void (GameScene:: *SceneTable[])();
 	std::optional<Scene> sceneRequest_ = std::nullopt;
 
-	Stage stage_ = Stage::Stage3;
+	Stage stage_ = Stage::Stage1;
 
 	//title or continue
 	Selection select_ = Selection::ToTitle;

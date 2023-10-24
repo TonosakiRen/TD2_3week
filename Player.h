@@ -26,6 +26,9 @@ public:
 
     void Explosion();
 
+    void ClearEasingInitialize();
+    void ClearEasingUpdate(float& t);
+
     Vector3 GetCharaWorldPos() const;
     Vector3 GetRefWorldPos() const;
 
