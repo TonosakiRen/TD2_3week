@@ -69,8 +69,6 @@ void Player::Initialize(const std::string name, ViewProjection* viewProjection, 
 void Player::Update()
 {
 
-
-	Animation();
 	ImGui::Begin("Player");
 
 	ImGui::DragFloat("firstSpeed", &firstSpeed_, 0.01f);

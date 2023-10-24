@@ -118,8 +118,6 @@ void GameScene::Update(){
 	}
 
 	
-
-	
 	(this->*SceneTable[static_cast<size_t>(scene_)])();
 
 	boss_.erase(std::remove_if(boss_.begin(), boss_.end(), [](const std::unique_ptr<Boss>& boss) {
@@ -491,28 +489,26 @@ void GameScene::InGameUpdate() {
 
 	CollisionCheck();
 
-	if (input_->TriggerKey(DIK_E)) {
-
-		clearDirection();
-		gameoverDirection();
-		if (--ItemTimer <= 0) {
-			PopItem();
-			ItemTimer = kPopTime;
-		}
-		skydome_->Update();
-		floor_->Update();
-		player_->Update();
-		boss_[0]->Update();
-
-		for (const auto& bullet : enemyBullets_) {
-			bullet->Update();
-		}
-		for (const auto& items : items_) {
-			items->Update();
-		}
-
-
+	clearDirection();
+	gameoverDirection();
+	if (--ItemTimer <= 0) {
+		PopItem();
+		ItemTimer = kPopTime;
 	}
+	skydome_->Update();
+	floor_->Update();
+	player_->Update();
+	boss_[0]->Update();
+
+	for (const auto& bullet : enemyBullets_) {
+		bullet->Update();
+	}
+	for (const auto& items : items_) {
+		items->Update();
+	}
+
+
+	
 }
 
 void GameScene::clearDirection() {
@@ -546,10 +542,10 @@ void GameScene::clearDirection() {
 		}
 	}
 	
-	skydome_->Update();
-	floor_->Update();
-	player_->Update();
-	boss_[0]->Update();
+	//skydome_->Update();
+	//floor_->Update();
+	//player_->Update();
+	//boss_[0]->Update();
 
 	if (boss_[0]->IsDead()) {
 		BossPopComand();
