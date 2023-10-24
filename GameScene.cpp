@@ -140,13 +140,23 @@ void GameScene::Update(){
 
 	boss_.end());
 
-	tmpCollider_.AdjustmentScale();
 	bool isHitBulee = false;
 	for (const auto& bullet : enemyBullets_) {
 		isHitBulee  = tmpCollider_.Collision(bullet->collider_);
 		if (isHitBulee == true) {
 			break;
 		}
+	}
+
+	if (input_->TriggerKey(DIK_U)) {
+		collapseFrame = 10;
+	}
+	collapseFrame--;
+	if (collapseFrame > 0) {
+		collapse_.SetIsEmit(true);
+	}
+	else {
+		collapse_.SetIsEmit(false);
 	}
 
 	collapse_.Update();
@@ -156,6 +166,9 @@ void GameScene::Update(){
 	}
 	explodePlayerParticle_.Update();
 	explodeBossParticle_.Update();
+	
+	viewProjection_.Shake({ 3.0f,3.0f,3.0f }, explodeFrame_);
+
 	for (int i = 0; i < pillarNum; i++) {
 		pillar_[i].Update();
 	}
@@ -211,7 +224,7 @@ void GameScene::ParticleBoxDraw()
 	player_->ParticleDraw();
 	explodePlayerParticle_.Draw(&viewProjection_, &directionalLight_,{1.0f,0.0f,0.0f,1.0f});
 	explodeBossParticle_.Draw(&viewProjection_, &directionalLight_, { 1.0f,0.0f,0.0f,1.0f });
-	collapse_.Draw(&viewProjection_, &directionalLight_, { 0.5f,0.5f,0.5f,1.0f });
+	collapse_.Draw(&viewProjection_, &directionalLight_, { 121.0f / (255.0f * 4.0f), 101.0f / (255.0f * 4.0f), 53.0f / (255.0f * 4.0f) });
 	orbit_.Draw(&viewProjection_, &directionalLight_, { 0.5f,0.5f,0.5f,1.0f });
 	for (const auto& bullet : enemyBullets_) {
 		bullet->ParicleDraw();
@@ -325,8 +338,10 @@ void GameScene::CollisionCheck() {
 			}
 			if (item->GetType() == Type::Bomb) {
 				player_->Explosion();
+				explodeFrame_ = 6;
 				explodePlayerParticle_.SetIsEmit(true);
 				explodePlayerParticle_.emitterWorldTransform_.translation_ = player_->GetWorldTransform()->translation_;
+				collapseFrame = 10;
 			}
 		}
 	}
@@ -341,8 +356,10 @@ void GameScene::CollisionCheck() {
 			}
 			if (item->GetType() == Type::Bomb) {
 				boss_[0]->Explosion();
+				explodeFrame_ = 6;
 				explodeBossParticle_.SetIsEmit(true);
 				explodeBossParticle_.emitterWorldTransform_.translation_ = boss_[0]->GetWorldTransform()->translation_;
+				collapseFrame = 10;
 			}
 		}
 	}
@@ -563,7 +580,6 @@ void GameScene::clearDirection() {
 			player_->GetCharaWorldPos().y,
 			player_->GetCharaWorldPos().z - 40.0f
 		};
-		//
 	}
 	if (cameraT_ >= 1.0f && player_->GetIsClear()) {
 		sceneRequest_ = Scene::Result;
