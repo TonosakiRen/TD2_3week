@@ -84,7 +84,7 @@ void Player::Update()
 	
 
 	//止める
-	if (isClear_ == false && isDead_ == false) {
+	if (/*isClear_ == false && */isDead_ == false) {
 		Animation();
 	}
 	else {
@@ -319,6 +319,19 @@ void Player::Accel() {
 void Player::Explosion() {
 
 	behaviorRequest_ = Behavior::kBombHit;
+
+}
+
+void Player::ClearEasingInitialize() {
+
+	easeStart = worldTransform_.translation_;
+	easeEnd = { 0.0f,9.0f,0.0f };
+
+}
+
+void Player::ClearEasingUpdate(float& t) {
+
+	worldTransform_.translation_ = Easing::easing(t, easeStart, easeEnd, 0.01f, Easing::easeNormal, false);
 
 }
 

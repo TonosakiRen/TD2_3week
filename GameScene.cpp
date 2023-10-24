@@ -92,15 +92,7 @@ void GameScene::Update(){
 	});
 
 	
-	if (order_ == 1) {
-		stage_ = Stage::Stage1;
-	}else if (order_ == 2) {
-		stage_ = Stage::Stage2;
-	}else if (order_ == 3) {
-		stage_ = Stage::Stage3;
-	}else {
-		stage_ = Stage::Actual;
-	}
+	
 	
 
 	if (sceneRequest_) {
@@ -456,6 +448,7 @@ void GameScene::TitleInitialize() {
 	player_->isDead_ = false;
 	cameraT_ = 0.0f;
 	isCameraMove_ = false;
+	stage_ = Stage::Stage1;
 
 }
 
@@ -494,10 +487,6 @@ void GameScene::InGameInitialize() {
 	player_->isDead_ = false;
 
 	cameraT_ = 0.0f;
-	order_ = 1;
-	if (boss_.size() == 0) {
-		BossPopComand();
-	}
 }
 
 void GameScene::InGameUpdate() {
@@ -506,10 +495,8 @@ void GameScene::InGameUpdate() {
 
 	clearDirection();
 	gameoverDirection();
-	if (--ItemTimer <= 0) {
-		PopItem();
-		ItemTimer = kPopTime;
-	}
+
+	
 	skydome_->Update();
 	floor_->Update();
 	player_->Update();
@@ -517,17 +504,26 @@ void GameScene::InGameUpdate() {
 
 	if (boss_[0]->IsDead()) {
 		BossPopComand();
-		//Boss::isBreak_ = false;
+		
+		if (stage_ == Stage::Stage1) { stage_ = Stage::Stage2; }
+		else if (stage_ == Stage::Stage2) { stage_ = Stage::Stage3; }
+		else if (stage_ == Stage::Stage3) { stage_ = Stage::Actual; }
 	}
 
-	for (const auto& bullet : enemyBullets_) {
-		bullet->Update();
-	}
-	for (const auto& items : items_) {
-		items->Update();
-	}
+	
 
-
+	if (player_->isClear_ == false && player_->isDead_ == false) {
+		if (--ItemTimer <= 0) {
+			PopItem();
+			ItemTimer = kPopTime;
+		}
+		for (const auto& bullet : enemyBullets_) {
+			bullet->Update();
+		}
+		for (const auto& items : items_) {
+			items->Update();
+		}
+	}
 	
 }
 
@@ -539,11 +535,14 @@ void GameScene::clearDirection() {
 		//リザルトシーンのカメラの位置の設定
 		//プレイヤーの位置から少しずらしたところ
 		resultCameraPos_ = {
-			player_->GetCharaWorldPos().x + 10.0f,
-			player_->GetCharaWorldPos().y,
-			player_->GetCharaWorldPos().z - 40.0f
+			10.0f,
+			9.0f,
+			-40.0f
 		};
 		//
+		enemyBullets_.clear();
+		items_.clear();
+		player_->ClearEasingInitialize();
 	}
 	if (cameraT_ >= 1.0f && player_->GetIsClear()) {
 		sceneRequest_ = Scene::Result;
@@ -551,16 +550,17 @@ void GameScene::clearDirection() {
 		cameraT_ = 0.0f;
 	}
 	if (isCameraMove_ && player_->GetIsClear()) {
+		player_->ClearEasingUpdate(cameraT_);
 		viewProjection_.translation_ = Easing::easing(cameraT_, gameCameraPos_, resultCameraPos_, 0.01f, Easing::easeNormal, false);
 		viewProjection_.target_ = Easing::easing(cameraT_, gameCameraTar_, resultCameraTar_, 0.01f, Easing::easeNormal, true);
 	}
 
-	if (stage_ != Stage::Stage1) {
+	/*if (stage_ != Stage::Stage1) {
 		if (--ItemTimer <= 0) {
 			PopItem();
 			ItemTimer = kPopTime;
 		}
-	}
+	}*/
 	
 	//skydome_->Update();
 	//floor_->Update();
@@ -581,6 +581,8 @@ void GameScene::gameoverDirection() {
 			player_->GetCharaWorldPos().y,
 			player_->GetCharaWorldPos().z
 		};
+		enemyBullets_.clear();
+		items_.clear();
 	}
 
 	if (isCameraMove_ && player_->GetIsDead()) {
@@ -616,9 +618,13 @@ void GameScene::ResultInitialize() {
 	select_ = Selection::ToTitle;
 	result_ = Result::Select;
 
-
-	enemyBullets_.clear();
-	items_.clear();
+	if (enemyBullets_.size() != 0) {
+		enemyBullets_.clear();
+	}
+	if (items_.size() != 0) {
+		items_.clear();
+	}
+	
 	boss_.clear();
 }
 
@@ -630,9 +636,10 @@ void GameScene::ResultUpdate() {
 			if (input_->TriggerKey(DIK_SPACE)) {
 				result_ = Result::Translation;
 				if (player_->isDead_) {
-					player_->SetTranslation({0.0f,100.0f,0.0f});
+					player_->SetTranslation({0.0f,150.0f,0.0f});
 					player_->SetRotation({ 0.0f,0.0f,0.0f });
 				}
+				BossPopComand();
 			}
 
 			switch (select_){
@@ -641,14 +648,16 @@ void GameScene::ResultUpdate() {
 					if (input_->TriggerKey(DIK_DOWN)) {
 						select_ = Selection::Continue;
 					}
-
+					order_ = 1;
+					stage_ = Stage::Stage1;
 			    	break;
 			    case GameScene::Selection::Continue:
 					nextScene = Scene::InGame;
 					if (input_->TriggerKey(DIK_UP)) {
 						select_ = Selection::ToTitle;
 					}
-
+					order_ = 1;
+					stage_ = Stage::Actual;
 			    	break;
 			    default:
 			    	break;
@@ -687,6 +696,12 @@ void GameScene::ResultUpdate() {
 			
 
 			break;
+	}
+
+	if (player_->isClear_) {
+		skydome_->Update();
+		floor_->Update();
+		player_->Animation();
 	}
 
 }
