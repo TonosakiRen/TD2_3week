@@ -65,6 +65,10 @@ void GameScene::Initialize() {
 
 	explodePlayerParticle_.Initialize();
 	explodeBossParticle_.Initialize();
+
+	bossExplode_.Initialize();
+
+	blockHandle_ = TextureManager::Load("block.png");
 }
 
 void GameScene::Update(){
@@ -163,6 +167,14 @@ void GameScene::Update(){
 	
 	viewProjection_.Shake({ 3.0f,3.0f,3.0f }, explodeFrame_);
 
+	bossExplodeFrame--;
+	if (bossExplodeFrame > 0) {
+		bossExplode_.SetIsEmit(true);
+	}
+	else {
+		bossExplode_.SetIsEmit(false);
+	}
+	bossExplode_.Update();
 	for (int i = 0; i < pillarNum; i++) {
 		pillar_[i].Update();
 	}
@@ -220,6 +232,7 @@ void GameScene::ParticleBoxDraw()
 	explodeBossParticle_.Draw(&viewProjection_, &directionalLight_, { 1.0f,0.0f,0.0f,1.0f });
 	collapse_.Draw(&viewProjection_, &directionalLight_, { 121.0f / (255.0f * 4.0f), 101.0f / (255.0f * 4.0f), 53.0f / (255.0f * 4.0f) });
 	orbit_.Draw(&viewProjection_, &directionalLight_, { 0.5f,0.5f,0.5f,1.0f });
+	bossExplode_.Draw(&viewProjection_, &directionalLight_, { 1.0f,1.0f,1.0f,1.0f },blockHandle_);
 	for (const auto& bullet : enemyBullets_) {
 		bullet->ParicleDraw();
 	}
@@ -270,7 +283,6 @@ void GameScene::Draw() {
 
 void GameScene::CollisionCheck() {
 
-	tmpCollider_.AdjustmentScale();
 
 	//敵弾とプレイヤーとの衝突判定
 	bool isHitBulee = false;
@@ -563,8 +575,13 @@ void GameScene::InGameUpdate() {
 	boss_[0]->Update();
 
 	if (boss_[0]->IsDead()) {
+		bossExplode_.emitterWorldTransform_.translation_= boss_[0]->GetWorldPos();
 		BossPopComand();
 		//Boss::isBreak_ = false;
+		bossExplodeFrame = 10;
+	}
+	if (input_->TriggerKey(DIK_Y)) {
+		bossExplodeFrame = 10;
 	}
 
 	for (const auto& bullet : enemyBullets_) {
