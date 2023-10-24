@@ -21,6 +21,8 @@
 #include <sstream>
 #include "Collapse.h"
 #include "OrbitParticle.h"
+#include "Pillar.h"
+#include "ExplodeParticle.h"
 
 class GameScene
 {
@@ -144,15 +146,24 @@ private: //シーン用
 	Result result_ = Result::Select;
 
 	bool isSavePlayerPos_ = false;
-	int shakeFrame_ = 6;
+	int shakeFrame_ = 0;
+	int explodeFrame_ = 0;
 	Vector3 shakeValue = { 0.2f,0.2f,0.2f };
 	float downT = 0.0f;
 	int waitFrame = 10;
+
+	int collapseFrame = 0;
 
 	//後ろの岩
 	Collapse collapse_;
 
 	OrbitParticle orbit_;
+
+	static const int pillarNum = 10;
+	Pillar pillar_[pillarNum];
+
+	ExplodeParticle explodePlayerParticle_;
+	ExplodeParticle explodeBossParticle_;
 public:
 	//タイトル
 	void TitleInitialize();

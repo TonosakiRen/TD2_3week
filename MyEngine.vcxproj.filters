@@ -122,6 +122,10 @@
     <ClCompile Include="OrbitParticle.cpp">
       <Filter>Game</Filter>
     </ClCompile>
+    <ClCompile Include="Pillar.cpp" />
+    <ClCompile Include="ExplodeParticle.cpp">
+      <Filter>Game</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="externals\imgui\imconfig.h">
@@ -225,6 +229,10 @@
       <Filter>Game</Filter>
     </ClInclude>
     <ClInclude Include="OrbitParticle.h">
+      <Filter>Game</Filter>
+    </ClInclude>
+    <ClInclude Include="Pillar.h" />
+    <ClInclude Include="ExplodeParticle.h">
       <Filter>Game</Filter>
     </ClInclude>
   </ItemGroup>
