@@ -23,6 +23,7 @@
 #include "OrbitParticle.h"
 #include "Pillar.h"
 #include "ExplodeParticle.h"
+#include "BossExplode.h"
 
 class GameScene
 {
@@ -164,6 +165,11 @@ private: //シーン用
 
 	ExplodeParticle explodePlayerParticle_;
 	ExplodeParticle explodeBossParticle_;
+
+	BossExplode bossExplode_;
+
+	uint32_t blockHandle_;
+	int bossExplodeFrame = 0;
 public:
 	//タイトル
 	void TitleInitialize();

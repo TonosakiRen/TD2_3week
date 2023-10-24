@@ -126,6 +126,9 @@
     <ClCompile Include="ExplodeParticle.cpp">
       <Filter>Game</Filter>
     </ClCompile>
+    <ClCompile Include="BossExplode.cpp">
+      <Filter>Game</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="externals\imgui\imconfig.h">
@@ -233,6 +236,9 @@
     </ClInclude>
     <ClInclude Include="Pillar.h" />
     <ClInclude Include="ExplodeParticle.h">
+      <Filter>Game</Filter>
+    </ClInclude>
+    <ClInclude Include="BossExplode.h">
       <Filter>Game</Filter>
     </ClInclude>
   </ItemGroup>
