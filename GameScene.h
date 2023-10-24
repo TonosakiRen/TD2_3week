@@ -21,6 +21,8 @@
 #include <sstream>
 #include "Collapse.h"
 #include "OrbitParticle.h"
+#include "Pillar.h"
+#include "ExplodeParticle.h"
 
 class GameScene
 {
@@ -88,8 +90,12 @@ private:
 	const int kPopTime = 60 * 5;
 	int ItemTimer = kPopTime;
 	std::list<std::unique_ptr<Item>> items_;
+	//出現確率
 	float probabilityAccel = 0.5;
 	float probabilityBomb = 1.0f - probabilityAccel;
+
+	float itemBorderHighLine_ = 50.0f;
+	float itemBorderLowLine_ = -50.0f;
 
 	std::unique_ptr<Particle> particle_;
 
@@ -140,15 +146,24 @@ private: //シーン用
 	Result result_ = Result::Select;
 
 	bool isSavePlayerPos_ = false;
-	int shakeFrame_ = 6;
+	int shakeFrame_ = 0;
+	int explodeFrame_ = 0;
 	Vector3 shakeValue = { 0.2f,0.2f,0.2f };
 	float downT = 0.0f;
 	int waitFrame = 10;
+
+	int collapseFrame = 0;
 
 	//後ろの岩
 	Collapse collapse_;
 
 	OrbitParticle orbit_;
+
+	static const int pillarNum = 10;
+	Pillar pillar_[pillarNum];
+
+	ExplodeParticle explodePlayerParticle_;
+	ExplodeParticle explodeBossParticle_;
 public:
 	//タイトル
 	void TitleInitialize();

@@ -49,7 +49,9 @@ void Player::Initialize(const std::string name, ViewProjection* viewProjection, 
 	reflectWT_.Initialize();
 	reflectWT_.translation_ = {};
 	reflectWT_.scale_ = size_ * 1.5f;
+	reflectWT_.rotation_.y = Radian(90.0f);
 	reflectWT_.SetParent(&worldTransform_);
+	reflectWT_.SetIsRotateParent(false);
 
 	isDead_ = false;
 
@@ -127,7 +129,7 @@ void Player::Update()
 	ImGui::End();
 #endif // _DEBUG
 
-	
+	worldTransform_.translation_.y = min(worldTransform_.translation_.y, jampLimitHeight_);
 
 	//行列更新
 	reflectWT_.UpdateMatrix();
@@ -267,6 +269,10 @@ void Player::AccelInitialize() {
 
 void Player::AccelUpdate() {
 
+	if (worldTransform_.translation_.x >= 90.0f) {
+		behaviorRequest_ = Behavior::kRoot;
+		return; 
+	}
 	
 	worldTransform_.translation_ = Easing::easing(num, easeStart, easeEnd, 0.1f, Easing::EasingMode::easeOutQuart);
 

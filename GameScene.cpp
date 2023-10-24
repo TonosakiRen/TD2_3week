@@ -28,7 +28,7 @@ void GameScene::Initialize() {
 	viewProjection_.UpdateMatrix();
 
 	directionalLight_.Initialize();
-	directionalLight_.direction_ = { 1.0f, -1.0f, 1.0f };
+	directionalLight_.direction_ = { 0.966f, -0.258f, -0.031f };
 	directionalLight_.UpdateDirectionalLight();
 
 
@@ -58,6 +58,13 @@ void GameScene::Initialize() {
 
 	collapse_.Initialize();
 	orbit_.Initialize();
+
+	for (int i = 0; i < pillarNum; i++) {
+		pillar_[i].Initialize("pillar", &viewProjection_, &directionalLight_, { 10.0f,10.0f,10.0f },{380.0f - (i * 100.0f),-40.0f,140.0f});
+	}
+
+	explodePlayerParticle_.Initialize();
+	explodeBossParticle_.Initialize();
 }
 
 void GameScene::Update(){
@@ -130,10 +137,9 @@ void GameScene::Update(){
 		}
 		return false;
 	}),
-	boss_.end());
-	
 
-	tmpCollider_.AdjustmentScale();
+	boss_.end());
+
 	bool isHitBulee = false;
 	for (const auto& bullet : enemyBullets_) {
 		isHitBulee  = tmpCollider_.Collision(bullet->collider_);
@@ -142,8 +148,36 @@ void GameScene::Update(){
 		}
 	}
 
+	collapseFrame--;
+	if (collapseFrame > 0) {
+		collapse_.SetIsEmit(true);
+	}
+	else {
+		collapse_.SetIsEmit(false);
+	}
+
 	collapse_.Update();
 
+	explodePlayerParticle_.Update();
+	explodeBossParticle_.Update();
+	
+	viewProjection_.Shake({ 3.0f,3.0f,3.0f }, explodeFrame_);
+
+	for (int i = 0; i < pillarNum; i++) {
+		pillar_[i].Update();
+	}
+	ImGui::Begin("piii");
+	ImGui::DragFloat3("tranpillar1", &pillar_[0].GetWorldTransform()->translation_.x, 0.01f);
+	ImGui::DragFloat3("tranpillar2", &pillar_[1].GetWorldTransform()->translation_.x, 0.01f);
+	ImGui::DragFloat3("tranpillar3", &pillar_[2].GetWorldTransform()->translation_.x, 0.01f);
+	ImGui::DragFloat3("tranpillar4", &pillar_[3].GetWorldTransform()->translation_.x, 0.01f);
+	ImGui::DragFloat3("tranpillar5", &pillar_[4].GetWorldTransform()->translation_.x, 0.01f);
+	ImGui::DragFloat3("tranpillar6", &pillar_[5].GetWorldTransform()->translation_.x, 0.01f);
+	ImGui::DragFloat3("tranpillar7", &pillar_[6].GetWorldTransform()->translation_.x, 0.01f);
+	ImGui::DragFloat3("tranpillar8", &pillar_[7].GetWorldTransform()->translation_.x, 0.01f);
+	ImGui::DragFloat3("tranpillar9", &pillar_[8].GetWorldTransform()->translation_.x, 0.01f);
+	ImGui::DragFloat3("tranpillar10", &pillar_[9].GetWorldTransform()->translation_.x, 0.01f);
+	ImGui::End();
 }
 
 void GameScene::ModelDraw()
@@ -152,6 +186,9 @@ void GameScene::ModelDraw()
 	skydome_->Draw();
 	floor_->Draw();
 	player_->Draw();
+	for (int i = 0; i < pillarNum; i++) {
+		pillar_[i].Draw();
+	}
 	for (const auto& boss : boss_) {
 		boss->Draw();
 	}
@@ -179,7 +216,9 @@ void GameScene::ParticleDraw()
 void GameScene::ParticleBoxDraw()
 {
 	player_->ParticleDraw();
-	collapse_.Draw(&viewProjection_, &directionalLight_, { 0.5f,0.5f,0.5f,1.0f });
+	explodePlayerParticle_.Draw(&viewProjection_, &directionalLight_,{1.0f,0.0f,0.0f,1.0f});
+	explodeBossParticle_.Draw(&viewProjection_, &directionalLight_, { 1.0f,0.0f,0.0f,1.0f });
+	collapse_.Draw(&viewProjection_, &directionalLight_, { 121.0f / (255.0f * 4.0f), 101.0f / (255.0f * 4.0f), 53.0f / (255.0f * 4.0f) });
 	orbit_.Draw(&viewProjection_, &directionalLight_, { 0.5f,0.5f,0.5f,1.0f });
 	for (const auto& bullet : enemyBullets_) {
 		bullet->ParicleDraw();
@@ -293,6 +332,10 @@ void GameScene::CollisionCheck() {
 			}
 			if (item->GetType() == Type::Bomb) {
 				player_->Explosion();
+				explodeFrame_ = 6;
+				explodePlayerParticle_.SetIsEmit(true);
+				explodePlayerParticle_.emitterWorldTransform_.translation_ = player_->GetWorldTransform()->translation_;
+				collapseFrame = 10;
 			}
 		}
 	}
@@ -307,6 +350,10 @@ void GameScene::CollisionCheck() {
 			}
 			if (item->GetType() == Type::Bomb) {
 				boss_[0]->Explosion();
+				explodeFrame_ = 6;
+				explodeBossParticle_.SetIsEmit(true);
+				explodeBossParticle_.emitterWorldTransform_.translation_ = boss_[0]->GetWorldTransform()->translation_;
+				collapseFrame = 10;
 			}
 		}
 	}
@@ -336,6 +383,8 @@ void GameScene::PopItem() {
 	float random = distribution(gen);
 	Item* newItem = new Item();
 
+	
+
 	switch (stage_) {
 	    case Stage::Stage1: //アイテムなし
 	    
@@ -357,6 +406,16 @@ void GameScene::PopItem() {
 
 			std::uniform_real_distribution<float> distribution2(0.0f, 1.0f);
 			float lot = distribution2(gen);
+
+			if (boss_[0]->GetWorldPos().x < itemBorderLowLine_) {
+				probabilityAccel = 0.8f;
+			}else if (boss_[0]->GetWorldPos().x >= itemBorderLowLine_ && boss_[0]->GetWorldPos().x < itemBorderHighLine_) {
+				probabilityAccel = 0.5f;
+			}else if (boss_[0]->GetWorldPos().x >= itemBorderHighLine_) {
+				probabilityAccel = 0.1f;
+			}
+
+			probabilityBomb = 1.0f - probabilityAccel;
 			
 			if (lot < probabilityBomb) {
 				newItem->Initialize("bomb", &viewProjection_, &directionalLight_, { 150, (Boss::size_.y * (3.0f / 2.0f)) + random, 0.0f }, Type::Bomb);
@@ -366,8 +425,7 @@ void GameScene::PopItem() {
 			}
 			items_.push_back(std::unique_ptr<Item>(newItem));
 
-			probabilityAccel += 0.01f;
-			probabilityBomb = 1.0f - probabilityAccel;
+			
 
 			break;
 
@@ -504,6 +562,11 @@ void GameScene::InGameUpdate() {
 	player_->Update();
 	boss_[0]->Update();
 
+	if (boss_[0]->IsDead()) {
+		BossPopComand();
+		//Boss::isBreak_ = false;
+	}
+
 	for (const auto& bullet : enemyBullets_) {
 		bullet->Update();
 	}
@@ -527,7 +590,6 @@ void GameScene::clearDirection() {
 			player_->GetCharaWorldPos().y,
 			player_->GetCharaWorldPos().z - 40.0f
 		};
-		//
 	}
 	if (cameraT_ >= 1.0f && player_->GetIsClear()) {
 		sceneRequest_ = Scene::Result;
@@ -551,10 +613,7 @@ void GameScene::clearDirection() {
 	//player_->Update();
 	//boss_[0]->Update();
 
-	if (boss_[0]->IsDead()) {
-		BossPopComand();
-		//Boss::isBreak_ = false;
-	}
+	
 
 }
 void GameScene::gameoverDirection() {

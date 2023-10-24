@@ -114,6 +114,7 @@ private:
     Vector3 velocity_{};
     Vector3 acceleration_{};
     float gravity_ = 0.1f;
+    float jampLimitHeight_ = 130.0f;
 
     bool isAttack_ = false;
     const int kAttackTime = 15;
