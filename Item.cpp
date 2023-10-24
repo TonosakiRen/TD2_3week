@@ -19,13 +19,16 @@ void Item::Initialize(const std::string name, ViewProjection* viewProjection, Di
 }
 
 void Item::Update() {
-
+#ifdef _DEBUG
 	ImGui::Begin("item");
 
 	ImGui::DragFloat("speed", &speed_, 0.01f);
 	ImGui::DragFloat("gravity", &gravity_, 0.01f);
 
 	ImGui::End();
+#endif // _DEBUG
+
+	
 
 	velocity_ += acceleration_;
 	worldTransform_.translation_ += velocity_;

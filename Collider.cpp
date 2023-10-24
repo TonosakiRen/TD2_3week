@@ -15,11 +15,15 @@ void Collider::Initialize(WorldTransform* objectWorldTransform, const std::strin
 
 void Collider::AdjustmentScale()
 {
+#ifdef _DEBUG
 	const std::string col = "collider";
 	ImGui::Begin((name_ + col).c_str());
 	ImGui::DragFloat3("scale", &worldTransform_.scale_.x, 0.1f);
 	ImGui::DragFloat3("translation", &worldTransform_.translation_.x, 0.1f);
 	ImGui::End();
+#endif // _DEBUG
+
+	
 
 	MatrixUpdate();
 }

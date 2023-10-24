@@ -69,12 +69,17 @@ void Player::Initialize(const std::string name, ViewProjection* viewProjection, 
 void Player::Update()
 {
 
+
+#ifdef _DEBUG
 	ImGui::Begin("Player");
 
 	ImGui::DragFloat("firstSpeed", &firstSpeed_, 0.01f);
 	ImGui::DragFloat("gravity", &gravity_, 0.01f);
 
 	ImGui::End();
+#endif // _DEBUG
+
+	
 
 	//止める
 	if (isClear_ == false && isDead_ == false) {
@@ -115,11 +120,14 @@ void Player::Update()
 	    	BombHitUpdate();
 	    	break;
 	}
-
+#ifdef _DEBUG
 	ImGui::Begin("Player");
 	ImGui::DragFloat3("pos", &worldTransform_.translation_.x, 0.01f);
 	ImGui::DragFloat3("ro", &worldTransform_.rotation_.x, 0.01f);
 	ImGui::End();
+#endif // _DEBUG
+
+	
 
 	//行列更新
 	reflectWT_.UpdateMatrix();
