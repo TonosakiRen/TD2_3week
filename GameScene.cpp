@@ -148,9 +148,6 @@ void GameScene::Update(){
 		}
 	}
 
-	if (input_->TriggerKey(DIK_U)) {
-		collapseFrame = 10;
-	}
 	collapseFrame--;
 	if (collapseFrame > 0) {
 		collapse_.SetIsEmit(true);
@@ -161,9 +158,6 @@ void GameScene::Update(){
 
 	collapse_.Update();
 
-	if (input_->TriggerKey(DIK_P)) {
-		explodePlayerParticle_.SetIsEmit(true);
-	}
 	explodePlayerParticle_.Update();
 	explodeBossParticle_.Update();
 	
