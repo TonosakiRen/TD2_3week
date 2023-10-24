@@ -21,6 +21,8 @@
 #include <sstream>
 #include "Collapse.h"
 #include "OrbitParticle.h"
+#include "Pillar.h"
+#include "ExplodeParticle.h"
 
 class GameScene
 {
@@ -149,6 +151,12 @@ private: //シーン用
 	Collapse collapse_;
 
 	OrbitParticle orbit_;
+
+	static const int pillarNum = 10;
+	Pillar pillar_[pillarNum];
+
+	ExplodeParticle explodePlayerParticle_;
+	ExplodeParticle explodeBossParticle_;
 public:
 	//タイトル
 	void TitleInitialize();

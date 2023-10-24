@@ -24,6 +24,9 @@ public:
 	void SetDirectionalLight(DirectionalLight* directionalLight) {
 		directionalLight_ = directionalLight;
 	}
+	WorldTransform* GetWorldTransform() {
+		return &worldTransform_;
+	}
 protected:
 	WorldTransform worldTransform_;
 	Material material_;

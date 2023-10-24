@@ -28,7 +28,7 @@ void GameScene::Initialize() {
 	viewProjection_.UpdateMatrix();
 
 	directionalLight_.Initialize();
-	directionalLight_.direction_ = { 1.0f, -1.0f, 1.0f };
+	directionalLight_.direction_ = { 0.966f, -0.258f, -0.031f };
 	directionalLight_.UpdateDirectionalLight();
 
 
@@ -58,6 +58,13 @@ void GameScene::Initialize() {
 
 	collapse_.Initialize();
 	orbit_.Initialize();
+
+	for (int i = 0; i < pillarNum; i++) {
+		pillar_[i].Initialize("pillar", &viewProjection_, &directionalLight_, { 10.0f,10.0f,10.0f },{380.0f - (i * 100.0f),-40.0f,140.0f});
+	}
+
+	explodePlayerParticle_.Initialize();
+	explodeBossParticle_.Initialize();
 }
 
 void GameScene::Update(){
@@ -130,8 +137,8 @@ void GameScene::Update(){
 		}
 		return false;
 	}),
+
 	boss_.end());
-	
 
 	tmpCollider_.AdjustmentScale();
 	bool isHitBulee = false;
@@ -144,6 +151,26 @@ void GameScene::Update(){
 
 	collapse_.Update();
 
+	if (input_->TriggerKey(DIK_P)) {
+		explodePlayerParticle_.SetIsEmit(true);
+	}
+	explodePlayerParticle_.Update();
+	explodeBossParticle_.Update();
+	for (int i = 0; i < pillarNum; i++) {
+		pillar_[i].Update();
+	}
+	ImGui::Begin("piii");
+	ImGui::DragFloat3("tranpillar1", &pillar_[0].GetWorldTransform()->translation_.x, 0.01f);
+	ImGui::DragFloat3("tranpillar2", &pillar_[1].GetWorldTransform()->translation_.x, 0.01f);
+	ImGui::DragFloat3("tranpillar3", &pillar_[2].GetWorldTransform()->translation_.x, 0.01f);
+	ImGui::DragFloat3("tranpillar4", &pillar_[3].GetWorldTransform()->translation_.x, 0.01f);
+	ImGui::DragFloat3("tranpillar5", &pillar_[4].GetWorldTransform()->translation_.x, 0.01f);
+	ImGui::DragFloat3("tranpillar6", &pillar_[5].GetWorldTransform()->translation_.x, 0.01f);
+	ImGui::DragFloat3("tranpillar7", &pillar_[6].GetWorldTransform()->translation_.x, 0.01f);
+	ImGui::DragFloat3("tranpillar8", &pillar_[7].GetWorldTransform()->translation_.x, 0.01f);
+	ImGui::DragFloat3("tranpillar9", &pillar_[8].GetWorldTransform()->translation_.x, 0.01f);
+	ImGui::DragFloat3("tranpillar10", &pillar_[9].GetWorldTransform()->translation_.x, 0.01f);
+	ImGui::End();
 }
 
 void GameScene::ModelDraw()
@@ -152,6 +179,9 @@ void GameScene::ModelDraw()
 	skydome_->Draw();
 	floor_->Draw();
 	player_->Draw();
+	for (int i = 0; i < pillarNum; i++) {
+		pillar_[i].Draw();
+	}
 	for (const auto& boss : boss_) {
 		boss->Draw();
 	}
@@ -179,6 +209,8 @@ void GameScene::ParticleDraw()
 void GameScene::ParticleBoxDraw()
 {
 	player_->ParticleDraw();
+	explodePlayerParticle_.Draw(&viewProjection_, &directionalLight_,{1.0f,0.0f,0.0f,1.0f});
+	explodeBossParticle_.Draw(&viewProjection_, &directionalLight_, { 1.0f,0.0f,0.0f,1.0f });
 	collapse_.Draw(&viewProjection_, &directionalLight_, { 0.5f,0.5f,0.5f,1.0f });
 	orbit_.Draw(&viewProjection_, &directionalLight_, { 0.5f,0.5f,0.5f,1.0f });
 	for (const auto& bullet : enemyBullets_) {
@@ -293,6 +325,8 @@ void GameScene::CollisionCheck() {
 			}
 			if (item->GetType() == Type::Bomb) {
 				player_->Explosion();
+				explodePlayerParticle_.SetIsEmit(true);
+				explodePlayerParticle_.emitterWorldTransform_.translation_ = player_->GetWorldTransform()->translation_;
 			}
 		}
 	}
@@ -307,6 +341,8 @@ void GameScene::CollisionCheck() {
 			}
 			if (item->GetType() == Type::Bomb) {
 				boss_[0]->Explosion();
+				explodeBossParticle_.SetIsEmit(true);
+				explodeBossParticle_.emitterWorldTransform_.translation_ = boss_[0]->GetWorldTransform()->translation_;
 			}
 		}
 	}
