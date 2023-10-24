@@ -157,7 +157,9 @@ void GameScene::Update(){
 	explodePlayerParticle_.Update();
 	explodeBossParticle_.Update();
 	
-	viewProjection_.Shake({ 3.0f,3.0f,3.0f }, explodeFrame_);
+	if (explodeFrame_ > 0) {
+		viewProjection_.Shake({ 3.0f,3.0f,3.0f }, explodeFrame_);
+	}
 
 	bossExplodeFrame--;
 	if (bossExplodeFrame > 0) {
