@@ -383,6 +383,8 @@ void GameScene::PopItem() {
 	float random = distribution(gen);
 	Item* newItem = new Item();
 
+	
+
 	switch (stage_) {
 	    case Stage::Stage1: //アイテムなし
 	    
@@ -404,6 +406,16 @@ void GameScene::PopItem() {
 
 			std::uniform_real_distribution<float> distribution2(0.0f, 1.0f);
 			float lot = distribution2(gen);
+
+			if (boss_[0]->GetWorldPos().x < itemBorderLowLine_) {
+				probabilityAccel = 0.8f;
+			}else if (boss_[0]->GetWorldPos().x >= itemBorderLowLine_ && boss_[0]->GetWorldPos().x < itemBorderHighLine_) {
+				probabilityAccel = 0.5f;
+			}else if (boss_[0]->GetWorldPos().x >= itemBorderHighLine_) {
+				probabilityAccel = 0.1f;
+			}
+
+			probabilityBomb = 1.0f - probabilityAccel;
 			
 			if (lot < probabilityBomb) {
 				newItem->Initialize("bomb", &viewProjection_, &directionalLight_, { 150, (Boss::size_.y * (3.0f / 2.0f)) + random, 0.0f }, Type::Bomb);
@@ -413,8 +425,7 @@ void GameScene::PopItem() {
 			}
 			items_.push_back(std::unique_ptr<Item>(newItem));
 
-			probabilityAccel += 0.01f;
-			probabilityBomb = 1.0f - probabilityAccel;
+			
 
 			break;
 
@@ -551,6 +562,11 @@ void GameScene::InGameUpdate() {
 	player_->Update();
 	boss_[0]->Update();
 
+	if (boss_[0]->IsDead()) {
+		BossPopComand();
+		//Boss::isBreak_ = false;
+	}
+
 	for (const auto& bullet : enemyBullets_) {
 		bullet->Update();
 	}
@@ -597,10 +613,7 @@ void GameScene::clearDirection() {
 	//player_->Update();
 	//boss_[0]->Update();
 
-	if (boss_[0]->IsDead()) {
-		BossPopComand();
-		//Boss::isBreak_ = false;
-	}
+	
 
 }
 void GameScene::gameoverDirection() {
