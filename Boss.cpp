@@ -10,6 +10,7 @@ float Boss::bulletSpeed_ = 0.5f;
 Vector3 Boss::knockbackdis = { 10.0f, 0.0f, 0.0f };
 int Boss::damage_ = 20;
 int Boss::bombBaseDamage_ = 10;
+int Boss::shotCount = 1;
 
 void Boss::Initialize(ViewProjection* viewProjection, DirectionalLight* directionalLight)
 {
@@ -239,7 +240,11 @@ void Boss::RootUpdate() {
 		bulletVelocity_ = { bulletSpeed_, 0.0f, 0.0f };
 		Vector3 pos{};
 		pos.x = worldTransform_.translation_.x + size_.x + 1.0f;
-		pos.y = size_.y;
+		pos.y = 20.0f * (float)shotCount;
+		shotCount++;
+		if(shotCount>=7){
+			shotCount = 1;
+		}
 
 		pos.y = min(pos.y, size_.y * 2);
 

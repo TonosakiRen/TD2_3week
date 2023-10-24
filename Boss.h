@@ -106,6 +106,8 @@ private:
     int attackTime = 0;
     int attackTimer = 0;
 
+    
+
     GameScene* gameScene_ = nullptr;
     Player* player_ = nullptr;
 
@@ -128,6 +130,7 @@ public:
     static Vector3 knockbackdis;
     static int damage_;
     static int bombBaseDamage_;
+    static int shotCount;
 
 };
 

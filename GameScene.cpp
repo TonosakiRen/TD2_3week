@@ -367,7 +367,17 @@ void GameScene::CollisionCheck() {
 	isHitBulee = player_->collider_.Collision(boss_[0]->collider_);
 	if (isHitBulee) {
 		//ゲームオーバー
-
+		player_->isDead_ = true;
+		isCameraMove_ = true;
+		isSavePlayerPos_ = true;
+		//リザルトシーンのカメラの位置の設定
+		resultCameraPos_ = {
+			player_->GetCharaWorldPos().x,
+			player_->GetCharaWorldPos().y,
+			player_->GetCharaWorldPos().z
+		};
+		enemyBullets_.clear();
+		items_.clear();
 	}
 
 
@@ -544,11 +554,29 @@ void GameScene::InGameInitialize() {
 	waitFrame = 10;
 	player_->isClear_ = false;
 	player_->isDead_ = false;
-
+	Boss::shotCount = 1;
 	cameraT_ = 0.0f;
+	timer = gameTime;
 }
 
 void GameScene::InGameUpdate() {
+
+	if (--timer <= 0) {
+		player_->isClear_ = true;
+		isCameraMove_ = true;
+		isSavePlayerPos_ = true;
+		//リザルトシーンのカメラの位置の設定
+		//プレイヤーの位置から少しずらしたところ
+		resultCameraPos_ = {
+			10.0f,
+			9.0f,
+			-40.0f
+		};
+		//
+		enemyBullets_.clear();
+		items_.clear();
+		player_->ClearEasingInitialize();
+	}
 
 	CollisionCheck();
 
@@ -588,6 +616,7 @@ void GameScene::InGameUpdate() {
 }
 
 void GameScene::clearDirection() {
+#ifdef _DEBUG
 	if (input_->TriggerKey(DIK_E) && isSavePlayerPos_ == false) {
 		player_->isClear_ = true;
 		isCameraMove_ = true;
@@ -604,12 +633,16 @@ void GameScene::clearDirection() {
 		items_.clear();
 		player_->ClearEasingInitialize();
 	}
+#endif // _DEBUG
+
+	
 	if (cameraT_ >= 1.0f && player_->GetIsClear()) {
 		sceneRequest_ = Scene::Result;
 		isCameraMove_ = false;
 		cameraT_ = 0.0f;
 	}
 	if (isCameraMove_ && player_->GetIsClear()) {
+		boss_[0]->Disappear(cameraT_);
 		player_->ClearEasingUpdate(cameraT_);
 		viewProjection_.translation_ = Easing::easing(cameraT_, gameCameraPos_, resultCameraPos_, 0.01f, Easing::easeNormal, false);
 		viewProjection_.target_ = Easing::easing(cameraT_, gameCameraTar_, resultCameraTar_, 0.01f, Easing::easeNormal, true);
@@ -631,6 +664,7 @@ void GameScene::clearDirection() {
 
 }
 void GameScene::gameoverDirection() {
+#ifdef _DEBUG
 	if (input_->TriggerKey(DIK_R) && isSavePlayerPos_ == false) {
 		player_->isDead_ = true;
 		isCameraMove_ = true;
@@ -644,6 +678,7 @@ void GameScene::gameoverDirection() {
 		enemyBullets_.clear();
 		items_.clear();
 	}
+#endif // _DEBUG
 
 	if (isCameraMove_ && player_->GetIsDead()) {
 		boss_[0]->Disappear(cameraT_);

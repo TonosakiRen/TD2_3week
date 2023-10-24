@@ -100,8 +100,8 @@ private:
 
 	std::unique_ptr<Particle> particle_;
 
-
-	
+	int gameTime = 60 * 90;
+	int timer = gameTime;
   
   Collider tmpCollider_;
 
