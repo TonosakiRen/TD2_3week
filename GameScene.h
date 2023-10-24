@@ -92,6 +92,9 @@ private:
 	float probabilityAccel = 0.5;
 	float probabilityBomb = 1.0f - probabilityAccel;
 
+	float itemBorderHighLine_ = 50.0f;
+	float itemBorderLowLine_ = -50.0f;
+
 	std::unique_ptr<Particle> particle_;
 
 
