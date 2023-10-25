@@ -8,8 +8,8 @@ Vector3 Boss::size_ = {20.0f,62.0f,21.0f};
 Vector3 Boss::mouthSize_ = { 20.0f,size_.y/2.0f,21.0f };
 float Boss::bulletSpeed_ = 0.5f;
 Vector3 Boss::knockbackdis = { 10.0f, 0.0f, 0.0f };
-int Boss::damage_ = 20;
-float Boss::bombBaseDamage_ = 10.0f;
+int Boss::damage_ = 5;
+float Boss::bombBaseDamage_ = 25.0f;
 int Boss::shotCount = 1;
 
 void Boss::Initialize(ViewProjection* viewProjection, DirectionalLight* directionalLight)
@@ -212,16 +212,16 @@ void Boss::OnRefCollision() {
 }
 
 void Boss::SpeedUp() {
-	velocity_ = velocity_ * 1.2f;
+	velocity_ = velocity_ * 1.5f;
 	size_t speedHandle = audio_->SoundLoadWave("speedup.wav");
 	size_t speedPlayHandle = audio_->SoundPlayWave(speedHandle);
 }
 
-void Boss::SetState(int hp, float speed, int second) {
+void Boss::SetState(int hp, float speed, float second) {
 
 	hp_ = hp;
 	velocity_ = { speed,0.0f,0.0f };
-	attackTime = 60 * second;
+	attackTime = static_cast<int>(60.0f * second);
 	attackTimer = attackTime;
 
 }
@@ -299,7 +299,7 @@ void Boss::BombHitUpdate() {
 
 	if (num >= 1.0f) {
 		num = 1.0f;
-		velocity_ = velocity_ * 1.5f;
+		velocity_ = velocity_ * 2.0f;
 		behaviorRequest_ = Behavior::kRoot;
 		bombBaseDamage_ = bombBaseDamage_ * (1.00f + (distance / 100.0f));
 		hp_ -= static_cast<int>(bombBaseDamage_);
