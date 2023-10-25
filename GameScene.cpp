@@ -74,6 +74,9 @@ void GameScene::Initialize() {
 	size_t bgmHandle = audio_->SoundLoadWave("BGM.wav");
 	size_t bgmPlayHandle = audio_->SoundPlayLoopStart(bgmHandle);
 	audio_->SetValume(bgmPlayHandle, 0.2f);
+
+	size_t titleTexture = TextureManager::Load("title.png");
+	titleSprite_.reset(Sprite::Create(titleTexture, { 1920.0f / 2.0f,-300.0f }));
 }
 
 void GameScene::Update(){
@@ -174,8 +177,13 @@ void GameScene::Update(){
 		bossExplode_.SetIsEmit(false);
 	}
 	bossExplode_.Update();
+	bool isMove = true;
+	if (scene_ == Scene::Result) {
+		isMove = false;
+	}
 	for (int i = 0; i < pillarNum; i++) {
-		pillar_[i].Update();
+		
+		pillar_[i].Update(isMove);
 	}
 	ImGui::Begin("piii");
 	ImGui::DragFloat3("tranpillar1", &pillar_[0].GetWorldTransform()->translation_.x, 0.01f);
@@ -242,7 +250,15 @@ void GameScene::PreSpriteDraw()
 
 void GameScene::PostSpriteDraw()
 {
-
+	if (scene_ == Scene::Title) {
+		titleSprite_->position_ = Easing::easing(titleT_,Vector2{1920.0f / 2.0f,-300.0f}, Vector2{ 1920.0f / 2.0f,300.0f },0.01f,Easing::easeOutBounce);
+		titleSprite_->Draw();
+	}
+	else {
+		titleSprite_->position_ = Easing::easing(titleT_, Vector2{ 1920.0f / 2.0f,-300.0f }, Vector2{ 1920.0f / 2.0f,300.0f }, -0.01f, Easing::easeOutCubic);
+		titleSprite_->Draw();
+	}
+	
 }
 
 void GameScene::Draw() {

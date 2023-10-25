@@ -172,6 +172,9 @@ private: //シーン用
 
 	uint32_t blockHandle_;
 	int bossExplodeFrame = 0;
+
+	std::unique_ptr< Sprite> titleSprite_;
+	float titleT_ = 0.0f;
 public:
 	//タイトル
 	void TitleInitialize();

@@ -7,11 +7,14 @@ void Pillar::Initialize(const std::string name, ViewProjection* viewProjection, 
 	worldTransform_.scale_ = initialScale;
 }
 
-void Pillar::Update()
+void Pillar::Update(bool isMove)
 {
-	worldTransform_.translation_.x -= 0.5f;
-	if (worldTransform_.translation_.x <= -620) {
-		worldTransform_.translation_.x = 380.0f;
+	if (isMove == true) {
+		worldTransform_.translation_.x -= 0.5f;
+		if (worldTransform_.translation_.x <= -620) {
+			worldTransform_.translation_.x = 380.0f;
+		}
 	}
+
 	worldTransform_.UpdateMatrix();
 }

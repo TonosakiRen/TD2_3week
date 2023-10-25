@@ -6,6 +6,6 @@ class Pillar :
 public:
 
     void Initialize(const std::string name, ViewProjection* viewProjection, DirectionalLight* directionalLight, Vector3 initialScale, Vector3 intialPos);
-    void Update();
+    void Update(bool isMove);
 };
 
