@@ -53,8 +53,8 @@ void Boss::Initialize(ViewProjection* viewProjection, DirectionalLight* directio
 	mouthWT_.UpdateMatrix();
 	dustParticle_->emitterWorldTransform_.UpdateMatrix();
 
-	collider_.Initialize(&worldTransform_, "boss", *viewProjection, *directionalLight,{20.9f,59.6f,21.7f},{0.0f,62.1f,0.0f});
-	mouthCollider_.Initialize(&mouthWT_, "boss", *viewProjection, *directionalLight, {20.9f,28.0f,21.7f}, { 0.0f,31.0f,10.0f });
+	collider_.Initialize(&worldTransform_, "boss", *viewProjection, *directionalLight,{20.9f,59.6f,25.0f},{0.0f,62.1f,10.0f});
+	mouthCollider_.Initialize(&mouthWT_, "boss", *viewProjection, *directionalLight, {20.9f,28.0f,25.0f}, { 0.0f,31.0f,16.0f });
 
 }
 
