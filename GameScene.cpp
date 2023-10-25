@@ -478,6 +478,8 @@ void GameScene::CollisionCheck() {
 		player_->isDead_ = true;
 		isCameraMove_ = true;
 		isSavePlayerPos_ = true;
+		size_t hitHandle = audio_->SoundLoadWave("hit.wav");
+		size_t hitPlayHandle = audio_->SoundPlayWave(hitHandle);
 		//リザルトシーンのカメラの位置の設定
 		resultCameraPos_ = {
 			player_->GetCharaWorldPos().x,
