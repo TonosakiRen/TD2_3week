@@ -13,9 +13,10 @@ public:
 
 	bool ObbCollision(const OBB& obb1, const OBB& obb2);
 
+	WorldTransform worldTransform_;
 private:
 	GameObject cube_;
-	WorldTransform worldTransform_;
+	
 	std::string name_;
 	//saveScale元のモデルをscaleで、でかくしたりしているときのためにここにその初期スケールmatrixを保存する
 	Matrix4x4 inverseSaveScaleMatrix_;

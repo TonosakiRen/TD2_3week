@@ -67,6 +67,9 @@ void Player::Initialize(const std::string name, ViewProjection* viewProjection, 
 	collider_.Initialize(&worldTransform_, name, *viewProjection, *directionalLight, {5.5f,5.5f,5.5f});
 	reflectCollider_.Initialize(&reflectWT_, name, *viewProjection, *directionalLight, {7.0f,7.0f,7.0f},{0.0f,0.0f,-size_.z*2.0f});
 
+	jumpParticle_.Initialize({-1.0f,-1.0f,-1.0f},{0.0f,1.0f,0.5f});
+	jumpParticle_.emitterWorldTransform_.SetParent(&reflectCollider_.worldTransform_);
+	
 }
 
 void Player::Update()
@@ -82,7 +85,14 @@ void Player::Update()
 	ImGui::End();
 #endif // _DEBUG
 
-	
+	jumpParticleFrame_--;
+	if (jumpParticleFrame_ > 0) {
+		jumpParticle_.SetIsEmit(true);
+	}
+	else {
+		jumpParticle_.SetIsEmit(false);
+	}
+	jumpParticle_.Update();
 
 	//止める
 	if (/*isClear_ == false && */isDead_ == false) {
@@ -149,7 +159,7 @@ void Player::Update()
 	reflectCollider_.MatrixUpdate();
 }
 void Player::Animation() {
-	dustParticle_->SetIsEmit(true);
+	dustParticle_->SetIsEmit(isGround_);
 	dustParticle_->Update();
 	if (animationT_ >= 1.0f || animationT_ <= 0.0f)
 	{
@@ -200,6 +210,7 @@ void Player::Draw() {
 
 void Player::ParticleDraw() {
 	dustParticle_->Draw(viewProjection_, directionalLight_,{0.5f,0.5f,0.5f,1.0f});
+	jumpParticle_.Draw(viewProjection_, directionalLight_, { 71.0f / 255.0f,177.0f / 255.0f,255.0f / 255.0f,1.0f });
 }
 
 void Player::GravityUpdate()
@@ -238,11 +249,13 @@ void Player::RotationAnimation() {
 }
 
 void Player::RootUpdate() {
+	isGround_ = false;
 	if (isClear_ == false && isDead_ == false) {
 		if (input_->TriggerKey(DIK_SPACE)) {
 			isRotation = true;
 			velocity_ = { 0.0f, firstSpeed_, 0.0f };
 			isAttack_ = true;
+			jumpParticleFrame_ = 6;
 		}
 
 		if (isAttack_) {
@@ -257,6 +270,7 @@ void Player::RootUpdate() {
 		worldTransform_.translation_ += velocity_;
 
 		if (worldTransform_.translation_.y <= size_.y) {
+			isGround_ = true;
 			worldTransform_.translation_.y = size_.y;
 		}
 	}

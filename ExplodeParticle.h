@@ -7,6 +7,7 @@ public:
 	const int32_t kEmitFrame_ = 10;
 	ExplodeParticle();
 	void Initialize();
+	void Initialize(Vector3 minDirection,Vector3 maxDirection);
 	void Update();
 	void Draw(ViewProjection* viewProjection, DirectionalLight* directionalLight, Vector4 color = { 1.0f,1.0f,1.0f,1.0f });
 	void SetDirection(Vector3 minDirection, Vector3 maxDirection) {

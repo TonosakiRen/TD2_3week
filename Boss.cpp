@@ -56,7 +56,7 @@ void Boss::Initialize(ViewProjection* viewProjection, DirectionalLight* directio
 
 	collider_.Initialize(&worldTransform_, "boss", *viewProjection, *directionalLight,{20.9f,59.6f,21.7f},{0.0f,62.1f,0.0f});
 	mouthCollider_.Initialize(&mouthWT_, "boss", *viewProjection, *directionalLight, {20.9f,28.0f,21.7f}, { 0.0f,31.0f,10.0f });
-
+	itemDisapeerCollider_.Initialize(&worldTransform_, "disaaperer", *viewProjection, *directionalLight, { 20.9f,59.6f,21.7f }, { 0.0f,62.1f,0.0f });
 }
 
 void Boss::Update()
@@ -147,6 +147,7 @@ void Boss::Update()
 	mouthWT_.UpdateMatrix();
 	dustParticle_->Update();
 
+	itemDisapeerCollider_.AdjustmentScale();
 	collider_.AdjustmentScale();
 	mouthCollider_.AdjustmentScale();
 } 
@@ -180,6 +181,10 @@ void Boss::Draw() {
 	for (int i = 0; i < partNum; i++) {
 		modelParts_[i].Draw(partsTransform_[i], *viewProjection_, *directionalLight_, material_);
 	}
+
+	mouthCollider_.Draw();
+		collider_.Draw();
+		itemDisapeerCollider_.Draw({1.0f,0.0f,0.0f,1.0f});
 	//collider_.Draw();
 	//mouthCollider_.Draw();
 }

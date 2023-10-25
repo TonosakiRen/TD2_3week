@@ -16,6 +16,16 @@ void ExplodeParticle::Initialize()
 
 }
 
+void ExplodeParticle::Initialize(Vector3 minDirection,Vector3 maxDirection)
+{
+
+	particleBox_->Initialize();
+	emitterWorldTransform_.SetIsScaleParent(false);
+	minDirection_ = minDirection;
+	maxDirection_ = maxDirection;
+
+}
+
 void ExplodeParticle::Update() {
 
 	emitterWorldTransform_.UpdateMatrix();

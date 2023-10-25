@@ -6,6 +6,7 @@
 #include <optional>
 #include "Collider.h"
 #include "Audio.h"
+#include "ExplodeParticle.h"
 
 class Player :
     public GameObject
@@ -131,5 +132,10 @@ private:
 
     bool isRotation = false;
     float rotationT = 0.0f;
+
+    ExplodeParticle jumpParticle_;
+    int32_t jumpParticleFrame_ = 0;
+
+    bool isGround_ = false;
 };
 

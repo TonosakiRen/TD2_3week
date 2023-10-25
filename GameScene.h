@@ -175,6 +175,11 @@ private: //シーン用
 
 	std::unique_ptr< Sprite> titleSprite_;
 	float titleT_ = 0.0f;
+
+	ExplodeParticle speedUpExplode_;
+	ExplodeParticle bomExplode_;
+
+
 public:
 	//タイトル
 	void TitleInitialize();
