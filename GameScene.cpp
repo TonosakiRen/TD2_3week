@@ -33,8 +33,19 @@ void GameScene::Initialize() {
 
 
 	textureHandle_ = TextureManager::Load("uvChecker.png");
+	titleHandle_ = TextureManager::Load("UI/title.png");
+	progressBarHandle_ = TextureManager::Load("UI/progressBar.png");
+	progressPlayerHandle_ = TextureManager::Load("UI/progressPlayer.png");
+	hpGaugeHandle_ = TextureManager::Load("UI/HPgage.png");
+	hpBarHandle_ = TextureManager::Load("UI/HPbar.png");
 
 	sprite_.reset(Sprite::Create(textureHandle_, { 0.0f,0.0f }));
+	title_.reset(Sprite::Create(titleHandle_, {640.0f,300.0f}));
+	progressBar_.reset(Sprite::Create(progressBarHandle_, { 640.0f,650.0f }));
+	progressPlayer_.reset(Sprite::Create(progressPlayerHandle_, { 400.0f,650.0f }));
+	hpGauge_.reset(Sprite::Create(hpGaugeHandle_, { 640.0f,50.0f }));
+	hpBar_.reset(Sprite::Create(hpBarHandle_, { 641.0f,53.0f }));
+	hpBar_->anchorPoint_ = { 0.0f,0.5f };
 
 	skydome_ = std::make_unique<Skydome>();
 	skydome_->Initialize("skydome",&viewProjection_,&directionalLight_);
@@ -81,8 +92,12 @@ void GameScene::Update(){
 #ifdef _DEBUG
 		ImGui::DragFloat3("light", &directionalLight_.direction_.x, 0.01f);
 		ImGui::DragFloat4("lightcolor", &directionalLight_.color_.x, 0.01f);
+
+		ImGui::DragFloat2("hpBar", &hpBar_->position_.x, 0.01f);
+		ImGui::DragFloat2("hpBar Size", &hpBar_->texSize_.x, 1.0f);
 #endif // _DEBUG
 
+		
 		
 		directionalLight_.direction_ = Normalize(directionalLight_.direction_);
 		directionalLight_.UpdateDirectionalLight();
@@ -237,6 +252,19 @@ void GameScene::PreSpriteDraw()
 
 void GameScene::PostSpriteDraw()
 {
+	if (scene_ == Scene::Title && titleFlag == true) {
+		title_->Draw();
+	}
+	
+	if (scene_ == Scene::InGame && player_->isClear_ == false && player_->isDead_ == false) {
+		progressBar_->Draw();
+		progressPlayer_->Draw();
+		hpGauge_->Draw();
+		hpBar_->Draw();
+	}
+
+
+
 
 }
 
@@ -518,7 +546,7 @@ void GameScene::TitleInitialize() {
 	cameraT_ = 0.0f;
 	isCameraMove_ = false;
 	stage_ = Stage::Stage1;
-
+	titleFlag = true;
 }
 
 void GameScene::TitleUpdate() {
@@ -529,6 +557,7 @@ void GameScene::TitleUpdate() {
 
 	if (input_->TriggerKey(DIK_SPACE)) {
 		isCameraMove_ = true;
+		titleFlag = false;
 	}
 	if (cameraT_ >= 1.0f) {
 		sceneRequest_ = Scene::InGame;
@@ -547,7 +576,7 @@ void GameScene::TitleUpdate() {
 }
 
 void GameScene::InGameInitialize() {
-
+	
 	isSavePlayerPos_ = false;
 	shakeFrame_ = 6;
 	downT = 0.0f;
@@ -557,6 +586,8 @@ void GameScene::InGameInitialize() {
 	Boss::shotCount = 1;
 	cameraT_ = 0.0f;
 	timer = gameTime;
+	progressPlayer_->position_ = progressPlayerStartPos_;
+	progressT_ = 0.0f;
 }
 
 void GameScene::InGameUpdate() {
@@ -612,7 +643,11 @@ void GameScene::InGameUpdate() {
 			items->Update();
 		}
 	}
+
+	progressPlayer_->position_ = Easing::easing(progressT_, progressPlayerStartPos_, progressPlayerEndPos_, (float)1 / gameTime, Easing::EasingMode::easeNormal, true);
 	
+	
+
 }
 
 void GameScene::clearDirection() {
