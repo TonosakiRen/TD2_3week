@@ -150,7 +150,6 @@ private: //シーン用
 
 	bool isSavePlayerPos_ = false;
 	int shakeFrame_ = 0;
-	int explodeFrame_ = 0;
 	Vector3 shakeValue = { 0.2f,0.2f,0.2f };
 	float downT = 0.0f;
 	int waitFrame = 10;
@@ -168,6 +167,11 @@ private: //シーン用
 	ExplodeParticle explodePlayerParticle_;
 	ExplodeParticle explodeBossParticle_;
 
+	ExplodeParticle speedUpPlayerParticle_;
+	ExplodeParticle speedUpBossParticle_;
+
+	int explodeShakeFrame_ = 0;
+
 	BossExplode bossExplode_;
 
 	uint32_t blockHandle_;
@@ -176,8 +180,7 @@ private: //シーン用
 	std::unique_ptr< Sprite> titleSprite_;
 	float titleT_ = 0.0f;
 
-	ExplodeParticle speedUpExplode_;
-	ExplodeParticle bomExplode_;
+	
 
 
 public:

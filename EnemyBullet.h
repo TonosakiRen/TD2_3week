@@ -6,9 +6,10 @@ class EnemyBullet : public GameObject {
 private:
 
 	Vector3 velocity_{};
-	bool isReflected_ = false;
+	
 	bool isDead_ = false;
 public:
+	bool isReflected_ = false;
 	Collider collider_;
 	OrbitParticle orbitParticle_;
 public:

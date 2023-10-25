@@ -78,6 +78,10 @@ void GameScene::Initialize() {
 	explodePlayerParticle_.Initialize();
 	explodeBossParticle_.Initialize();
 
+	speedUpPlayerParticle_.Initialize({-1.0f,0.0f,-1.0f},{1.0f,1.0f,1.0f});
+	speedUpPlayerParticle_.emitterWorldTransform_.SetParent(player_->GetWorldTransform());
+	speedUpBossParticle_.Initialize();
+
 	bossExplode_.Initialize();
 
 	blockHandle_ = TextureManager::Load("block.png");
@@ -179,10 +183,16 @@ void GameScene::Update(){
 
 	explodePlayerParticle_.Update();
 	explodeBossParticle_.Update();
+
+	speedUpPlayerParticle_.Update();
+	speedUpBossParticle_.Update();
 	
-	if (explodeFrame_ > 0) {
-		viewProjection_.Shake({ 3.0f,3.0f,3.0f }, explodeFrame_);
+
+	if (explodeShakeFrame_ > 0) {
+		viewProjection_.Shake({ 3.0f,3.0f,3.0f }, explodeShakeFrame_);
 	}
+
+
 
 	bossExplodeFrame--;
 	if (bossExplodeFrame > 0) {
@@ -250,6 +260,10 @@ void GameScene::ParticleBoxDraw()
 	player_->ParticleDraw();
 	explodePlayerParticle_.Draw(&viewProjection_, &directionalLight_,{1.0f,0.0f,0.0f,1.0f});
 	explodeBossParticle_.Draw(&viewProjection_, &directionalLight_, { 1.0f,0.0f,0.0f,1.0f });
+
+	speedUpPlayerParticle_.Draw(&viewProjection_, &directionalLight_, { 0.0f, 216.0f / 255.0f,1.0f,1.0f });
+	speedUpBossParticle_.Draw(&viewProjection_, &directionalLight_, { 0.0f, 216.0f / 255.0f,1.0f,1.0f });
+
 	collapse_.Draw(&viewProjection_, &directionalLight_, { 121.0f / (255.0f * 4.0f), 101.0f / (255.0f * 4.0f), 53.0f / (255.0f * 4.0f) });
 	orbit_.Draw(&viewProjection_, &directionalLight_, { 0.5f,0.5f,0.5f,1.0f });
 	bossExplode_.Draw(&viewProjection_, &directionalLight_, { 1.0f,1.0f,1.0f,1.0f },blockHandle_);
@@ -341,10 +355,12 @@ void GameScene::CollisionCheck() {
 		isHitBulee = player_->reflectCollider_.Collision(bullet->collider_);
 		if (isHitBulee && player_->IsAttack()) {
 			bullet->SetVelocity({ -refBulletSpeed_, 0.0f, 0.0f });
+			if (bullet->isReflected_ == false){
+				size_t reflectHandle = audio_->SoundLoadWave("reflect.wav");
+				size_t reflectPlayHandle = audio_->SoundPlayWave(reflectHandle);
+				audio_->SetValume(reflectPlayHandle, 0.8f);
+			}	
 			bullet->OnRefCollision();
-			size_t reflectHandle = audio_->SoundLoadWave("reflect.wav");
-			size_t reflectPlayHandle = audio_->SoundPlayWave(reflectHandle);
-			audio_->SetValume(reflectPlayHandle, 0.8f);
 		}
 	}
 	//ボスと跳ね返り弾の衝突判定
@@ -388,14 +404,15 @@ void GameScene::CollisionCheck() {
 			item->CharaHit();
 			if (item->GetType() == Type::Accel) {
 				player_->Accel();
+				speedUpPlayerParticle_.SetIsEmit(true);
 				size_t speedHandle = audio_->SoundLoadWave("speedup.wav");
 				size_t speedPlayHandle = audio_->SoundPlayWave(speedHandle);
 			}
 			if (item->GetType() == Type::Bomb) {
 				player_->Explosion();
-				explodeFrame_ = 6;
+				explodeShakeFrame_ = 6;
 				explodePlayerParticle_.SetIsEmit(true);
-				explodePlayerParticle_.emitterWorldTransform_.translation_ = player_->GetWorldTransform()->translation_;
+				explodePlayerParticle_.emitterWorldTransform_.translation_ = item->GetWorldPos();
 				collapseFrame = 10;
 				size_t explodeHandle = audio_->SoundLoadWave("explosion.wav");
 				size_t explodePlayHandle = audio_->SoundPlayWave(explodeHandle);
@@ -406,18 +423,33 @@ void GameScene::CollisionCheck() {
 	isHitBulee = false;
 	for (const auto& item : items_) {
 		isHitBulee = boss_[0]->mouthCollider_.Collision(item->collider_);
-		if (isHitBulee) {
+		if (isHitBulee && item->isDrop_ == false) {
 			item->CharaHit();
 			if (item->GetType() == Type::Accel) {
 				boss_[0]->SpeedUp();
+				speedUpBossParticle_.SetIsEmit(true);
+				speedUpBossParticle_.emitterWorldTransform_.translation_ = item->GetWorldPos();
+				size_t speedHandle = audio_->SoundLoadWave("speedup.wav");
+				size_t speedPlayHandle = audio_->SoundPlayWave(speedHandle);
 			}
 			if (item->GetType() == Type::Bomb) {
 				boss_[0]->Explosion();
-				explodeFrame_ = 6;
+				explodeShakeFrame_ = 6;
 				explodeBossParticle_.SetIsEmit(true);
-				explodeBossParticle_.emitterWorldTransform_.translation_ = boss_[0]->GetWorldTransform()->translation_;
+				explodeBossParticle_.emitterWorldTransform_.translation_ = item->GetWorldPos();
+
 				collapseFrame = 10;
 			}
+		}
+	}
+
+	//敵と空中アイテムとの衝突判定
+	isHitBulee = false;
+	for (const auto& item : items_) {
+		isHitBulee = boss_[0]->collider_.Collision(item->collider_);
+		if (isHitBulee && item->isDrop_ == false) {
+			item->isDrop_ = true;
+			item->BossHitAnimation();
 		}
 	}
 
