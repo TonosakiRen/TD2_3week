@@ -9,7 +9,7 @@ Vector3 Boss::mouthSize_ = { 20.0f,size_.y/2.0f,21.0f };
 float Boss::bulletSpeed_ = 0.5f;
 Vector3 Boss::knockbackdis = { 10.0f, 0.0f, 0.0f };
 int Boss::damage_ = 20;
-int Boss::bombBaseDamage_ = 10;
+float Boss::bombBaseDamage_ = 10.0f;
 int Boss::shotCount = 1;
 
 void Boss::Initialize(ViewProjection* viewProjection, DirectionalLight* directionalLight)
@@ -78,7 +78,9 @@ void Boss::Update()
 	ImGui::DragFloat3("knockback", &knockbackdis.x, 0.1f);
 
 	ImGui::InputInt("Damage", &damage_);
-	ImGui::InputInt("BombBaseDamage", &bombBaseDamage_);
+	ImGui::InputFloat("BombBaseDamage", &bombBaseDamage_);
+
+	ImGui::InputInt("HP", &hp_);
 
 	ImGui::End();
 #endif // _DEBUG
@@ -285,13 +287,16 @@ void Boss::BombHitInitialize() {
 
 void Boss::BombHitUpdate() {
 
+	float distance = Length(startPos_) - Length(endPos_);
+
 	worldTransform_.translation_ = Easing::easing(num, easeStart, easeEnd, 0.02f, Easing::EasingMode::easeOutQuart);
 
 	if (num >= 1.0f) {
 		num = 1.0f;
 		velocity_ = velocity_ * 1.5f;
 		behaviorRequest_ = Behavior::kRoot;
-		hp_ -= bombBaseDamage_;
+		bombBaseDamage_ = bombBaseDamage_ * (1.00f + (distance / 100.0f));
+		hp_ -= static_cast<int>(bombBaseDamage_);
 	}
 
 }
