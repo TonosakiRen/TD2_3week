@@ -237,6 +237,7 @@ void GameScene::Update(){
 		
 		pillar_[i].Update(isMove);
 	}
+#ifdef DEBUG
 	ImGui::Begin("piii");
 	ImGui::DragFloat3("tranpillar1", &pillar_[0].GetWorldTransform()->translation_.x, 0.01f);
 	ImGui::DragFloat3("tranpillar2", &pillar_[1].GetWorldTransform()->translation_.x, 0.01f);
@@ -249,6 +250,8 @@ void GameScene::Update(){
 	ImGui::DragFloat3("tranpillar9", &pillar_[8].GetWorldTransform()->translation_.x, 0.01f);
 	ImGui::DragFloat3("tranpillar10", &pillar_[9].GetWorldTransform()->translation_.x, 0.01f);
 	ImGui::End();
+#endif // DEBUG
+
 }
 
 void GameScene::ModelDraw()
@@ -621,11 +624,11 @@ void GameScene::PopItem() {
 			float lot = distribution2(gen);
 
 			if (boss_[0]->GetWorldPos().x < itemBorderLowLine_) {
-				probabilityAccel = 0.8f;
+				probabilityAccel = 0.7f;
 			}else if (boss_[0]->GetWorldPos().x >= itemBorderLowLine_ && boss_[0]->GetWorldPos().x < itemBorderHighLine_) {
 				probabilityAccel = 0.5f;
 			}else if (boss_[0]->GetWorldPos().x >= itemBorderHighLine_) {
-				probabilityAccel = 0.1f;
+				probabilityAccel = 0.2f;
 			}
 
 			probabilityBomb = 1.0f - probabilityAccel;
