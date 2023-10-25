@@ -95,6 +95,10 @@ void GameScene::Initialize() {
 
 	size_t titleTexture = TextureManager::Load("title.png");
 	titleSprite_.reset(Sprite::Create(titleTexture, { 1920.0f / 2.0f,-300.0f }));
+
+	playerHitEffect.Initialize();
+	bossHitEffect.Initialize();
+
 }
 
 void GameScene::Update(){
@@ -190,6 +194,8 @@ void GameScene::Update(){
 	speedUpPlayerParticle_.Update();
 	speedUpBossParticle_.Update();
 	
+	playerHitEffect.Update();
+	bossHitEffect.Update();
 
 	if (explodeShakeFrame_ > 0) {
 		viewProjection_.Shake({ 3.0f,3.0f,3.0f }, explodeShakeFrame_);
@@ -266,6 +272,10 @@ void GameScene::ParticleBoxDraw()
 
 	speedUpPlayerParticle_.Draw(&viewProjection_, &directionalLight_, { 0.0f, 216.0f / 255.0f,1.0f,1.0f });
 	speedUpBossParticle_.Draw(&viewProjection_, &directionalLight_, { 0.0f, 216.0f / 255.0f,1.0f,1.0f });
+
+	bossHitEffect.Draw(&viewProjection_, &directionalLight_, { 212.0f / 255.0f , 54.0f / (255.0f * 1.5f),63.0f / (255.0f * 1.5f),1.0f });
+	playerHitEffect.Draw(&viewProjection_, &directionalLight_, { 212.0f / 255.0f , 54.0f / (255.0f * 1.5f),63.0f / (255.0f * 1.5f),1.0f });
+
 
 	collapse_.Draw(&viewProjection_, &directionalLight_, { 121.0f / (255.0f * 4.0f), 101.0f / (255.0f * 4.0f), 53.0f / (255.0f * 4.0f) });
 	orbit_.Draw(&viewProjection_, &directionalLight_, { 0.5f,0.5f,0.5f,1.0f });
@@ -346,6 +356,8 @@ void GameScene::CollisionCheck() {
 		if (isHitBulee == true) {
 			bullet->OnCollision();
 			player_->Explosion();
+			playerHitEffect.SetIsEmit(true);
+			playerHitEffect.emitterWorldTransform_.translation_ = bullet->GetWorldPos();
 			size_t hitHandle = audio_->SoundLoadWave("hit.wav");
 			size_t hitPlayHandle = audio_->SoundPlayWave(hitHandle);
 			audio_->SetValume(hitPlayHandle, 1.0f);
@@ -371,6 +383,8 @@ void GameScene::CollisionCheck() {
 	for (const auto& bullet : enemyBullets_) {
 		isHitBulee = boss_[0]->collider_.Collision(bullet->collider_);
 		if (isHitBulee && bullet->IsReflected()) {
+			bossHitEffect.SetIsEmit(true);
+			bossHitEffect.emitterWorldTransform_.translation_ = bullet->GetWorldPos();
 			bullet->OnCollision();
 			boss_[0]->OnRefCollision();
 			size_t hitHandle = audio_->SoundLoadWave("hit.wav");
