@@ -42,10 +42,10 @@ void GameScene::Initialize() {
 
 	sprite_.reset(Sprite::Create(textureHandle_, { 0.0f,0.0f }));
 	title_.reset(Sprite::Create(titleHandle_, {640.0f,300.0f}));
-	progressBar_.reset(Sprite::Create(progressBarHandle_, { 640.0f,650.0f }));
-	progressPlayer_.reset(Sprite::Create(progressPlayerHandle_, { 400.0f,650.0f }));
-	hpGauge_.reset(Sprite::Create(hpGaugeHandle_, { 640.0f,50.0f }));
-	hpBar_.reset(Sprite::Create(hpBarHandle_, { 641.0f,53.0f }));
+	progressBar_.reset(Sprite::Create(progressBarHandle_, { 1920.0f / 2.0f,950.0f }));
+	progressPlayer_.reset(Sprite::Create(progressPlayerHandle_, { (1920.0f / 2.0f) - 272.0f,950.0f }));
+	hpGauge_.reset(Sprite::Create(hpGaugeHandle_, { 1920.0f / 2.0f,50.0f }));
+	hpBar_.reset(Sprite::Create(hpBarHandle_, { 1920.0f / 2.0f,53.0f }));
 	hpBar_->anchorPoint_ = { 0.0f,0.5f };
 
 	skydome_ = std::make_unique<Skydome>();
@@ -93,7 +93,7 @@ void GameScene::Initialize() {
 	size_t bgmPlayHandle = audio_->SoundPlayLoopStart(bgmHandle);
 	audio_->SetValume(bgmPlayHandle, 0.2f);
 
-	size_t titleTexture = TextureManager::Load("title.png");
+	uint32_t titleTexture = TextureManager::Load("title.png");
 	titleSprite_.reset(Sprite::Create(titleTexture, { 1920.0f / 2.0f,-300.0f }));
 }
 

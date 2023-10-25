@@ -208,8 +208,8 @@ private: //スプライト
 	uint32_t progressPlayerHandle_;
 	std::unique_ptr<Sprite> progressPlayer_;
 
-	Vector2 progressPlayerStartPos_ = { 400.0f,650.0f };
-	Vector2 progressPlayerEndPos_ = { 880.0f,650.0f };
+	Vector2 progressPlayerStartPos_ = { (1920.0f / 2.0f) - 240.0f,950.0f };
+	Vector2 progressPlayerEndPos_ = { (1920.0f / 2.0f) + 240.0f,950.0f };
 	float progressT_ = 0.0f;
 
 	uint32_t hpGaugeHandle_;

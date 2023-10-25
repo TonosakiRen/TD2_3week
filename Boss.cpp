@@ -210,7 +210,7 @@ void Boss::OnRefCollision() {
 }
 
 void Boss::SpeedUp() {
-	velocity_ = velocity_ * 1.2f;
+	velocity_ = velocity_ * 1.5f;
 	size_t speedHandle = audio_->SoundLoadWave("speedup.wav");
 	size_t speedPlayHandle = audio_->SoundPlayWave(speedHandle);
 }
@@ -297,7 +297,7 @@ void Boss::BombHitUpdate() {
 
 	if (num >= 1.0f) {
 		num = 1.0f;
-		velocity_ = velocity_ * 1.5f;
+		velocity_ = velocity_ * 2.0f;
 		behaviorRequest_ = Behavior::kRoot;
 		bombBaseDamage_ = bombBaseDamage_ * (1.00f + (distance / 100.0f));
 		hp_ -= static_cast<int>(bombBaseDamage_);
