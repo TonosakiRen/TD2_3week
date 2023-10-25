@@ -45,6 +45,7 @@ void GameScene::Initialize() {
 	retrySelectedHandle_ = TextureManager::Load("UI/retry_selected.png");
 	killCountHandle_ = TextureManager::Load("UI/killCount.png");
 	pushSpaceHandle_ = TextureManager::Load("UI/pushSpace.png");
+	number_ = TextureManager::Load("UI/number.png");
 
 	sprite_.reset(Sprite::Create(textureHandle_, { 0.0f,0.0f }));
 	title_.reset(Sprite::Create(titleHandle_, {640.0f,300.0f}));
@@ -65,6 +66,15 @@ void GameScene::Initialize() {
 	killCount_.reset(Sprite::Create(killCountHandle_, {1540.0f,55.0f}));
 	killCount_->size_ = { killCount_->size_.x * 1.5f,killCount_->size_.y * 1.5f };
 	pushSpace_.reset(Sprite::Create(pushSpaceHandle_, { 960.0f,540.0f }));
+
+
+	scoreSize = killCount_->size_;
+	resultScureSize = { 32.0f * 4.0f,32.0f * 4.0f };
+
+	for (size_t i = 0; i < score_.size(); i++) {
+		score_[i].reset(Sprite::Create(number_, {}));
+		score_[i]->texSize_ = texSize;
+	}
 
 	skydome_ = std::make_unique<Skydome>();
 	skydome_->Initialize("skydome",&viewProjection_,&directionalLight_);
@@ -341,9 +351,17 @@ void GameScene::PostSpriteDraw()
 	
 	if (scene_ == Scene::InGame && player_->isClear_ == false && player_->isDead_ == false) {
 		if (stage_ == Stage::Actual) {
+			score_[0]->position_ = { 1640.0f,55.0f };
+			score_[0]->size_ = scoreSize;
+			score_[1]->position_ = { 1736.0f,55.0f };
+			score_[1]->size_ = scoreSize;
 			progressBar_->Draw();
 			progressPlayer_->Draw();
 			killCount_->Draw();
+			if (killCounter >= 10) {
+				score_[0]->Draw();
+			}
+			score_[1]->Draw();
 		}
 		
 		hpGauge_->Draw();
@@ -362,6 +380,11 @@ void GameScene::PostSpriteDraw()
 
 			retry_->position_ = { 1320.0f,540.0f };
 			retrySelected_->position_ = retry_->position_;
+
+			score_[0]->position_ = { 1320.0f - resultScureSize.x / 2.0f,300.0f };
+			score_[0]->size_ = resultScureSize;
+			score_[1]->position_ = { 1320.0f + resultScureSize.x / 2.0f,300.0f };
+			score_[1]->size_ = resultScureSize;
 		}
 
 		if (player_->isDead_) {
@@ -372,6 +395,10 @@ void GameScene::PostSpriteDraw()
 			retry_->position_ = { 960.0f,540.0f };
 			retrySelected_->position_ = retry_->position_;
 
+			score_[0]->position_ = { 960.0f - resultScureSize.x / 2.0f,300.0f };
+			score_[0]->size_ = resultScureSize;
+			score_[1]->position_ = { 960.0f + resultScureSize.x / 2.0f,300.0f };
+			score_[1]->size_ = resultScureSize;
 		}
 
 		if (select_ == Selection::ToTitle) {
@@ -382,6 +409,12 @@ void GameScene::PostSpriteDraw()
 			toTitle_->Draw();
 			retrySelected_->Draw();
 		}
+
+		if (killCounter >= 10) {
+			score_[0]->Draw();
+		}
+		
+		score_[1]->Draw();
 
 	}
 
@@ -866,6 +899,15 @@ void GameScene::InGameUpdate() {
 		//Boss::isBreak_ = false;
 		bossExplodeFrame = 10;
 		hpBar_->size_.x = hpbarLength_;
+		killCounter++;
+	}
+
+	int scoreNum = killCounter;
+	for (size_t i = 0; i < score_.size(); i++) {
+		eachScoreNum[i]= scoreNum / (int)std::powf(10.0f, 2.0f - (1.0f + (float)i));
+		score_[i]->texBase_ = { texSize.x * (float)eachScoreNum[i],0.0f };
+		score_[i]->texSize_ = texSize;
+		scoreNum %= (int)std::powf(10.0f, 2.0f - (1.0f + (float)i));
 	}
 
 	if (player_->isClear_ == false && player_->isDead_ == false) {

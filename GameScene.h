@@ -208,6 +208,12 @@ private: //シーン用
 	float BossDamageRate_ = 0.0f;
 	float hpbarLength_ = 0.0f;
 
+	int killCounter = 0;
+	std::vector<std::unique_ptr<Sprite>> score_{2};
+	int eachScoreNum[2]{};
+	Vector2 scoreSize{};
+	Vector2 resultScureSize{};
+	Vector2 texSize = { 64.0f,64.0f };
 
 public:
 	//タイトル
@@ -262,6 +268,8 @@ private: //スプライト
 	uint32_t pushSpaceHandle_ = 0;
 	std::unique_ptr<Sprite> pushSpace_;
 	bool isSpace_ = true;
+
+	uint32_t number_ = 0;
 
 };
 
