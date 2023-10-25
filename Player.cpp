@@ -130,6 +130,9 @@ void Player::Update()
 #endif // _DEBUG
 
 	worldTransform_.translation_.y = min(worldTransform_.translation_.y, jampLimitHeight_);
+	if (worldTransform_.translation_.x >= 0.0f) {
+		worldTransform_.translation_.x -= 0.01f;
+	}
 
 	//行列更新
 	reflectWT_.UpdateMatrix();
