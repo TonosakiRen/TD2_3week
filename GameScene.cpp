@@ -20,6 +20,7 @@ GameScene::~GameScene() {};
 void GameScene::Initialize() {
 	dxCommon_ = DirectXCommon::GetInstance();
 	input_ = Input::GetInstance();
+	audio_ = Audio::GetInstance();
 	
 	viewProjection_.Initialize();
 
@@ -65,6 +66,14 @@ void GameScene::Initialize() {
 
 	explodePlayerParticle_.Initialize();
 	explodeBossParticle_.Initialize();
+
+	bossExplode_.Initialize();
+
+	blockHandle_ = TextureManager::Load("block.png");
+
+	size_t bgmHandle = audio_->SoundLoadWave("BGM.wav");
+	size_t bgmPlayHandle = audio_->SoundPlayLoopStart(bgmHandle);
+	audio_->SetValume(bgmPlayHandle, 0.2f);
 }
 
 void GameScene::Update(){
@@ -99,15 +108,7 @@ void GameScene::Update(){
 	});
 
 	
-	if (order_ == 1) {
-		stage_ = Stage::Stage1;
-	}else if (order_ == 2) {
-		stage_ = Stage::Stage2;
-	}else if (order_ == 3) {
-		stage_ = Stage::Stage3;
-	}else {
-		stage_ = Stage::Actual;
-	}
+	
 	
 
 	if (sceneRequest_) {
@@ -161,8 +162,18 @@ void GameScene::Update(){
 	explodePlayerParticle_.Update();
 	explodeBossParticle_.Update();
 	
-	viewProjection_.Shake({ 3.0f,3.0f,3.0f }, explodeFrame_);
+	if (explodeFrame_ > 0) {
+		viewProjection_.Shake({ 3.0f,3.0f,3.0f }, explodeFrame_);
+	}
 
+	bossExplodeFrame--;
+	if (bossExplodeFrame > 0) {
+		bossExplode_.SetIsEmit(true);
+	}
+	else {
+		bossExplode_.SetIsEmit(false);
+	}
+	bossExplode_.Update();
 	for (int i = 0; i < pillarNum; i++) {
 		pillar_[i].Update();
 	}
@@ -203,8 +214,6 @@ void GameScene::ModelDraw()
 		}
 	}
 
-	//tmpCollider_.Draw({1.0f,0.0f,0.0f,1.0f});
-
 }
 
 void GameScene::ParticleDraw()
@@ -220,6 +229,7 @@ void GameScene::ParticleBoxDraw()
 	explodeBossParticle_.Draw(&viewProjection_, &directionalLight_, { 1.0f,0.0f,0.0f,1.0f });
 	collapse_.Draw(&viewProjection_, &directionalLight_, { 121.0f / (255.0f * 4.0f), 101.0f / (255.0f * 4.0f), 53.0f / (255.0f * 4.0f) });
 	orbit_.Draw(&viewProjection_, &directionalLight_, { 0.5f,0.5f,0.5f,1.0f });
+	bossExplode_.Draw(&viewProjection_, &directionalLight_, { 1.0f,1.0f,1.0f,1.0f },blockHandle_);
 	for (const auto& bullet : enemyBullets_) {
 		bullet->ParicleDraw();
 	}
@@ -270,7 +280,6 @@ void GameScene::Draw() {
 
 void GameScene::CollisionCheck() {
 
-	tmpCollider_.AdjustmentScale();
 
 	//敵弾とプレイヤーとの衝突判定
 	bool isHitBulee = false;
@@ -279,6 +288,9 @@ void GameScene::CollisionCheck() {
 		if (isHitBulee == true) {
 			bullet->OnCollision();
 			player_->Explosion();
+			size_t hitHandle = audio_->SoundLoadWave("hit.wav");
+			size_t hitPlayHandle = audio_->SoundPlayWave(hitHandle);
+			audio_->SetValume(hitPlayHandle, 1.0f);
 			break;
 		}
 	}
@@ -289,6 +301,9 @@ void GameScene::CollisionCheck() {
 		if (isHitBulee && player_->IsAttack()) {
 			bullet->SetVelocity({ -refBulletSpeed_, 0.0f, 0.0f });
 			bullet->OnRefCollision();
+			size_t reflectHandle = audio_->SoundLoadWave("reflect.wav");
+			size_t reflectPlayHandle = audio_->SoundPlayWave(reflectHandle);
+			audio_->SetValume(reflectPlayHandle, 0.8f);
 		}
 	}
 	//ボスと跳ね返り弾の衝突判定
@@ -298,6 +313,9 @@ void GameScene::CollisionCheck() {
 		if (isHitBulee && bullet->IsReflected()) {
 			bullet->OnCollision();
 			boss_[0]->OnRefCollision();
+			size_t hitHandle = audio_->SoundLoadWave("hit.wav");
+			size_t hitPlayHandle = audio_->SoundPlayWave(hitHandle);
+			audio_->SetValume(hitPlayHandle, 1.0f);
 		}
 	}
 	////敵弾とアイテムとの衝突判定
@@ -329,6 +347,8 @@ void GameScene::CollisionCheck() {
 			item->CharaHit();
 			if (item->GetType() == Type::Accel) {
 				player_->Accel();
+				size_t speedHandle = audio_->SoundLoadWave("speedup.wav");
+				size_t speedPlayHandle = audio_->SoundPlayWave(speedHandle);
 			}
 			if (item->GetType() == Type::Bomb) {
 				player_->Explosion();
@@ -336,6 +356,8 @@ void GameScene::CollisionCheck() {
 				explodePlayerParticle_.SetIsEmit(true);
 				explodePlayerParticle_.emitterWorldTransform_.translation_ = player_->GetWorldTransform()->translation_;
 				collapseFrame = 10;
+				size_t explodeHandle = audio_->SoundLoadWave("explosion.wav");
+				size_t explodePlayHandle = audio_->SoundPlayWave(explodeHandle);
 			}
 		}
 	}
@@ -363,7 +385,17 @@ void GameScene::CollisionCheck() {
 	isHitBulee = player_->collider_.Collision(boss_[0]->collider_);
 	if (isHitBulee) {
 		//ゲームオーバー
-
+		player_->isDead_ = true;
+		isCameraMove_ = true;
+		isSavePlayerPos_ = true;
+		//リザルトシーンのカメラの位置の設定
+		resultCameraPos_ = {
+			player_->GetCharaWorldPos().x,
+			player_->GetCharaWorldPos().y,
+			player_->GetCharaWorldPos().z
+		};
+		enemyBullets_.clear();
+		items_.clear();
 	}
 
 
@@ -503,6 +535,7 @@ void GameScene::TitleInitialize() {
 	player_->isDead_ = false;
 	cameraT_ = 0.0f;
 	isCameraMove_ = false;
+	stage_ = Stage::Stage1;
 
 }
 
@@ -512,8 +545,11 @@ void GameScene::TitleUpdate() {
 	player_->Animation();
 	player_->GravityUpdate();
 
-	if (input_->TriggerKey(DIK_SPACE)) {
+	if (input_->TriggerKey(DIK_SPACE) && isCameraMove_ == false) {
 		isCameraMove_ = true;
+		size_t selectHandle = audio_->SoundLoadWave("select.wav");
+		size_t selectPlayHandle = audio_->SoundPlayWave(selectHandle);
+		audio_->SetValume(selectPlayHandle, 0.5f);
 	}
 	if (cameraT_ >= 1.0f) {
 		sceneRequest_ = Scene::InGame;
@@ -539,74 +575,108 @@ void GameScene::InGameInitialize() {
 	waitFrame = 10;
 	player_->isClear_ = false;
 	player_->isDead_ = false;
-
+	Boss::shotCount = 1;
 	cameraT_ = 0.0f;
-	order_ = 1;
-	if (boss_.size() == 0) {
-		BossPopComand();
-	}
+	timer = gameTime;
 }
 
 void GameScene::InGameUpdate() {
 
-	CollisionCheck();
-
-	clearDirection();
-	gameoverDirection();
-	if (--ItemTimer <= 0) {
-		PopItem();
-		ItemTimer = kPopTime;
-	}
-	skydome_->Update();
-	floor_->Update();
-	player_->Update();
-	boss_[0]->Update();
-
-	if (boss_[0]->IsDead()) {
-		BossPopComand();
-		//Boss::isBreak_ = false;
-	}
-
-	for (const auto& bullet : enemyBullets_) {
-		bullet->Update();
-	}
-	for (const auto& items : items_) {
-		items->Update();
-	}
-
-
-	
-}
-
-void GameScene::clearDirection() {
-	if (input_->TriggerKey(DIK_E) && isSavePlayerPos_ == false) {
+	if (--timer <= 0) {
 		player_->isClear_ = true;
 		isCameraMove_ = true;
 		isSavePlayerPos_ = true;
 		//リザルトシーンのカメラの位置の設定
 		//プレイヤーの位置から少しずらしたところ
 		resultCameraPos_ = {
-			player_->GetCharaWorldPos().x + 10.0f,
-			player_->GetCharaWorldPos().y,
-			player_->GetCharaWorldPos().z - 40.0f
+			10.0f,
+			9.0f,
+			-40.0f
 		};
+		//
+		enemyBullets_.clear();
+		items_.clear();
+		player_->ClearEasingInitialize();
 	}
+
+	CollisionCheck();
+
+	clearDirection();
+	gameoverDirection();
+
+	
+	skydome_->Update();
+	floor_->Update();
+	player_->Update();
+	boss_[0]->Update();
+
+	if (boss_[0]->IsDead()) {
+		bossExplode_.emitterWorldTransform_.translation_= boss_[0]->GetWorldPos();
+		BossPopComand();
+		
+		if (stage_ == Stage::Stage1) { stage_ = Stage::Stage2; }
+		else if (stage_ == Stage::Stage2) { stage_ = Stage::Stage3; }
+		else if (stage_ == Stage::Stage3) { stage_ = Stage::Actual; }
+		//Boss::isBreak_ = false;
+		bossExplodeFrame = 10;
+	}
+
+	if (player_->isClear_ == false && player_->isDead_ == false) {
+		if (--ItemTimer <= 0) {
+			PopItem();
+			ItemTimer = kPopTime;
+		}
+		for (const auto& bullet : enemyBullets_) {
+			bullet->Update();
+		}
+		for (const auto& items : items_) {
+			items->Update();
+		}
+	}
+	
+}
+
+void GameScene::clearDirection() {
+#ifdef _DEBUG
+	if (input_->TriggerKey(DIK_E) && isSavePlayerPos_ == false) {
+		size_t clearHandle = audio_->SoundLoadWave("explosion.wav");
+		size_t clearPlayHandle = audio_->SoundPlayWave(clearHandle);
+		player_->isClear_ = true;
+		isCameraMove_ = true;
+		isSavePlayerPos_ = true;
+		//リザルトシーンのカメラの位置の設定
+		//プレイヤーの位置から少しずらしたところ
+		resultCameraPos_ = {
+			10.0f,
+			9.0f,
+			-40.0f
+		};
+		//
+		enemyBullets_.clear();
+		items_.clear();
+		player_->ClearEasingInitialize();
+	}
+#endif // _DEBUG
+
+	
 	if (cameraT_ >= 1.0f && player_->GetIsClear()) {
 		sceneRequest_ = Scene::Result;
 		isCameraMove_ = false;
 		cameraT_ = 0.0f;
 	}
 	if (isCameraMove_ && player_->GetIsClear()) {
+		boss_[0]->Disappear(cameraT_);
+		player_->ClearEasingUpdate(cameraT_);
 		viewProjection_.translation_ = Easing::easing(cameraT_, gameCameraPos_, resultCameraPos_, 0.01f, Easing::easeNormal, false);
 		viewProjection_.target_ = Easing::easing(cameraT_, gameCameraTar_, resultCameraTar_, 0.01f, Easing::easeNormal, true);
 	}
 
-	if (stage_ != Stage::Stage1) {
+	/*if (stage_ != Stage::Stage1) {
 		if (--ItemTimer <= 0) {
 			PopItem();
 			ItemTimer = kPopTime;
 		}
-	}
+	}*/
 	
 	//skydome_->Update();
 	//floor_->Update();
@@ -617,7 +687,10 @@ void GameScene::clearDirection() {
 
 }
 void GameScene::gameoverDirection() {
+#ifdef _DEBUG
 	if (input_->TriggerKey(DIK_R) && isSavePlayerPos_ == false) {
+		size_t gameoverHandle = audio_->SoundLoadWave("gameover.wav");
+		size_t gameoverPlayHandle = audio_->SoundPlayWave(gameoverHandle);
 		player_->isDead_ = true;
 		isCameraMove_ = true;
 		isSavePlayerPos_ = true;
@@ -627,7 +700,10 @@ void GameScene::gameoverDirection() {
 			player_->GetCharaWorldPos().y,
 			player_->GetCharaWorldPos().z
 		};
+		enemyBullets_.clear();
+		items_.clear();
 	}
+#endif // _DEBUG
 
 	if (isCameraMove_ && player_->GetIsDead()) {
 		boss_[0]->Disappear(cameraT_);
@@ -662,9 +738,13 @@ void GameScene::ResultInitialize() {
 	select_ = Selection::ToTitle;
 	result_ = Result::Select;
 
-
-	enemyBullets_.clear();
-	items_.clear();
+	if (enemyBullets_.size() != 0) {
+		enemyBullets_.clear();
+	}
+	if (items_.size() != 0) {
+		items_.clear();
+	}
+	
 	boss_.clear();
 }
 
@@ -676,9 +756,13 @@ void GameScene::ResultUpdate() {
 			if (input_->TriggerKey(DIK_SPACE)) {
 				result_ = Result::Translation;
 				if (player_->isDead_) {
-					player_->SetTranslation({0.0f,100.0f,0.0f});
+					player_->SetTranslation({0.0f,150.0f,0.0f});
 					player_->SetRotation({ 0.0f,0.0f,0.0f });
+					size_t selectHandle = audio_->SoundLoadWave("select.wav");
+					size_t selectPlayHandle = audio_->SoundPlayWave(selectHandle);
+					audio_->SetValume(selectPlayHandle, 0.5f);
 				}
+				BossPopComand();
 			}
 
 			switch (select_){
@@ -687,14 +771,16 @@ void GameScene::ResultUpdate() {
 					if (input_->TriggerKey(DIK_DOWN)) {
 						select_ = Selection::Continue;
 					}
-
+					order_ = 1;
+					stage_ = Stage::Stage1;
 			    	break;
 			    case GameScene::Selection::Continue:
 					nextScene = Scene::InGame;
 					if (input_->TriggerKey(DIK_UP)) {
 						select_ = Selection::ToTitle;
 					}
-
+					order_ = 1;
+					stage_ = Stage::Actual;
 			    	break;
 			    default:
 			    	break;
@@ -733,6 +819,12 @@ void GameScene::ResultUpdate() {
 			
 
 			break;
+	}
+
+	if (player_->isClear_) {
+		skydome_->Update();
+		floor_->Update();
+		player_->Animation();
 	}
 
 }

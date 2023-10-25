@@ -5,6 +5,7 @@ void Player::Initialize(const std::string name, ViewProjection* viewProjection, 
 {
 	GameObject::Initialize(name, viewProjection, directionalLight);
 	input_ = Input::GetInstance();
+	audio_ = Audio::GetInstance();
 
 	dustParticle_ = std::make_unique<DustParticle>();
 	dustParticle_->Initialize({ 0.0f,0.0f,-0.8f }, { 0.0f,1.0f,0.0f });
@@ -84,7 +85,7 @@ void Player::Update()
 	
 
 	//止める
-	if (isClear_ == false && isDead_ == false) {
+	if (/*isClear_ == false && */isDead_ == false) {
 		Animation();
 	}
 	else {
@@ -130,6 +131,9 @@ void Player::Update()
 #endif // _DEBUG
 
 	worldTransform_.translation_.y = min(worldTransform_.translation_.y, jampLimitHeight_);
+	if (worldTransform_.translation_.x >= 0.0f) {
+		worldTransform_.translation_.x -= 0.01f;
+	}
 
 	//行列更新
 	reflectWT_.UpdateMatrix();
@@ -217,6 +221,9 @@ void Player::RootInitialize() {
 
 void Player::RotationAnimation() {
 	if (isRotation == true) {
+		size_t jumpHandle = audio_->SoundLoadWave("jump.wav");
+		size_t jumpPlayHandle = audio_->SoundPlayWave(jumpHandle);
+		audio_->SetValume(jumpPlayHandle, 0.1f);
 		isRotation = false;
 		rotationT = 0.0f;
 		worldTransform_.rotation_.x = Easing::easing(rotationT, 0.0f, Radian(360.0f), 0.05f,Easing::easeNormal);
@@ -292,7 +299,6 @@ void Player::BombHitInitialize() {
 	easeEnd = worldTransform_.translation_ - move;
 	isAttack_ = false;
 	attackTimer = kAttackTime;
-
 }
 
 void Player::BombHitUpdate() {
@@ -319,6 +325,20 @@ void Player::Accel() {
 void Player::Explosion() {
 
 	behaviorRequest_ = Behavior::kBombHit;
+	
+	
+}
+
+void Player::ClearEasingInitialize() {
+
+	easeStart = worldTransform_.translation_;
+	easeEnd = { 0.0f,9.0f,0.0f };
+
+}
+
+void Player::ClearEasingUpdate(float& t) {
+
+	worldTransform_.translation_ = Easing::easing(t, easeStart, easeEnd, 0.01f, Easing::easeNormal, false);
 
 }
 

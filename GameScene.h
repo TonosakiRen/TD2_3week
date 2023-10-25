@@ -4,6 +4,7 @@
 #include "ViewProjection.h"
 #include "WorldTransform.h"
 #include "Input.h"
+#include "Audio.h"
 #include "Sprite.h"
 #include "DirectionalLight.h"
 #include "Particle.h"
@@ -23,6 +24,7 @@
 #include "OrbitParticle.h"
 #include "Pillar.h"
 #include "ExplodeParticle.h"
+#include "BossExplode.h"
 
 class GameScene
 {
@@ -55,6 +57,7 @@ public:
 private: 
 	DirectXCommon* dxCommon_ = nullptr;
 	Input* input_ = nullptr;
+	Audio* audio_ = nullptr;
 	DirectionalLight directionalLight_;
 
 	//カメラ
@@ -99,8 +102,8 @@ private:
 
 	std::unique_ptr<Particle> particle_;
 
-
-	
+	int gameTime = 60 * 90;
+	int timer = gameTime;
   
   Collider tmpCollider_;
 
@@ -138,7 +141,7 @@ private: //シーン用
 	static void (GameScene:: *SceneTable[])();
 	std::optional<Scene> sceneRequest_ = std::nullopt;
 
-	Stage stage_ = Stage::Stage3;
+	Stage stage_ = Stage::Stage1;
 
 	//title or continue
 	Selection select_ = Selection::ToTitle;
@@ -164,6 +167,11 @@ private: //シーン用
 
 	ExplodeParticle explodePlayerParticle_;
 	ExplodeParticle explodeBossParticle_;
+
+	BossExplode bossExplode_;
+
+	uint32_t blockHandle_;
+	int bossExplodeFrame = 0;
 public:
 	//タイトル
 	void TitleInitialize();

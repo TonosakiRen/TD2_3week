@@ -4,6 +4,7 @@
 #include "DustParticle.h"
 #include <optional>
 #include "Collider.h"
+#include "Audio.h"
 
 class GameScene;
 class Player;
@@ -56,6 +57,7 @@ public:
     Collider collider_;
     Collider mouthCollider_;
 private:
+    Audio* audio_ = nullptr;
     enum parts {
         Head,
         Tin,
@@ -106,6 +108,8 @@ private:
     int attackTime = 0;
     int attackTimer = 0;
 
+    
+
     GameScene* gameScene_ = nullptr;
     Player* player_ = nullptr;
 
@@ -128,6 +132,7 @@ public:
     static Vector3 knockbackdis;
     static int damage_;
     static int bombBaseDamage_;
+    static int shotCount;
 
 };
 
