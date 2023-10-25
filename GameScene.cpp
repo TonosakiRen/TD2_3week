@@ -594,7 +594,7 @@ void GameScene::BossPopComand() {
 			float speed = (float)std::atof(word.c_str());
 
 			getline(line_stream, word, ',');
-			int second = (int)std::atof(word.c_str());
+			float second = (float)std::atof(word.c_str());
 
 			BossPop(hp, speed, second);
 			order_++;

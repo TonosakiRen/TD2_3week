@@ -25,7 +25,7 @@ public:
     void SpeedUp();
     void Explosion();
 
-    void SetState(int hp,float speed,int second);
+    void SetState(int hp,float speed,float second);
     void SetGameScene(GameScene* gameScene) { gameScene_ = gameScene; }
     void SetPlayer(Player* player) { player_ = player; }
 
