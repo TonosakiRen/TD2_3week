@@ -1,7 +1,7 @@
 #include "Item.h"
-#include "ImGuiManager.h"
+#include "ImGuiManager.h"  
 
-float Item::speed_ = 0.3f;
+float Item::speed_ = 0.6f;
 float Item::gravity_ = 0.1f;
 
 void Item::Initialize(const std::string name, ViewProjection* viewProjection, DirectionalLight* directionalLight, const Vector3& position, Type type) {
