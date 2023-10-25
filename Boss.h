@@ -56,7 +56,6 @@ public:
     //collider
     Collider collider_;
     Collider mouthCollider_;
-    Collider itemDisapeerCollider_;
 private:
     Audio* audio_ = nullptr;
     enum parts {

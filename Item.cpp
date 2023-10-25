@@ -15,7 +15,6 @@ void Item::Initialize(const std::string name, ViewProjection* viewProjection, Di
 	type_ = type;
 
 	collider_.Initialize(&worldTransform_, name, *viewProjection, *directionalLight, { 4.0f,4.0f,4.0f });
-
 }
 
 void Item::Update() {
@@ -33,13 +32,16 @@ void Item::Update() {
 	velocity_ += acceleration_;
 	worldTransform_.translation_ += velocity_;
 
-	if (worldTransform_.translation_.y <= size_.y) {
+	if (worldTransform_.translation_.y <= size_.y && isDrop_ == false) {
 		worldTransform_.translation_.y = size_.y;
 		acceleration_ = {};
 		velocity_.y = 0.0f;
 	}
 
 	if (worldTransform_.translation_.x <= -200.0f) {
+		isDead_ = true;
+	}
+	if (worldTransform_.translation_.y <= -100.0f) {
 		isDead_ = true;
 	}
 
@@ -73,4 +75,11 @@ Vector3 Item::GetWorldPos() const {
 	worldPos.z = worldTransform_.matWorld_.m[3][2];
 
 	return worldPos;
+}
+
+void Item::BossHitAnimation()
+{
+	
+	velocity_ = { 0.0f,2.0f,-1.1f };
+	acceleration_ = { 0.0f, -gravity_, 0.0f };
 }
