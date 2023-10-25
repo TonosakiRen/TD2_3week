@@ -102,6 +102,21 @@ void GameScene::Initialize() {
 
 	uint32_t titleTexture = TextureManager::Load("title.png");
 	titleSprite_.reset(Sprite::Create(titleTexture, { 1920.0f / 2.0f,-300.0f }));
+
+	playerHitEffect.Initialize();
+	bossHitEffect.Initialize();
+
+	uint32_t tutorial1Texture = TextureManager::Load("UI/tutorial1.png");
+	uint32_t tutorial2Texture = TextureManager::Load("UI/tutorial2.png");
+	uint32_t tutorial3Texture = TextureManager::Load("UI/tutorial3.png");
+	tutorial1Sprite_.reset(Sprite::Create(tutorial1Texture, { 1920.0f / 2.0f,1080.0f -120.0f}));
+	tutorial2Sprite_.reset(Sprite::Create(tutorial2Texture, { 1920.0f / 2.0f,1080.0f - 120.0f }));
+	tutorial3Sprite_.reset(Sprite::Create(tutorial3Texture, { 1920.0f / 2.0f,1080.0f - 120.0f }));
+	tutorial1Sprite_->color_ = { 1.0f,1.0f,1.0f,0.0f };
+	tutorial2Sprite_->color_ = { 1.0f,1.0f,1.0f,0.0f };
+	tutorial3Sprite_->color_ = { 1.0f,1.0f,1.0f,0.0f };
+
+
 }
 
 void GameScene::Update(){
@@ -197,6 +212,8 @@ void GameScene::Update(){
 	speedUpPlayerParticle_.Update();
 	speedUpBossParticle_.Update();
 	
+	playerHitEffect.Update();
+	bossHitEffect.Update();
 
 	if (explodeShakeFrame_ > 0) {
 		viewProjection_.Shake({ 3.0f,3.0f,3.0f }, explodeShakeFrame_);
@@ -274,6 +291,10 @@ void GameScene::ParticleBoxDraw()
 	speedUpPlayerParticle_.Draw(&viewProjection_, &directionalLight_, { 0.0f, 216.0f / 255.0f,1.0f,1.0f });
 	speedUpBossParticle_.Draw(&viewProjection_, &directionalLight_, { 0.0f, 216.0f / 255.0f,1.0f,1.0f });
 
+	bossHitEffect.Draw(&viewProjection_, &directionalLight_, { 212.0f / 255.0f , 54.0f / (255.0f * 1.5f),63.0f / (255.0f * 1.5f),1.0f });
+	playerHitEffect.Draw(&viewProjection_, &directionalLight_, { 212.0f / 255.0f , 54.0f / (255.0f * 1.5f),63.0f / (255.0f * 1.5f),1.0f });
+
+
 	collapse_.Draw(&viewProjection_, &directionalLight_, { 121.0f / (255.0f * 4.0f), 101.0f / (255.0f * 4.0f), 53.0f / (255.0f * 4.0f) });
 	orbit_.Draw(&viewProjection_, &directionalLight_, { 0.5f,0.5f,0.5f,1.0f });
 	bossExplode_.Draw(&viewProjection_, &directionalLight_, { 1.0f,1.0f,1.0f,1.0f },blockHandle_);
@@ -309,6 +330,7 @@ void GameScene::PostSpriteDraw()
 		hpBar_->Draw();
 	}
 
+
 	if (scene_ == Scene::Result) {
 		
 		if (result_ == Result::Translation) { return; }
@@ -341,6 +363,35 @@ void GameScene::PostSpriteDraw()
 			retrySelected_->Draw();
 		}
 
+	}
+
+
+	if (scene_ == Scene::InGame) {
+		if (isAppearTutorial1_) {
+			tutorial1Sprite_->color_ = { 1.0f,1.0f,1.0f,Easing::easing(tutorial1T, 0.0f, 1.0f, 0.01f, Easing::easeInSine) };
+			endAppearTutorial1_ = true;
+		}
+		else if(endAppearTutorial1_){
+			tutorial1Sprite_->color_ = { 1.0f,1.0f,1.0f,Easing::easing(tutorial1T2, 1.0f, 0.0f, 0.01f, Easing::easeInSine) };
+		}
+		if (isAppearTutorial2_) {
+			tutorial2Sprite_->color_ = { 1.0f,1.0f,1.0f,Easing::easing(tutorial2T, 0.0f, 1.0f, 0.01f, Easing::easeInSine) };
+			endAppearTutorial2_ = true;
+		}
+		else if (endAppearTutorial2_) {
+			tutorial2Sprite_->color_ = { 1.0f,1.0f,1.0f,Easing::easing(tutorial2T2, 1.0f, 0.0f, 0.01f, Easing::easeInSine) };
+		}
+		if (isAppearTutorial3_) {
+			tutorial3Sprite_->color_ = { 1.0f,1.0f,1.0f,Easing::easing(tutorial3T, 0.0f, 1.0f, 0.01f, Easing::easeInSine) };
+			endAppearTutorial3_ = true;
+		}
+		else if(endAppearTutorial3_) {
+			tutorial3Sprite_->color_ = { 1.0f,1.0f,1.0f,Easing::easing(tutorial3T2, 1.0f, 0.0f, 0.01f, Easing::easeInSine) };
+		}
+		tutorial1Sprite_->Draw();
+		tutorial2Sprite_->Draw();
+		tutorial3Sprite_->Draw();
+		
 	}
 
 }
@@ -388,6 +439,8 @@ void GameScene::CollisionCheck() {
 		if (isHitBulee == true) {
 			bullet->OnCollision();
 			player_->Explosion();
+			playerHitEffect.SetIsEmit(true);
+			playerHitEffect.emitterWorldTransform_.translation_ = bullet->GetWorldPos();
 			size_t hitHandle = audio_->SoundLoadWave("hit.wav");
 			size_t hitPlayHandle = audio_->SoundPlayWave(hitHandle);
 			audio_->SetValume(hitPlayHandle, 1.0f);
@@ -399,6 +452,8 @@ void GameScene::CollisionCheck() {
 	for (const auto& bullet : enemyBullets_) {
 		isHitBulee = player_->reflectCollider_.Collision(bullet->collider_);
 		if (isHitBulee && player_->IsAttack()) {
+			isAppearTutorial1_ = false;
+			tutorial1T = 0.0f;
 			bullet->SetVelocity({ -refBulletSpeed_, 0.0f, 0.0f });
 			if (bullet->isReflected_ == false){
 				size_t reflectHandle = audio_->SoundLoadWave("reflect.wav");
@@ -413,6 +468,8 @@ void GameScene::CollisionCheck() {
 	for (const auto& bullet : enemyBullets_) {
 		isHitBulee = boss_[0]->collider_.Collision(bullet->collider_);
 		if (isHitBulee && bullet->IsReflected()) {
+			bossHitEffect.SetIsEmit(true);
+			bossHitEffect.emitterWorldTransform_.translation_ = bullet->GetWorldPos();
 			bullet->OnCollision();
 			boss_[0]->OnRefCollision();
 			size_t hitHandle = audio_->SoundLoadWave("hit.wav");
@@ -437,6 +494,8 @@ void GameScene::CollisionCheck() {
 	for (const auto& item : items_) {
 		isHitBulee = player_->reflectCollider_.Collision(item->collider_);
 		if (isHitBulee) {
+			isAppearTutorial3_ = false;
+			tutorial3T = 0.0f;
 			item->EnBulletHit();
 		}
 	}
@@ -448,6 +507,8 @@ void GameScene::CollisionCheck() {
 		if (isHitBulee) {
 			item->CharaHit();
 			if (item->GetType() == Type::Accel) {
+				isAppearTutorial2_ = false;
+				tutorial2T = 0.0f;
 				player_->Accel();
 				speedUpPlayerParticle_.SetIsEmit(true);
 				size_t speedHandle = audio_->SoundLoadWave("speedup.wav");
@@ -506,6 +567,8 @@ void GameScene::CollisionCheck() {
 		player_->isDead_ = true;
 		isCameraMove_ = true;
 		isSavePlayerPos_ = true;
+		size_t hitHandle = audio_->SoundLoadWave("hit.wav");
+		size_t hitPlayHandle = audio_->SoundPlayWave(hitHandle);
 		//リザルトシーンのカメラの位置の設定
 		resultCameraPos_ = {
 			player_->GetCharaWorldPos().x,
@@ -594,6 +657,14 @@ void GameScene::BossPop(int hp, float speed, float second) {
 	boss->SetPlayer(player_.get());
 	boss->SetGameScene(this);
 	boss_.push_back(std::unique_ptr<Boss>(boss));
+	if (endAppearTutorial3_ == false) {
+		if (endAppearTutorial1_ == true && endAppearTutorial2_ == true) {
+			isAppearTutorial3_ = true;
+		}
+		else if (endAppearTutorial1_ == true) {
+			isAppearTutorial2_ = true;
+		}
+	}
 
 }
 
@@ -655,6 +726,21 @@ void GameScene::TitleInitialize() {
 	isCameraMove_ = false;
 	stage_ = Stage::Stage1;
 	titleFlag = true;
+	isAppearTutorial1_ = true;
+	isAppearTutorial2_ = false;
+	isAppearTutorial3_ = false;
+	endAppearTutorial1_ = false;
+	endAppearTutorial2_ = false;
+	endAppearTutorial3_ = false;
+	tutorial1T = 0.0f;
+	tutorial2T = 0.0f;
+	tutorial3T = 0.0f;
+	tutorial1T2 = 0.0f;
+	tutorial2T2 = 0.0f;
+	tutorial3T2 = 0.0f;
+	tutorial1Sprite_->color_ = { 1.0f,1.0f,1.0f,0.0f };
+	tutorial2Sprite_->color_ = { 1.0f,1.0f,1.0f,0.0f };
+	tutorial3Sprite_->color_ = { 1.0f,1.0f,1.0f,0.0f };
 }
 
 void GameScene::TitleUpdate() {

@@ -180,7 +180,28 @@ private: //シーン用
 	std::unique_ptr< Sprite> titleSprite_;
 	float titleT_ = 0.0f;
 
+	ExplodeParticle playerHitEffect;
+	ExplodeParticle bossHitEffect;
+
+	std::unique_ptr<Sprite> tutorial1Sprite_;
+	std::unique_ptr<Sprite> tutorial2Sprite_;
+	std::unique_ptr<Sprite> tutorial3Sprite_;
 	
+	bool isAppearTutorial1_ = true;
+	bool isAppearTutorial2_ = false;
+	bool isAppearTutorial3_ = false;
+
+	bool endAppearTutorial1_ = false;
+	bool endAppearTutorial2_ = false;
+	bool endAppearTutorial3_ = false;
+
+	float tutorial1T = 0.0f;
+	float tutorial2T = 0.0f;
+	float tutorial3T = 0.0f;
+
+	float tutorial1T2 = 0.0f;
+	float tutorial2T2 = 0.0f;
+	float tutorial3T2 = 0.0f;
 
 
 public:

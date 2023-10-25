@@ -134,6 +134,8 @@ void Boss::Update()
 
 	if (hp_ <= 0) {
 		isDead_ = true;
+		size_t explodeHandle = audio_->SoundLoadWave("explosion.wav");
+		size_t explodePlayHandle = audio_->SoundPlayWave(explodeHandle);
  		//isBreak_ = true;
 	}
 
