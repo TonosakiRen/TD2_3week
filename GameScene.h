@@ -259,5 +259,9 @@ private: //スプライト
 	uint32_t killCountHandle_ = 0;
 	std::unique_ptr<Sprite> killCount_;
 
+	uint32_t pushSpaceHandle_ = 0;
+	std::unique_ptr<Sprite> pushSpace_;
+	bool isSpace_ = true;
+
 };
 

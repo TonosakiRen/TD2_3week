@@ -44,6 +44,7 @@ void GameScene::Initialize() {
 	retryHandle_ = TextureManager::Load("UI/retry.png");
 	retrySelectedHandle_ = TextureManager::Load("UI/retry_selected.png");
 	killCountHandle_ = TextureManager::Load("UI/killCount.png");
+	pushSpaceHandle_ = TextureManager::Load("UI/pushSpace.png");
 
 	sprite_.reset(Sprite::Create(textureHandle_, { 0.0f,0.0f }));
 	title_.reset(Sprite::Create(titleHandle_, {640.0f,300.0f}));
@@ -63,6 +64,7 @@ void GameScene::Initialize() {
 	retrySelected_.reset(Sprite::Create(retrySelectedHandle_, {}));
 	killCount_.reset(Sprite::Create(killCountHandle_, {1540.0f,55.0f}));
 	killCount_->size_ = { killCount_->size_.x * 1.5f,killCount_->size_.y * 1.5f };
+	pushSpace_.reset(Sprite::Create(pushSpaceHandle_, { 960.0f,540.0f }));
 
 	skydome_ = std::make_unique<Skydome>();
 	skydome_->Initialize("skydome",&viewProjection_,&directionalLight_);
@@ -327,6 +329,10 @@ void GameScene::PostSpriteDraw()
 	if (scene_ == Scene::Title) {
 		titleSprite_->position_ = Easing::easing(titleT_,Vector2{1920.0f / 2.0f,-300.0f}, Vector2{ 1920.0f / 2.0f,300.0f },0.01f,Easing::easeOutBounce);
 		titleSprite_->Draw();
+		if (isSpace_) {
+			pushSpace_->Draw();
+		}
+		
 	}
 	else {
 		titleSprite_->position_ = Easing::easing(titleT_, Vector2{ 1920.0f / 2.0f,-300.0f }, Vector2{ 1920.0f / 2.0f,300.0f }, -0.01f, Easing::easeOutCubic);
@@ -563,6 +569,7 @@ void GameScene::CollisionCheck() {
 				explodeBossParticle_.emitterWorldTransform_.translation_ = item->GetWorldPos();
 
 				collapseFrame = 10;
+				hpBar_->size_.x -= hpbarLength_ * BossDamageRate_;
 			}
 		}
 	}
@@ -764,6 +771,7 @@ void GameScene::TitleInitialize() {
 	tutorial1Sprite_->color_ = { 1.0f,1.0f,1.0f,0.0f };
 	tutorial2Sprite_->color_ = { 1.0f,1.0f,1.0f,0.0f };
 	tutorial3Sprite_->color_ = { 1.0f,1.0f,1.0f,0.0f };
+	
 }
 
 void GameScene::TitleUpdate() {
@@ -774,7 +782,7 @@ void GameScene::TitleUpdate() {
 
 	if (input_->TriggerKey(DIK_SPACE) && isCameraMove_ == false) {
 		isCameraMove_ = true;
-
+		isSpace_ = false;
 		titleFlag = false;
 
 		size_t selectHandle = audio_->SoundLoadWave("select.wav");
