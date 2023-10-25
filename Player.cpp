@@ -261,7 +261,7 @@ void Player::RootUpdate() {
 
 void Player::AccelInitialize() {
 
-	Vector3 move = { size_.x * 2.0f, 0.0f, 0.0f };
+	Vector3 move = { size_.x * 4.0f, 0.0f, 0.0f };
 	num = 0.0f;
 	easeStart = worldTransform_.translation_;
 	easeEnd = worldTransform_.translation_ + move;

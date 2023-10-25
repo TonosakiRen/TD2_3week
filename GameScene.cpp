@@ -257,8 +257,11 @@ void GameScene::PostSpriteDraw()
 	}
 	
 	if (scene_ == Scene::InGame && player_->isClear_ == false && player_->isDead_ == false) {
-		progressBar_->Draw();
-		progressPlayer_->Draw();
+		if (stage_ == Stage::Actual) {
+			progressBar_->Draw();
+			progressPlayer_->Draw();
+		}
+		
 		hpGauge_->Draw();
 		hpBar_->Draw();
 	}
@@ -592,22 +595,27 @@ void GameScene::InGameInitialize() {
 
 void GameScene::InGameUpdate() {
 
-	if (--timer <= 0) {
-		player_->isClear_ = true;
-		isCameraMove_ = true;
-		isSavePlayerPos_ = true;
-		//リザルトシーンのカメラの位置の設定
-		//プレイヤーの位置から少しずらしたところ
-		resultCameraPos_ = {
-			10.0f,
-			9.0f,
-			-40.0f
-		};
-		//
-		enemyBullets_.clear();
-		items_.clear();
-		player_->ClearEasingInitialize();
+	if (stage_ == Stage::Actual) {
+		if (--timer <= 0) {
+			player_->isClear_ = true;
+			isCameraMove_ = true;
+			isSavePlayerPos_ = true;
+			//リザルトシーンのカメラの位置の設定
+			//プレイヤーの位置から少しずらしたところ
+			resultCameraPos_ = {
+				10.0f,
+				9.0f,
+				-40.0f
+			};
+			//
+			enemyBullets_.clear();
+			items_.clear();
+			player_->ClearEasingInitialize();
+		}
+		progressPlayer_->position_ = Easing::easing(progressT_, progressPlayerStartPos_, progressPlayerEndPos_, (float)1 / gameTime, Easing::EasingMode::easeNormal, true);
+
 	}
+	
 
 	CollisionCheck();
 
@@ -644,7 +652,6 @@ void GameScene::InGameUpdate() {
 		}
 	}
 
-	progressPlayer_->position_ = Easing::easing(progressT_, progressPlayerStartPos_, progressPlayerEndPos_, (float)1 / gameTime, Easing::EasingMode::easeNormal, true);
 	
 	
 
