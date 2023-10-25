@@ -14,6 +14,7 @@ int Boss::shotCount = 1;
 
 void Boss::Initialize(ViewProjection* viewProjection, DirectionalLight* directionalLight)
 {
+	audio_ = Audio::GetInstance();
 	GameObject::Initialize(viewProjection, directionalLight);
 
 	dustParticle_ = std::make_unique<DustParticle>();
@@ -53,9 +54,10 @@ void Boss::Initialize(ViewProjection* viewProjection, DirectionalLight* directio
 	mouthWT_.UpdateMatrix();
 	dustParticle_->emitterWorldTransform_.UpdateMatrix();
 
+
 	collider_.Initialize(&worldTransform_, "boss", *viewProjection, *directionalLight,{20.9f,59.6f,25.0f},{0.0f,62.1f,10.0f});
 	mouthCollider_.Initialize(&mouthWT_, "boss", *viewProjection, *directionalLight, {20.9f,28.0f,25.0f}, { 0.0f,31.0f,16.0f });
-
+  itemDisapeerCollider_.Initialize(&worldTransform_, "disaaperer", *viewProjection, *directionalLight, { 20.9f,59.6f,21.7f }, { 0.0f,62.1f,0.0f });
 }
 
 void Boss::Update()
@@ -148,6 +150,7 @@ void Boss::Update()
 	mouthWT_.UpdateMatrix();
 	dustParticle_->Update();
 
+	itemDisapeerCollider_.AdjustmentScale();
 	collider_.AdjustmentScale();
 	mouthCollider_.AdjustmentScale();
 } 
@@ -181,6 +184,10 @@ void Boss::Draw() {
 	for (int i = 0; i < partNum; i++) {
 		modelParts_[i].Draw(partsTransform_[i], *viewProjection_, *directionalLight_, material_);
 	}
+
+	mouthCollider_.Draw();
+		collider_.Draw();
+		itemDisapeerCollider_.Draw({1.0f,0.0f,0.0f,1.0f});
 	//collider_.Draw();
 	//mouthCollider_.Draw();
 }
@@ -212,6 +219,8 @@ void Boss::OnRefCollision() {
 
 void Boss::SpeedUp() {
 	velocity_ = velocity_ * 1.2f;
+	size_t speedHandle = audio_->SoundLoadWave("speedup.wav");
+	size_t speedPlayHandle = audio_->SoundPlayWave(speedHandle);
 }
 
 void Boss::SetState(int hp, float speed, int second) {
@@ -225,6 +234,8 @@ void Boss::SetState(int hp, float speed, int second) {
 
 void Boss::Explosion() {
 	behaviorRequest_ = Behavior::kBombHit;
+	size_t explodeHandle = audio_->SoundLoadWave("explosion.wav");
+	size_t explodePlayHandle = audio_->SoundPlayWave(explodeHandle);
 }
 
 void Boss::RootInitialize() {
@@ -263,7 +274,8 @@ void Boss::HitInitialize() {
 	num = 0.0f;
 	easeStart = worldTransform_.translation_;
 	easeEnd = worldTransform_.translation_ - knockbackdis;
-
+	size_t hitHandle = audio_->SoundLoadWave("hit.wav");
+	size_t hitPlayHandle = audio_->SoundPlayWave(hitHandle);
 }
 
 void Boss::HitUpdate() {

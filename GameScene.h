@@ -4,6 +4,7 @@
 #include "ViewProjection.h"
 #include "WorldTransform.h"
 #include "Input.h"
+#include "Audio.h"
 #include "Sprite.h"
 #include "DirectionalLight.h"
 #include "Particle.h"
@@ -56,6 +57,7 @@ public:
 private: 
 	DirectXCommon* dxCommon_ = nullptr;
 	Input* input_ = nullptr;
+	Audio* audio_ = nullptr;
 	DirectionalLight directionalLight_;
 
 	//カメラ
@@ -170,6 +172,14 @@ private: //シーン用
 
 	uint32_t blockHandle_;
 	int bossExplodeFrame = 0;
+
+	std::unique_ptr< Sprite> titleSprite_;
+	float titleT_ = 0.0f;
+
+	ExplodeParticle speedUpExplode_;
+	ExplodeParticle bomExplode_;
+
+
 public:
 	//タイトル
 	void TitleInitialize();
