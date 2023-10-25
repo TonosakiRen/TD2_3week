@@ -4,6 +4,7 @@
 #include "DustParticle.h"
 #include <optional>
 #include "Collider.h"
+#include "Audio.h"
 
 class GameScene;
 class Player;
@@ -56,6 +57,7 @@ public:
     Collider collider_;
     Collider mouthCollider_;
 private:
+    Audio* audio_ = nullptr;
     enum parts {
         Head,
         Tin,

@@ -4,6 +4,7 @@
 #include "ViewProjection.h"
 #include "WorldTransform.h"
 #include "Input.h"
+#include "Audio.h"
 #include "Sprite.h"
 #include "DirectionalLight.h"
 #include "Particle.h"
@@ -56,6 +57,7 @@ public:
 private: 
 	DirectXCommon* dxCommon_ = nullptr;
 	Input* input_ = nullptr;
+	Audio* audio_ = nullptr;
 	DirectionalLight directionalLight_;
 
 	//カメラ

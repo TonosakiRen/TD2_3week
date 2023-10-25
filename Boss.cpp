@@ -14,6 +14,7 @@ int Boss::shotCount = 1;
 
 void Boss::Initialize(ViewProjection* viewProjection, DirectionalLight* directionalLight)
 {
+	audio_ = Audio::GetInstance();
 	GameObject::Initialize(viewProjection, directionalLight);
 
 	dustParticle_ = std::make_unique<DustParticle>();
@@ -210,6 +211,8 @@ void Boss::OnRefCollision() {
 
 void Boss::SpeedUp() {
 	velocity_ = velocity_ * 1.2f;
+	size_t speedHandle = audio_->SoundLoadWave("speedup.wav");
+	size_t speedPlayHandle = audio_->SoundPlayWave(speedHandle);
 }
 
 void Boss::SetState(int hp, float speed, int second) {
@@ -223,6 +226,8 @@ void Boss::SetState(int hp, float speed, int second) {
 
 void Boss::Explosion() {
 	behaviorRequest_ = Behavior::kBombHit;
+	size_t explodeHandle = audio_->SoundLoadWave("explosion.wav");
+	size_t explodePlayHandle = audio_->SoundPlayWave(explodeHandle);
 }
 
 void Boss::RootInitialize() {
@@ -261,7 +266,8 @@ void Boss::HitInitialize() {
 	num = 0.0f;
 	easeStart = worldTransform_.translation_;
 	easeEnd = worldTransform_.translation_ - knockbackdis;
-
+	size_t hitHandle = audio_->SoundLoadWave("hit.wav");
+	size_t hitPlayHandle = audio_->SoundPlayWave(hitHandle);
 }
 
 void Boss::HitUpdate() {

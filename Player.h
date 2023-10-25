@@ -5,6 +5,7 @@
 #include "DustParticle.h"
 #include <optional>
 #include "Collider.h"
+#include "Audio.h"
 
 class Player :
     public GameObject
@@ -78,6 +79,7 @@ public:
 
 private:
     Input* input_ = nullptr;
+    Audio* audio_ = nullptr;
     enum parts {
         LeftArm,
         RightArm,

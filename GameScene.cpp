@@ -20,6 +20,7 @@ GameScene::~GameScene() {};
 void GameScene::Initialize() {
 	dxCommon_ = DirectXCommon::GetInstance();
 	input_ = Input::GetInstance();
+	audio_ = Audio::GetInstance();
 	
 	viewProjection_.Initialize();
 
@@ -69,6 +70,10 @@ void GameScene::Initialize() {
 	bossExplode_.Initialize();
 
 	blockHandle_ = TextureManager::Load("block.png");
+
+	size_t bgmHandle = audio_->SoundLoadWave("BGM.wav");
+	size_t bgmPlayHandle = audio_->SoundPlayLoopStart(bgmHandle);
+	audio_->SetValume(bgmPlayHandle, 0.2f);
 }
 
 void GameScene::Update(){
@@ -209,8 +214,6 @@ void GameScene::ModelDraw()
 		}
 	}
 
-	//tmpCollider_.Draw({1.0f,0.0f,0.0f,1.0f});
-
 }
 
 void GameScene::ParticleDraw()
@@ -285,6 +288,9 @@ void GameScene::CollisionCheck() {
 		if (isHitBulee == true) {
 			bullet->OnCollision();
 			player_->Explosion();
+			size_t hitHandle = audio_->SoundLoadWave("hit.wav");
+			size_t hitPlayHandle = audio_->SoundPlayWave(hitHandle);
+			audio_->SetValume(hitPlayHandle, 1.0f);
 			break;
 		}
 	}
@@ -295,6 +301,9 @@ void GameScene::CollisionCheck() {
 		if (isHitBulee && player_->IsAttack()) {
 			bullet->SetVelocity({ -refBulletSpeed_, 0.0f, 0.0f });
 			bullet->OnRefCollision();
+			size_t reflectHandle = audio_->SoundLoadWave("reflect.wav");
+			size_t reflectPlayHandle = audio_->SoundPlayWave(reflectHandle);
+			audio_->SetValume(reflectPlayHandle, 0.8f);
 		}
 	}
 	//ボスと跳ね返り弾の衝突判定
@@ -304,6 +313,9 @@ void GameScene::CollisionCheck() {
 		if (isHitBulee && bullet->IsReflected()) {
 			bullet->OnCollision();
 			boss_[0]->OnRefCollision();
+			size_t hitHandle = audio_->SoundLoadWave("hit.wav");
+			size_t hitPlayHandle = audio_->SoundPlayWave(hitHandle);
+			audio_->SetValume(hitPlayHandle, 1.0f);
 		}
 	}
 	////敵弾とアイテムとの衝突判定
@@ -335,6 +347,8 @@ void GameScene::CollisionCheck() {
 			item->CharaHit();
 			if (item->GetType() == Type::Accel) {
 				player_->Accel();
+				size_t speedHandle = audio_->SoundLoadWave("speedup.wav");
+				size_t speedPlayHandle = audio_->SoundPlayWave(speedHandle);
 			}
 			if (item->GetType() == Type::Bomb) {
 				player_->Explosion();
@@ -342,6 +356,8 @@ void GameScene::CollisionCheck() {
 				explodePlayerParticle_.SetIsEmit(true);
 				explodePlayerParticle_.emitterWorldTransform_.translation_ = player_->GetWorldTransform()->translation_;
 				collapseFrame = 10;
+				size_t explodeHandle = audio_->SoundLoadWave("explosion.wav");
+				size_t explodePlayHandle = audio_->SoundPlayWave(explodeHandle);
 			}
 		}
 	}
@@ -529,8 +545,11 @@ void GameScene::TitleUpdate() {
 	player_->Animation();
 	player_->GravityUpdate();
 
-	if (input_->TriggerKey(DIK_SPACE)) {
+	if (input_->TriggerKey(DIK_SPACE) && isCameraMove_ == false) {
 		isCameraMove_ = true;
+		size_t selectHandle = audio_->SoundLoadWave("select.wav");
+		size_t selectPlayHandle = audio_->SoundPlayWave(selectHandle);
+		audio_->SetValume(selectPlayHandle, 0.5f);
 	}
 	if (cameraT_ >= 1.0f) {
 		sceneRequest_ = Scene::InGame;
@@ -620,6 +639,8 @@ void GameScene::InGameUpdate() {
 void GameScene::clearDirection() {
 #ifdef _DEBUG
 	if (input_->TriggerKey(DIK_E) && isSavePlayerPos_ == false) {
+		size_t clearHandle = audio_->SoundLoadWave("explosion.wav");
+		size_t clearPlayHandle = audio_->SoundPlayWave(clearHandle);
 		player_->isClear_ = true;
 		isCameraMove_ = true;
 		isSavePlayerPos_ = true;
@@ -668,6 +689,8 @@ void GameScene::clearDirection() {
 void GameScene::gameoverDirection() {
 #ifdef _DEBUG
 	if (input_->TriggerKey(DIK_R) && isSavePlayerPos_ == false) {
+		size_t gameoverHandle = audio_->SoundLoadWave("gameover.wav");
+		size_t gameoverPlayHandle = audio_->SoundPlayWave(gameoverHandle);
 		player_->isDead_ = true;
 		isCameraMove_ = true;
 		isSavePlayerPos_ = true;
@@ -735,6 +758,9 @@ void GameScene::ResultUpdate() {
 				if (player_->isDead_) {
 					player_->SetTranslation({0.0f,150.0f,0.0f});
 					player_->SetRotation({ 0.0f,0.0f,0.0f });
+					size_t selectHandle = audio_->SoundLoadWave("select.wav");
+					size_t selectPlayHandle = audio_->SoundPlayWave(selectHandle);
+					audio_->SetValume(selectPlayHandle, 0.5f);
 				}
 				BossPopComand();
 			}
