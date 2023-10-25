@@ -131,6 +131,7 @@ void Boss::Update()
 			break;
 	}
 
+	
 
 	if (hp_ <= 0) {
 		isDead_ = true;
@@ -208,6 +209,7 @@ void Boss::OnRefCollision() {
 	if (behavior_ != Behavior::kAppear) {
 		behaviorRequest_ = Behavior::kHit;
 		hp_ -= damage_;
+		gameScene_->SetBossdamageRate(static_cast<float>(damage_) / maxHp_);
 	}
 }
 
@@ -219,6 +221,7 @@ void Boss::SpeedUp() {
 
 void Boss::SetState(int hp, float speed, float second) {
 
+	maxHp_ = hp;
 	hp_ = hp;
 	velocity_ = { speed,0.0f,0.0f };
 	attackTime = static_cast<int>(60.0f * second);
@@ -276,6 +279,10 @@ void Boss::HitUpdate() {
 	
 	worldTransform_.translation_ = Easing::easing(num, easeStart, easeEnd, 0.02f, Easing::EasingMode::easeOutQuart);
 
+	if (worldTransform_.translation_.x <= endPos_.x) {
+		worldTransform_.translation_.x = endPos_.x;
+	}
+
 	if (num >= 1.0f) {
 		num = 1.0f;
 		behaviorRequest_ = Behavior::kRoot;
@@ -301,8 +308,9 @@ void Boss::BombHitUpdate() {
 		num = 1.0f;
 		velocity_ = velocity_ * 2.0f;
 		behaviorRequest_ = Behavior::kRoot;
-		bombBaseDamage_ = bombBaseDamage_ * (1.00f + (distance / 100.0f));
-		hp_ -= static_cast<int>(bombBaseDamage_);
+		float bombDamage = bombBaseDamage_ * (1.00f + (distance / 100.0f));
+		hp_ -= static_cast<int>(bombDamage);
+		gameScene_->SetBossdamageRate(bombDamage / maxHp_);
 	}
 
 }
