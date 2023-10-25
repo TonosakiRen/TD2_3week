@@ -43,17 +43,26 @@ void GameScene::Initialize() {
 	toTitleSelectedHandle_ = TextureManager::Load("UI/gototitle_selected.png");
 	retryHandle_ = TextureManager::Load("UI/retry.png");
 	retrySelectedHandle_ = TextureManager::Load("UI/retry_selected.png");
+	killCountHandle_ = TextureManager::Load("UI/killCount.png");
 
 	sprite_.reset(Sprite::Create(textureHandle_, { 0.0f,0.0f }));
 	title_.reset(Sprite::Create(titleHandle_, {640.0f,300.0f}));
 	progressBar_.reset(Sprite::Create(progressBarHandle_, { 1920.0f / 2.0f,950.0f }));
-	progressPlayer_.reset(Sprite::Create(progressPlayerHandle_, { (1920.0f / 2.0f) - 272.0f,950.0f }));
+	progressBar_->size_ = { progressBar_->size_.x * 2.0f,progressBar_->size_.y * 2.0f };
+	progressPlayer_.reset(Sprite::Create(progressPlayerHandle_, { (1920.0f / 2.0f) - 480.0f,950.0f }));
+	progressPlayer_->size_ = { progressPlayer_->size_.x * 2.0f,progressPlayer_->size_.y * 2.0f };
 	hpGauge_.reset(Sprite::Create(hpGaugeHandle_, { 1920.0f / 2.0f,50.0f }));
-	hpBar_.reset(Sprite::Create(hpBarHandle_, { 1920.0f / 2.0f,53.0f }));
+	hpGauge_->size_.x *= 2.0f;
+	hpBar_.reset(Sprite::Create(hpBarHandle_, { 673.0f,53.0f }));
+	hpBar_->anchorPoint_ = { 0.0f,0.5f };
+	hpBar_->size_.x *= 2.0f;
+	hpbarLength_ = hpBar_->size_.x;
 	toTitle_.reset(Sprite::Create(toTitleHandle_, {}));
 	toTitleSelected_.reset(Sprite::Create(toTitleSelectedHandle_, {}));
 	retry_.reset(Sprite::Create(retryHandle_, {}));
 	retrySelected_.reset(Sprite::Create(retrySelectedHandle_, {}));
+	killCount_.reset(Sprite::Create(killCountHandle_, {1540.0f,55.0f}));
+	killCount_->size_ = { killCount_->size_.x * 1.5f,killCount_->size_.y * 1.5f };
 
 	skydome_ = std::make_unique<Skydome>();
 	skydome_->Initialize("skydome",&viewProjection_,&directionalLight_);
@@ -109,9 +118,9 @@ void GameScene::Initialize() {
 	uint32_t tutorial1Texture = TextureManager::Load("UI/tutorial1.png");
 	uint32_t tutorial2Texture = TextureManager::Load("UI/tutorial2.png");
 	uint32_t tutorial3Texture = TextureManager::Load("UI/tutorial3.png");
-	tutorial1Sprite_.reset(Sprite::Create(tutorial1Texture, { 1920.0f / 2.0f,1080.0f -120.0f}));
-	tutorial2Sprite_.reset(Sprite::Create(tutorial2Texture, { 1920.0f / 2.0f,1080.0f - 120.0f }));
-	tutorial3Sprite_.reset(Sprite::Create(tutorial3Texture, { 1920.0f / 2.0f,1080.0f - 120.0f }));
+	tutorial1Sprite_.reset(Sprite::Create(tutorial1Texture, { 1920.0f / 2.0f,100.0f }));
+	tutorial2Sprite_.reset(Sprite::Create(tutorial2Texture, { 1920.0f / 2.0f,100.0f }));
+	tutorial3Sprite_.reset(Sprite::Create(tutorial3Texture, { 1920.0f / 2.0f,100.0f }));
 	tutorial1Sprite_->color_ = { 1.0f,1.0f,1.0f,0.0f };
 	tutorial2Sprite_->color_ = { 1.0f,1.0f,1.0f,0.0f };
 	tutorial3Sprite_->color_ = { 1.0f,1.0f,1.0f,0.0f };
@@ -237,7 +246,7 @@ void GameScene::Update(){
 		
 		pillar_[i].Update(isMove);
 	}
-#ifdef DEBUG
+#ifdef _DEBUG
 	ImGui::Begin("piii");
 	ImGui::DragFloat3("tranpillar1", &pillar_[0].GetWorldTransform()->translation_.x, 0.01f);
 	ImGui::DragFloat3("tranpillar2", &pillar_[1].GetWorldTransform()->translation_.x, 0.01f);
@@ -250,8 +259,9 @@ void GameScene::Update(){
 	ImGui::DragFloat3("tranpillar9", &pillar_[8].GetWorldTransform()->translation_.x, 0.01f);
 	ImGui::DragFloat3("tranpillar10", &pillar_[9].GetWorldTransform()->translation_.x, 0.01f);
 	ImGui::End();
-#endif // DEBUG
+#endif // _DEBUG
 
+	
 }
 
 void GameScene::ModelDraw()
@@ -327,6 +337,7 @@ void GameScene::PostSpriteDraw()
 		if (stage_ == Stage::Actual) {
 			progressBar_->Draw();
 			progressPlayer_->Draw();
+			killCount_->Draw();
 		}
 		
 		hpGauge_->Draw();
@@ -340,19 +351,19 @@ void GameScene::PostSpriteDraw()
 
 		if (player_->isClear_) {
 
-			toTitle_->position_ = { 1320.0f,540.0f };
+			toTitle_->position_ = { 1320.0f,800.0f };
 			toTitleSelected_->position_ = toTitle_->position_;
 
-			retry_->position_ = { 1320.0f,800.0f };
+			retry_->position_ = { 1320.0f,540.0f };
 			retrySelected_->position_ = retry_->position_;
 		}
 
 		if (player_->isDead_) {
 
-			toTitle_->position_ = { 960.0f,540.0f };
+			toTitle_->position_ = { 960.0f,800.0f };
 			toTitleSelected_->position_ = toTitle_->position_;
 
-			retry_->position_ = { 960.0f,800.0f };
+			retry_->position_ = { 960.0f,540.0f };
 			retrySelected_->position_ = retry_->position_;
 
 		}
@@ -369,7 +380,7 @@ void GameScene::PostSpriteDraw()
 	}
 
 
-	if (scene_ == Scene::InGame) {
+	if (scene_ == Scene::InGame && stage_ != Stage::Actual) {
 		if (isAppearTutorial1_) {
 			tutorial1Sprite_->color_ = { 1.0f,1.0f,1.0f,Easing::easing(tutorial1T, 0.0f, 1.0f, 0.01f, Easing::easeInSine) };
 			endAppearTutorial1_ = true;
@@ -391,9 +402,12 @@ void GameScene::PostSpriteDraw()
 		else if(endAppearTutorial3_) {
 			tutorial3Sprite_->color_ = { 1.0f,1.0f,1.0f,Easing::easing(tutorial3T2, 1.0f, 0.0f, 0.01f, Easing::easeInSine) };
 		}
-		tutorial1Sprite_->Draw();
-		tutorial2Sprite_->Draw();
-		tutorial3Sprite_->Draw();
+		if (player_->isClear_ == false && player_->isDead_ == false) {
+			tutorial1Sprite_->Draw();
+			tutorial2Sprite_->Draw();
+			tutorial3Sprite_->Draw();
+		}
+		
 		
 	}
 
@@ -478,6 +492,7 @@ void GameScene::CollisionCheck() {
 			size_t hitHandle = audio_->SoundLoadWave("hit.wav");
 			size_t hitPlayHandle = audio_->SoundPlayWave(hitHandle);
 			audio_->SetValume(hitPlayHandle, 1.0f);
+			hpBar_->size_.x -= hpbarLength_ * BossDamageRate_;
 		}
 	}
 	////敵弾とアイテムとの衝突判定
@@ -712,7 +727,12 @@ void GameScene::BossPopComand() {
 			getline(line_stream, word, ',');
 			float second = (float)std::atof(word.c_str());
 
+			getline(line_stream, word, ',');
+			float itemPopSecond = (float)std::atof(word.c_str());
+
 			BossPop(hp, speed, second);
+			kPopTime = static_cast<int>(60.0f * itemPopSecond);
+			ItemTimer = kPopTime;
 			order_++;
 			break;
 		}
@@ -790,6 +810,7 @@ void GameScene::InGameInitialize() {
 	timer = gameTime;
 	progressPlayer_->position_ = progressPlayerStartPos_;
 	progressT_ = 0.0f;
+	hpBar_->size_.x = hpbarLength_;
 }
 
 void GameScene::InGameUpdate() {
@@ -836,6 +857,7 @@ void GameScene::InGameUpdate() {
 		else if (stage_ == Stage::Stage3) { stage_ = Stage::Actual; }
 		//Boss::isBreak_ = false;
 		bossExplodeFrame = 10;
+		hpBar_->size_.x = hpbarLength_;
 	}
 
 	if (player_->isClear_ == false && player_->isDead_ == false) {
@@ -959,7 +981,7 @@ void GameScene::gameoverDirection() {
 void GameScene::ResultInitialize() {
 
 	cameraT_ = 0.0f;
-	select_ = Selection::ToTitle;
+	select_ = Selection::Continue;
 	result_ = Result::Select;
 
 	if (enemyBullets_.size() != 0) {
@@ -992,7 +1014,7 @@ void GameScene::ResultUpdate() {
 			switch (select_){
 			    case GameScene::Selection::ToTitle:
 					nextScene = Scene::Title;
-					if (input_->TriggerKey(DIK_DOWN)) {
+					if (input_->TriggerKey(DIK_UP)) {
 						select_ = Selection::Continue;
 					}
 					order_ = 1;
@@ -1000,10 +1022,10 @@ void GameScene::ResultUpdate() {
 			    	break;
 			    case GameScene::Selection::Continue:
 					nextScene = Scene::InGame;
-					if (input_->TriggerKey(DIK_UP)) {
+					if (input_->TriggerKey(DIK_DOWN)) {
 						select_ = Selection::ToTitle;
 					}
-					order_ = 1;
+					order_ = 4;
 					stage_ = Stage::Actual;
 			    	break;
 			    default:

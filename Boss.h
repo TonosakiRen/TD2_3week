@@ -100,6 +100,7 @@ private:
     WorldTransform mouthWT_;
     Vector3 velocity_ = {};
 
+    int maxHp_ = 0;
     int hp_ = 0;
 
     

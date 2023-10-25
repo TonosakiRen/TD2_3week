@@ -54,6 +54,8 @@ public:
 
 	void BossPopComand();
 
+	void SetBossdamageRate(float damageRate) { BossDamageRate_ = damageRate; }
+
 private: 
 	DirectXCommon* dxCommon_ = nullptr;
 	Input* input_ = nullptr;
@@ -90,7 +92,7 @@ private:
 	std::list<std::unique_ptr<EnemyBullet>> enemyBullets_;
 	float refBulletSpeed_ = 1.0f;
 
-	const int kPopTime = 60 * 5;
+	int kPopTime = 0;
 	int ItemTimer = kPopTime;
 	std::list<std::unique_ptr<Item>> items_;
 	//出現確率
@@ -203,6 +205,9 @@ private: //シーン用
 	float tutorial2T2 = 0.0f;
 	float tutorial3T2 = 0.0f;
 
+	float BossDamageRate_ = 0.0f;
+	float hpbarLength_ = 0.0f;
+
 
 public:
 	//タイトル
@@ -229,8 +234,8 @@ private: //スプライト
 	uint32_t progressPlayerHandle_ = 0;
 	std::unique_ptr<Sprite> progressPlayer_;
 
-	Vector2 progressPlayerStartPos_ = { (1920.0f / 2.0f) - 240.0f,950.0f };
-	Vector2 progressPlayerEndPos_ = { (1920.0f / 2.0f) + 240.0f,950.0f };
+	Vector2 progressPlayerStartPos_ = { (1920.0f / 2.0f) - 480.0f,950.0f };
+	Vector2 progressPlayerEndPos_ = { (1920.0f / 2.0f) + 480.0f,950.0f };
 	float progressT_ = 0.0f;
 
 	uint32_t hpGaugeHandle_ = 0;
@@ -250,6 +255,9 @@ private: //スプライト
 
 	uint32_t retrySelectedHandle_ = 0;
 	std::unique_ptr<Sprite> retrySelected_;
+
+	uint32_t killCountHandle_ = 0;
+	std::unique_ptr<Sprite> killCount_;
 
 };
 
