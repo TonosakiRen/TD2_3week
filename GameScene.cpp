@@ -99,6 +99,17 @@ void GameScene::Initialize() {
 	playerHitEffect.Initialize();
 	bossHitEffect.Initialize();
 
+	uint32_t tutorial1Texture = TextureManager::Load("UI/tutorial1.png");
+	uint32_t tutorial2Texture = TextureManager::Load("UI/tutorial2.png");
+	uint32_t tutorial3Texture = TextureManager::Load("UI/tutorial3.png");
+	tutorial1Sprite_.reset(Sprite::Create(tutorial1Texture, { 1920.0f / 2.0f,1080.0f -120.0f}));
+	tutorial2Sprite_.reset(Sprite::Create(tutorial2Texture, { 1920.0f / 2.0f,1080.0f - 120.0f }));
+	tutorial3Sprite_.reset(Sprite::Create(tutorial3Texture, { 1920.0f / 2.0f,1080.0f - 120.0f }));
+	tutorial1Sprite_->color_ = { 1.0f,1.0f,1.0f,0.0f };
+	tutorial2Sprite_->color_ = { 1.0f,1.0f,1.0f,0.0f };
+	tutorial3Sprite_->color_ = { 1.0f,1.0f,1.0f,0.0f };
+
+
 }
 
 void GameScene::Update(){
@@ -311,6 +322,34 @@ void GameScene::PostSpriteDraw()
 		hpGauge_->Draw();
 		hpBar_->Draw();
 	}
+
+	if (scene_ == Scene::InGame) {
+		if (isAppearTutorial1_) {
+			tutorial1Sprite_->color_ = { 1.0f,1.0f,1.0f,Easing::easing(tutorial1T, 0.0f, 1.0f, 0.01f, Easing::easeInSine) };
+			endAppearTutorial1_ = true;
+		}
+		else if(endAppearTutorial1_){
+			tutorial1Sprite_->color_ = { 1.0f,1.0f,1.0f,Easing::easing(tutorial1T2, 1.0f, 0.0f, 0.01f, Easing::easeInSine) };
+		}
+		if (isAppearTutorial2_) {
+			tutorial2Sprite_->color_ = { 1.0f,1.0f,1.0f,Easing::easing(tutorial2T, 0.0f, 1.0f, 0.01f, Easing::easeInSine) };
+			endAppearTutorial2_ = true;
+		}
+		else if (endAppearTutorial2_) {
+			tutorial2Sprite_->color_ = { 1.0f,1.0f,1.0f,Easing::easing(tutorial2T2, 1.0f, 0.0f, 0.01f, Easing::easeInSine) };
+		}
+		if (isAppearTutorial3_) {
+			tutorial3Sprite_->color_ = { 1.0f,1.0f,1.0f,Easing::easing(tutorial3T, 0.0f, 1.0f, 0.01f, Easing::easeInSine) };
+			endAppearTutorial3_ = true;
+		}
+		else if(endAppearTutorial3_) {
+			tutorial3Sprite_->color_ = { 1.0f,1.0f,1.0f,Easing::easing(tutorial3T2, 1.0f, 0.0f, 0.01f, Easing::easeInSine) };
+		}
+		tutorial1Sprite_->Draw();
+		tutorial2Sprite_->Draw();
+		tutorial3Sprite_->Draw();
+		
+	}
 }
 
 void GameScene::Draw() {
@@ -369,6 +408,8 @@ void GameScene::CollisionCheck() {
 	for (const auto& bullet : enemyBullets_) {
 		isHitBulee = player_->reflectCollider_.Collision(bullet->collider_);
 		if (isHitBulee && player_->IsAttack()) {
+			isAppearTutorial1_ = false;
+			tutorial1T = 0.0f;
 			bullet->SetVelocity({ -refBulletSpeed_, 0.0f, 0.0f });
 			if (bullet->isReflected_ == false){
 				size_t reflectHandle = audio_->SoundLoadWave("reflect.wav");
@@ -409,6 +450,8 @@ void GameScene::CollisionCheck() {
 	for (const auto& item : items_) {
 		isHitBulee = player_->reflectCollider_.Collision(item->collider_);
 		if (isHitBulee) {
+			isAppearTutorial3_ = false;
+			tutorial3T = 0.0f;
 			item->EnBulletHit();
 		}
 	}
@@ -420,6 +463,8 @@ void GameScene::CollisionCheck() {
 		if (isHitBulee) {
 			item->CharaHit();
 			if (item->GetType() == Type::Accel) {
+				isAppearTutorial2_ = false;
+				tutorial2T = 0.0f;
 				player_->Accel();
 				speedUpPlayerParticle_.SetIsEmit(true);
 				size_t speedHandle = audio_->SoundLoadWave("speedup.wav");
@@ -568,6 +613,14 @@ void GameScene::BossPop(int hp, float speed, int second) {
 	boss->SetPlayer(player_.get());
 	boss->SetGameScene(this);
 	boss_.push_back(std::unique_ptr<Boss>(boss));
+	if (endAppearTutorial3_ == false) {
+		if (endAppearTutorial1_ == true && endAppearTutorial2_ == true) {
+			isAppearTutorial3_ = true;
+		}
+		else if (endAppearTutorial1_ == true) {
+			isAppearTutorial2_ = true;
+		}
+	}
 
 }
 
@@ -629,6 +682,21 @@ void GameScene::TitleInitialize() {
 	isCameraMove_ = false;
 	stage_ = Stage::Stage1;
 	titleFlag = true;
+	isAppearTutorial1_ = true;
+	isAppearTutorial2_ = false;
+	isAppearTutorial3_ = false;
+	endAppearTutorial1_ = false;
+	endAppearTutorial2_ = false;
+	endAppearTutorial3_ = false;
+	tutorial1T = 0.0f;
+	tutorial2T = 0.0f;
+	tutorial3T = 0.0f;
+	tutorial1T2 = 0.0f;
+	tutorial2T2 = 0.0f;
+	tutorial3T2 = 0.0f;
+	tutorial1Sprite_->color_ = { 1.0f,1.0f,1.0f,0.0f };
+	tutorial2Sprite_->color_ = { 1.0f,1.0f,1.0f,0.0f };
+	tutorial3Sprite_->color_ = { 1.0f,1.0f,1.0f,0.0f };
 }
 
 void GameScene::TitleUpdate() {
