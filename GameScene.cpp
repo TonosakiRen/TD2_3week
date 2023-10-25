@@ -81,6 +81,9 @@ void GameScene::Initialize() {
 	speedUpPlayerParticle_.Initialize({-1.0f,0.0f,-1.0f},{1.0f,1.0f,1.0f});
 	speedUpPlayerParticle_.emitterWorldTransform_.SetParent(player_->GetWorldTransform());
 	speedUpBossParticle_.Initialize();
+	speedUpBossParticle_.emitterWorldTransform_.scale_ = { 3.0f,3.0f,3.0f };
+	speedUpBossParticle_.scaleSpeed_ = speedUpBossParticle_.scaleSpeed_ * 3.0f;
+
 
 	bossExplode_.Initialize();
 
@@ -800,8 +803,12 @@ void GameScene::gameoverDirection() {
 	if (cameraT_ >= 1.0f && player_->GetIsDead()) {
 		isCameraMove_ = false;
 		bool isFinish = true;
+		if (shakeFrame_ == 6) {
+			size_t hitHandle = audio_->SoundLoadWave("hit.wav");
+			size_t hitPlayHandle = audio_->SoundPlayWave(hitHandle);
+			collapseFrame = 10;
+		}
 		isFinish = viewProjection_.Shake(shakeValue, shakeFrame_);
-		collapse_.SetIsEmit(true);
 		if (!isFinish) {
 			waitFrame--;
 			if (waitFrame < 0) {

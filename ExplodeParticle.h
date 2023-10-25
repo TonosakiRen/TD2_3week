@@ -33,9 +33,9 @@ public:
 	WorldTransform emitterWorldTransform_;
 	dustParticle particles[kParticleNum];
 	int EmitNum_ = 5;
+	float scaleSpeed_ = 0.05f;
 private:
 	float speed_ = 0.8f;
-	float scaleSpeed_ = 0.05f;
 	bool isEmit_ = false;
 	int32_t emitFrame_ = 0;
 	std::unique_ptr<ParticleBox> particleBox_;
