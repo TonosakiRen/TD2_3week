@@ -48,7 +48,7 @@ public:
 
 	void PopItem();
 
-	void BossPop(int hp, float speed, int second);
+	void BossPop(int hp, float speed, float second);
 
 	void LoadBossPopData();
 
@@ -198,25 +198,37 @@ public:
 
 private: //スプライト
 
-	uint32_t titleHandle_;
+	uint32_t titleHandle_ = 0;
 	std::unique_ptr<Sprite> title_;
 	bool titleFlag = true;
 
-	uint32_t progressBarHandle_;
+	uint32_t progressBarHandle_ = 0;
 	std::unique_ptr<Sprite> progressBar_;
 
-	uint32_t progressPlayerHandle_;
+	uint32_t progressPlayerHandle_ = 0;
 	std::unique_ptr<Sprite> progressPlayer_;
 
 	Vector2 progressPlayerStartPos_ = { (1920.0f / 2.0f) - 240.0f,950.0f };
 	Vector2 progressPlayerEndPos_ = { (1920.0f / 2.0f) + 240.0f,950.0f };
 	float progressT_ = 0.0f;
 
-	uint32_t hpGaugeHandle_;
+	uint32_t hpGaugeHandle_ = 0;
 	std::unique_ptr<Sprite> hpGauge_;
 
-	uint32_t hpBarHandle_;
+	uint32_t hpBarHandle_ = 0;
 	std::unique_ptr<Sprite> hpBar_;
+
+	uint32_t toTitleHandle_ = 0;
+	std::unique_ptr<Sprite> toTitle_;
+
+	uint32_t toTitleSelectedHandle_ = 0;
+	std::unique_ptr<Sprite> toTitleSelected_;
+
+	uint32_t retryHandle_ = 0;
+	std::unique_ptr<Sprite> retry_;
+
+	uint32_t retrySelectedHandle_ = 0;
+	std::unique_ptr<Sprite> retrySelected_;
 
 };
 

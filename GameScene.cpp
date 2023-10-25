@@ -39,6 +39,10 @@ void GameScene::Initialize() {
 	progressPlayerHandle_ = TextureManager::Load("UI/progressPlayer.png");
 	hpGaugeHandle_ = TextureManager::Load("UI/HPgage.png");
 	hpBarHandle_ = TextureManager::Load("UI/HPbar.png");
+	toTitleHandle_ = TextureManager::Load("UI/gototitle.png");
+	toTitleSelectedHandle_ = TextureManager::Load("UI/gototitle_selected.png");
+	retryHandle_ = TextureManager::Load("UI/retry.png");
+	retrySelectedHandle_ = TextureManager::Load("UI/retry_selected.png");
 
 	sprite_.reset(Sprite::Create(textureHandle_, { 0.0f,0.0f }));
 	title_.reset(Sprite::Create(titleHandle_, {640.0f,300.0f}));
@@ -46,7 +50,10 @@ void GameScene::Initialize() {
 	progressPlayer_.reset(Sprite::Create(progressPlayerHandle_, { (1920.0f / 2.0f) - 272.0f,950.0f }));
 	hpGauge_.reset(Sprite::Create(hpGaugeHandle_, { 1920.0f / 2.0f,50.0f }));
 	hpBar_.reset(Sprite::Create(hpBarHandle_, { 1920.0f / 2.0f,53.0f }));
-	hpBar_->anchorPoint_ = { 0.0f,0.5f };
+	toTitle_.reset(Sprite::Create(toTitleHandle_, {}));
+	toTitleSelected_.reset(Sprite::Create(toTitleSelectedHandle_, {}));
+	retry_.reset(Sprite::Create(retryHandle_, {}));
+	retrySelected_.reset(Sprite::Create(retrySelectedHandle_, {}));
 
 	skydome_ = std::make_unique<Skydome>();
 	skydome_->Initialize("skydome",&viewProjection_,&directionalLight_);
@@ -301,6 +308,41 @@ void GameScene::PostSpriteDraw()
 		hpGauge_->Draw();
 		hpBar_->Draw();
 	}
+
+	if (scene_ == Scene::Result) {
+		
+		if (result_ == Result::Translation) { return; }
+
+		if (player_->isClear_) {
+
+			toTitle_->position_ = { 1320.0f,540.0f };
+			toTitleSelected_->position_ = toTitle_->position_;
+
+			retry_->position_ = { 1320.0f,800.0f };
+			retrySelected_->position_ = retry_->position_;
+		}
+
+		if (player_->isDead_) {
+
+			toTitle_->position_ = { 960.0f,540.0f };
+			toTitleSelected_->position_ = toTitle_->position_;
+
+			retry_->position_ = { 960.0f,800.0f };
+			retrySelected_->position_ = retry_->position_;
+
+		}
+
+		if (select_ == Selection::ToTitle) {
+			toTitleSelected_->Draw();
+			retry_->Draw();
+		}
+		else {
+			toTitle_->Draw();
+			retrySelected_->Draw();
+		}
+
+	}
+
 }
 
 void GameScene::Draw() {
@@ -544,7 +586,7 @@ void GameScene::PopItem() {
 
 }
 
-void GameScene::BossPop(int hp, float speed, int second) {
+void GameScene::BossPop(int hp, float speed, float second) {
 
 	Boss* boss = new Boss();
 	boss->Initialize(&viewProjection_, &directionalLight_);
@@ -851,10 +893,10 @@ void GameScene::ResultUpdate() {
 				if (player_->isDead_) {
 					player_->SetTranslation({0.0f,150.0f,0.0f});
 					player_->SetRotation({ 0.0f,0.0f,0.0f });
-					size_t selectHandle = audio_->SoundLoadWave("select.wav");
-					size_t selectPlayHandle = audio_->SoundPlayWave(selectHandle);
-					audio_->SetValume(selectPlayHandle, 0.5f);
 				}
+				size_t selectHandle = audio_->SoundLoadWave("select.wav");
+				size_t selectPlayHandle = audio_->SoundPlayWave(selectHandle);
+				audio_->SetValume(selectPlayHandle, 0.5f);
 				BossPopComand();
 			}
 
