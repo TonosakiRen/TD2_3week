@@ -232,6 +232,9 @@ void Sprite::SetTextureHandle(uint32_t textureHandle) {
 }
 
 void Sprite::Draw() {
+
+	TransferVertices();
+
 	matWorld_ = MakeIdentity4x4();
 	matWorld_ *= MakeRotateZMatrix(rotation_);
 	matWorld_ *= MakeTranslateMatrix({ position_.x, position_.y, 0.0f });
