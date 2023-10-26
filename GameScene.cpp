@@ -637,8 +637,6 @@ void GameScene::CollisionCheck() {
 		items_.clear();
 	}
 
-
-	ImGui::Text("%d", isHitBulee);
 }
 
 void GameScene::AddEnemyBullet(EnemyBullet* enemyBullet) {
