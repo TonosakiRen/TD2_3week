@@ -214,7 +214,7 @@ void Boss::OnRefCollision() {
 }
 
 void Boss::SpeedUp() {
-	velocity_ = velocity_ * 1.5f;
+	velocity_ = velocity_ * 1.2f;
 	size_t speedHandle = audio_->SoundLoadWave("speedup.wav");
 	size_t speedPlayHandle = audio_->SoundPlayWave(speedHandle);
 }
