@@ -532,6 +532,7 @@ void GameScene::CollisionCheck() {
 			size_t hitPlayHandle = audio_->SoundPlayWave(hitHandle);
 			audio_->SetValume(hitPlayHandle, 1.0f);
 			hpBar_->size_.x -= hpbarLength_ * BossDamageRate_;
+			
 		}
 	}
 	////敵弾とアイテムとの衝突判定
@@ -603,6 +604,7 @@ void GameScene::CollisionCheck() {
 
 				collapseFrame = 10;
 				hpBar_->size_.x -= hpbarLength_ * BossDamageRate_;
+				
 			}
 		}
 	}
@@ -850,6 +852,7 @@ void GameScene::InGameInitialize() {
 	progressPlayer_->position_ = progressPlayerStartPos_;
 	progressT_ = 0.0f;
 	hpBar_->size_.x = hpbarLength_;
+	killCounter = 0;
 }
 
 void GameScene::InGameUpdate() {
@@ -877,6 +880,7 @@ void GameScene::InGameUpdate() {
 	
 
 	CollisionCheck();
+	if (hpBar_->size_.x <= 0.0f) { hpBar_->size_.x = 0.0f; }
 
 	clearDirection();
 	gameoverDirection();
@@ -897,7 +901,10 @@ void GameScene::InGameUpdate() {
 		//Boss::isBreak_ = false;
 		bossExplodeFrame = 10;
 		hpBar_->size_.x = hpbarLength_;
-		killCounter++;
+		if (stage_ == Stage::Actual) {
+			killCounter++;
+		}
+		
 	}
 
 	int scoreNum = killCounter;

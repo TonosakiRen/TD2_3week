@@ -300,7 +300,7 @@ void Boss::BombHitInitialize() {
 
 void Boss::BombHitUpdate() {
 
-	float distance = Length(startPos_) - Length(endPos_);
+	float distance = Length(easeEnd) - Length(easeStart);
 
 	worldTransform_.translation_ = Easing::easing(num, easeStart, easeEnd, 0.02f, Easing::EasingMode::easeOutQuart);
 
@@ -309,8 +309,8 @@ void Boss::BombHitUpdate() {
 		velocity_ = velocity_ * 2.0f;
 		behaviorRequest_ = Behavior::kRoot;
 		float bombDamage = bombBaseDamage_ * (1.00f + (distance / 100.0f));
-		hp_ -= static_cast<int>(bombDamage);
-		gameScene_->SetBossdamageRate(bombDamage / maxHp_);
+ 		hp_ -= static_cast<int>(bombDamage);
+		gameScene_->SetBossdamageRate(bombDamage / (float)maxHp_);
 	}
 
 }
