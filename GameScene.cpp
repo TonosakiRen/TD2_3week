@@ -679,9 +679,9 @@ void GameScene::PopItem() {
 			float lot = distribution2(gen);
 
 			if (boss_[0]->GetWorldPos().x < itemBorderLowLine_) {
-				probabilityAccel = 0.85f;
+				probabilityAccel = 0.8f;
 			}else if (boss_[0]->GetWorldPos().x >= itemBorderLowLine_ && boss_[0]->GetWorldPos().x < itemBorderHighLine_) {
-				probabilityAccel = 0.65f;
+				probabilityAccel = 0.4f;
 			}else if (boss_[0]->GetWorldPos().x >= itemBorderHighLine_) {
 				probabilityAccel = 0.3f;
 			}
